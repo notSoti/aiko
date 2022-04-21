@@ -39,6 +39,7 @@ logger = getLogger(__name__)
 
 
 class ModmailHelpCommand(commands.HelpCommand):
+    
     async def command_callback(self, ctx, *, command=None):
         """Ovrwrites original command_callback to ensure `help` without any arguments
         returns with checks, `help all` returns without checks"""
@@ -305,32 +306,18 @@ class Utility(commands.Cog):
         """Shows information about this bot."""
         embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
         embed.set_author(
-            name="Modmail - About",
+            name="Aiko! Alpha",
             icon_url=self.bot.user.avatar_url,
         )
-        embed.set_thumbnail(url=self.bot.user.avatar_url)
 
         desc = "Hi! I'm Aiko! DM me if you need help <:aiko:965918603566284820>"
         embed.description = desc
 
         embed.add_field(name="Uptime", value=self.bot.uptime)
         embed.add_field(name="Latency", value=f"{self.bot.latency * 1000:.2f} ms")
-        embed.add_field(name="Version", value=f"`{self.bot.version}`")
-        embed.add_field(name="Hosting Method", value=self.bot.hosting_method.name)
+        embed.add_field(name="Version", value="v.0.1")
 
-        changelog = await Changelog.from_url(self.bot)
-        latest = changelog.latest_version
 
-        if self.bot.version.is_prerelease:
-            stable = next(filter(lambda v: not parse_version(v.version).is_prerelease, changelog.versions))
-            footer = f"You are on the prerelease version • the latest version is v{stable.version}."
-        elif self.bot.version < parse_version(latest.version):
-            footer = f"A newer version is available v{latest.version}."
-        else:
-            footer = "You are up to date with the latest version."
-
-      
-        embed.set_footer(text=footer)
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["sponsor"])
