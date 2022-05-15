@@ -1198,7 +1198,7 @@ class Modmail(commands.Cog):
         )
         ctx.message.content = msg
         async with ctx.typing():
-            await ctx.thread.reply(ctx.message)
+            await ctx.thread.reply(ctx.message) 
 
     @commands.command(aliases=["formatanonreply"])
     @checks.has_permissions(PermissionLevel.SUPPORTER)
