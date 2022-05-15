@@ -128,7 +128,7 @@ class ModmailBot(commands.Bot):
         logger.info("││││ │ │││││├─┤││")
         logger.info("┴ ┴└─┘─┴┘┴ ┴┴ ┴┴┴─┘")
         logger.info("v%s", __version__)
-        logger.info("Authors: kyb3r, fourjr, Taaku18")
+        logger.info("Authors: soti")
         logger.line()
         logger.info("discord.py: v%s", discord.__version__)
         logger.line()
