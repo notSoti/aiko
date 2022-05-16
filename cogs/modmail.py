@@ -343,7 +343,7 @@ class Modmail(commands.Cog):
         if self.bot.config["thread_move_notify_mods"]:
             mention = self.bot.config["mention"]
             if mention is not None:
-                msg = f"{mention}, thread has been moved."
+                msg = f"{mention}"
             else:
                 msg = "Thread has been moved."
             await thread.channel.send(msg)

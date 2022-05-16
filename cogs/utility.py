@@ -715,7 +715,7 @@ class Utility(commands.Cog):
     @checks.has_permissions(PermissionLevel.OWNER)
     async def config(self, ctx):
         """
-        Modify changeable configuration variables for this bot.
+        Modify changeable configuration variables for this bot. (No longer has an output)
 
         Type `{prefix}config options` to view a list
         of valid configuration variables.
