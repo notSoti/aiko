@@ -773,7 +773,7 @@ class Utility(commands.Cog):
             valid_keys = [f"`{k}`" for k in sorted(keys)]
             embed.add_field(name="Valid keys", value=truncate(", ".join(valid_keys), 1024))
 
-        return await ctx.send(embed=embed)
+    #    return await ctx.send(embed=embed)
 
     @config.command(name="remove", aliases=["del", "delete"])
     @checks.has_permissions(PermissionLevel.OWNER)
