@@ -315,7 +315,7 @@ class Utility(commands.Cog):
 
         embed.add_field(name="Uptime", value=self.bot.uptime)
         embed.add_field(name="Latency", value=f"{self.bot.latency * 1000:.2f} ms")
-        embed.add_field(name="Version", value="v.0.1")
+        embed.add_field(name="Version", value="v.1.0")
 
 
         await ctx.send(embed=embed)
@@ -715,7 +715,7 @@ class Utility(commands.Cog):
     @checks.has_permissions(PermissionLevel.OWNER)
     async def config(self, ctx):
         """
-        Modify changeable configuration variables for this bot. (No longer has an output)
+        Modify changeable configuration variables for this bot. 
 
         Type `{prefix}config options` to view a list
         of valid configuration variables.

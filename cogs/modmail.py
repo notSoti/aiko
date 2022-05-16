@@ -1196,9 +1196,9 @@ class Modmail(commands.Cog):
         msg = self.bot.formatter.format(
             msg, channel=ctx.channel, recipient=ctx.thread.recipient, author=ctx.message.author
         )
-        ctx.message.content = msg
+        ctx.message.content = msg 
         async with ctx.typing():
-            await ctx.thread.reply(ctx.message) 
+            await ctx.thread.reply(ctx.message)
 
     @commands.command(aliases=["formatanonreply"])
     @checks.has_permissions(PermissionLevel.SUPPORTER)
