@@ -315,7 +315,7 @@ class Utility(commands.Cog):
 
         embed.add_field(name="Uptime", value=self.bot.uptime)
         embed.add_field(name="Latency", value=f"{self.bot.latency * 1000:.2f} ms")
-        embed.add_field(name="Version", value="v.0.5")
+        embed.add_field(name="Version", value="v.1.0")
 
 
         await ctx.send(embed=embed)
@@ -773,7 +773,7 @@ class Utility(commands.Cog):
             valid_keys = [f"`{k}`" for k in sorted(keys)]
             embed.add_field(name="Valid keys", value=truncate(", ".join(valid_keys), 1024))
 
-        return await ctx.send(embed=embed)
+    #    return await ctx.send(embed=embed)
 
     @config.command(name="remove", aliases=["del", "delete"])
     @checks.has_permissions(PermissionLevel.OWNER)
