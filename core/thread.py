@@ -456,26 +456,26 @@ class Thread:
             desc = f"[`{_nsfw}{log_data['key']}`]({log_url}): "
             desc += truncate(sneak_peak, max=75 - 13)
         else:
-            desc = "Could not resolve log url."
+            desc = "If you're seeing this, soti is an idiot!"
             log_url = None
 
-        embed = discord.Embed(description=desc, color=self.bot.error_color)
+        embed = discord.Embed(description=desc, color=self.bot.main_color)
 
         if self.recipient is not None:
-            user = f"{self.recipient} (`{self.id}`)"
+            user = f"{self.recipient} ({self.id})"
         else:
-            user = f"`{self.id}`"
+            user = f"{self.id}"
 
         if self.id == closer.id:
-            _closer = "the Recipient"
+            _closer = "the same user"
         else:
             _closer = f"{closer} ({closer.id})"
 
         embed.title = user
 
-        event = "Thread Closed as Scheduled" if scheduled else "Thread Closed"
+        event = "Thread closed" if scheduled else "Thread closed"
         # embed.set_author(name=f"Event: {event}", url=log_url)
-        embed.set_footer(text=f"{event} by {_closer}", icon_url=closer.avatar_url)
+        embed.set_footer(text=f"{event} by {_closer}", icon_url=closer.avatar_url)            # might break if not closer.avatar_url
         embed.timestamp = datetime.utcnow()
 
         tasks = [self.bot.config.update()]
