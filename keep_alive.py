@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def main():
-    return "Aiko! Alpha version. If you're somehow seeing this then hi you could say this is an easter egg!"
+    return "Aiko! Alpha version."
 
 def run():
     app.run(host="0.0.0.0", port=8080)

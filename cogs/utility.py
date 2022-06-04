@@ -315,7 +315,7 @@ class Utility(commands.Cog):
 
         embed.add_field(name="Uptime", value=self.bot.uptime)
         embed.add_field(name="Latency", value=f"{self.bot.latency * 1000:.2f} ms")
-        embed.add_field(name="Version", value="v.1.0")
+        embed.add_field(name="Version", value=os.getenv("aiko_ver"))
 
 
         await ctx.send(embed=embed)
