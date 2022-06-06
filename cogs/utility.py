@@ -310,11 +310,11 @@ class Utility(commands.Cog):
             icon_url=self.bot.user.avatar_url,
         )
 
-        desc = "Hi! I'm Aiko! DM me if you need help <:aiko:965918603566284820>"
+        desc = "Hi! I'm Aiko! I use the she/her prounouns and I'm trans! I'm usually shy and I really like sleeping with my blankie <:aiko:965918603566284820>"
         embed.description = desc
 
         embed.add_field(name="Uptime", value=self.bot.uptime)
-        embed.add_field(name="Latency", value=f"{self.bot.latency * 1000:.2f} ms")
+        embed.add_field(name="Ping", value=f"{self.bot.latency * 1000:.2f} ms")
         embed.add_field(name="Version", value=os.getenv("aiko_ver"))
 
 
