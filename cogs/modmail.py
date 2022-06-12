@@ -619,7 +619,7 @@ class Modmail(commands.Cog):
     async def loglink(self, ctx):
         """Retrieves the link to the current thread's logs."""
         log_link = await self.bot.api.get_log_link(ctx.channel.id)
-        await ctx.send(embed=discord.Embed(color=self.bot.main_color, description=log_link))
+        await ctx.send(f"`[Thread]({log_link})`")
 
     def format_log_embeds(self, logs, avatar_url):
         embeds = []
