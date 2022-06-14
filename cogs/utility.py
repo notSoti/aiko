@@ -310,7 +310,7 @@ class Utility(commands.Cog):
             icon_url=self.bot.user.avatar_url,
         )
 
-        desc = "Hi! I'm Aiko! I use the she/her prounouns and I'm trans! I'm usually shy and I really like sleeping with my blankie <:aiko:965918603566284820>"
+        desc = "Hi I'm Aiko! Your local trans bot! DM me if you need anything! <:aiko:965918603566284820>"
         embed.description = desc
 
         embed.add_field(name="Uptime", value=self.bot.uptime)
@@ -614,13 +614,13 @@ class Utility(commands.Cog):
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @utils.trigger_typing
     async def ping(self, ctx):
-        """Pong! Returns your websocket latency."""
-        embed = discord.Embed(
-            title="Pong! Websocket Latency:",
-            description=f"{self.bot.ws.latency * 1000:.4f} ms",
-            color=self.bot.main_color,
-        )
-        return await ctx.send(embed=embed)
+        """Pong! Returns latency."""
+      #  embed = discord.Embed(
+      #      title="Pong!",
+      #      description=f"{self.bot.ws.latency * 1000:.4f} ms",
+      #      color=self.bot.main_color,
+      #  )
+        return await ctx.send(f"Pong! {self.bot.ws.latency * 1000:.2f}ms")
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
