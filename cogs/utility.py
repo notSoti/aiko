@@ -313,6 +313,7 @@ class Utility(commands.Cog):
         desc = "Hi I'm Aiko! Your local trans bot! DM me if you need anything! <:aiko:965918603566284820>"
         embed.description = desc
 
+        embed.add_field(name="Prefix", value="`!` or <@865567515900248075>")
         embed.add_field(name="Uptime", value=self.bot.uptime)
         embed.add_field(name="Ping", value=f"{self.bot.latency * 1000:.2f} ms")
         embed.add_field(name="Version", value=os.getenv("aiko_ver"))
