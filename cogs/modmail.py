@@ -619,7 +619,7 @@ class Modmail(commands.Cog):
     async def loglink(self, ctx):
         """Retrieves the link to the current thread's logs."""
         log_link = await self.bot.api.get_log_link(ctx.channel.id)
-        await ctx.send(embed=discord.Embed(color=self.bot.main_color, description=log_link))
+        await ctx.send(f"`[Thread]({log_link})`")
 
     def format_log_embeds(self, logs, avatar_url):
         embeds = []
@@ -1196,7 +1196,7 @@ class Modmail(commands.Cog):
         msg = self.bot.formatter.format(
             msg, channel=ctx.channel, recipient=ctx.thread.recipient, author=ctx.message.author
         )
-        ctx.message.content = msg 
+        ctx.message.content = msg
         async with ctx.typing():
             await ctx.thread.reply(ctx.message)
 
@@ -2012,6 +2012,81 @@ class Modmail(commands.Cog):
             )
 
         return await ctx.send(embed=embed)
+
+
+
+
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.MODERATOR)
+    @commands.cooldown(2, 240, BucketType.user)
+    async def purge(self, ctx, amount: int = 1):
+
+        max = 100
+        if amount > max:
+            return await ctx.send(f"{ctx.author.mention} you can only purge up to 100 messages.", delete_after=6)
+
+        try:
+            await ctx.message.delete()
+            await ctx.channel.purge(limit=amount)
+        except discord.errors.Forbidden:
+            return await ctx.send(f"{ctx.author.mention} I couldn't purge the messages.", delete_after=6)
+
+
+        messages = "messages" if amount > 1 else "message"
+        have = "have" if amount > 1 else "has"
+
+
+        await ctx.send(f"Purged {amount} {messages}.", delete_after=8)
+
+
+
+
+
+    @commands.command(aliases=["cmd"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @trigger_typing
+    async def commands(self, ctx):
+
+      embed = discord.Embed(
+
+        set_author="Aiko Commands!", 
+        icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096",
+        color=self.bot.main_color,
+        set_footer=f"Requested by {ctx.author}",
+        timestamp=datetime.utcnow()
+
+      )
+
+      admin = discord.utils.get(ctx.author.roles, id=704792380624076820)
+      mod = discord.utils.get(ctx.author.roles, id=642122688491421696)
+      member = discord.utils.get(ctx.author.roles, id=648641822431903784)
+      pm = discord.utils.get(ctx.author.roles, id=751470169448120422)
+      prefix = "!"
+      
+      if member in ctx.author.roles:
+        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"].. → Have Aiko choose between things for you!", inline=False)
+
+
+      if mod in ctx.author.roles:
+        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Get info about an invite.", inline=False)
+
+
+      if pm in ctx.author.roles:
+        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite] → Get info about an invite.", inline=False)
+
+
+      if admin in ctx.author.roles:
+        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Send a message in a channel.", inline=False)
+        
+
+        embed.set_author(name="Aiko Commands!", icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096"),
+        color=self.bot.main_color,
+        embed.set_footer(text=f"Requested by {ctx.author}")
+
+
+      return await ctx.send(embed=embed)
+
 
 
 def setup(bot):

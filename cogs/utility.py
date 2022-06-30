@@ -306,17 +306,19 @@ class Utility(commands.Cog):
         """Shows information about this bot."""
         embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
         embed.set_author(
-            name="Aiko! Alpha",
+            name="Aiko!",
             icon_url=self.bot.user.avatar_url,
         )
 
-        desc = "Hi! I'm Aiko! DM me if you need help <:aiko:965918603566284820>"
+        desc = "Hi I'm Aiko! Your local trans bot! DM me if you need anything! <:aiko:965918603566284820>"
         embed.description = desc
 
+        embed.add_field(name="Prefix", value="`!` or <@865567515900248075>")
         embed.add_field(name="Uptime", value=self.bot.uptime)
-        embed.add_field(name="Latency", value=f"{self.bot.latency * 1000:.2f} ms")
+        embed.add_field(name="Ping", value=f"{self.bot.latency * 1000:.2f} ms")
         embed.add_field(name="Version", value=os.getenv("aiko_ver"))
 
+        embed.set_footer(text="Made by soti#4430")
 
         await ctx.send(embed=embed)
 
@@ -614,13 +616,13 @@ class Utility(commands.Cog):
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @utils.trigger_typing
     async def ping(self, ctx):
-        """Pong! Returns your websocket latency."""
-        embed = discord.Embed(
-            title="Pong! Websocket Latency:",
-            description=f"{self.bot.ws.latency * 1000:.4f} ms",
-            color=self.bot.main_color,
-        )
-        return await ctx.send(embed=embed)
+        """Pong! Returns latency."""
+      #  embed = discord.Embed(
+      #      title="Pong!",
+      #      description=f"{self.bot.ws.latency * 1000:.4f} ms",
+      #      color=self.bot.main_color,
+      #  )
+        return await ctx.send(f"Pong! {self.bot.ws.latency * 1000:.2f}ms")
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
@@ -715,7 +717,7 @@ class Utility(commands.Cog):
     @checks.has_permissions(PermissionLevel.OWNER)
     async def config(self, ctx):
         """
-        Modify changeable configuration variables for this bot. 
+        Modify changeable configuration variables for this bot.
 
         Type `{prefix}config options` to view a list
         of valid configuration variables.
