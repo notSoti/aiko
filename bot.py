@@ -198,7 +198,7 @@ class ModmailBot(commands.Bot):
         return self.api.db
 
     async def get_prefix(self, message=None):
-        return [self.prefix, f"<@{self.user.id}> ", f"<@!{self.user.id}> "]
+        return [self.prefix, f"<@{self.user.id}> ", f"<@!{self.user.id}> ", "aiko!"]
 
     def run(self):
         loop = self.loop
@@ -643,11 +643,9 @@ class ModmailBot(commands.Bot):
         other_guilds = [guild for guild in self.guilds if guild not in {self.guild, self.modmail_guild}]
         if any(other_guilds):
             logger.warning(
-                "The bot is in more servers other than the main and staff server. "
-                "This may cause data compromise (%s).",
-                ", ".join(guild.name for guild in other_guilds),
+                "Servers: %s",
+                ", ".join(str(guild.id) for guild in other_guilds),
             )
-            logger.warning("If the external servers are valid, you may ignore this message.")
 
         self._started = True
 
@@ -1491,13 +1489,7 @@ class ModmailBot(commands.Bot):
         elif isinstance(exception, commands.MissingRequiredArgument):
             await context.send_help(context.command)
         elif isinstance(exception, commands.CommandOnCooldown):
-            await context.send(
-                embed=discord.Embed(
-                    title="Command on cooldown",
-                    description=f"Try again in {exception.retry_after:.2f} seconds",
-                    color=self.error_color,
-                )
-            )
+            await context.send(f"You need to wait {exception.retry_after:.0f} seconds to use that command again.", delete_after=10)
         elif isinstance(exception, commands.CheckFailure):
             for check in context.command.checks:
                 if not await check(context):

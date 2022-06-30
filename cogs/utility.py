@@ -318,6 +318,7 @@ class Utility(commands.Cog):
         embed.add_field(name="Ping", value=f"{self.bot.latency * 1000:.2f} ms")
         embed.add_field(name="Version", value=os.getenv("aiko_ver"))
 
+        embed.set_footer(text="Made by soti#4430")
 
         await ctx.send(embed=embed)
 
