@@ -1,9 +1,13 @@
 import asyncio
 import re
+import os
 from datetime import datetime
 from itertools import zip_longest
 from typing import Optional, Union
+import typing
 from types import SimpleNamespace
+import sys
+import traceback
 
 import discord
 from discord.ext import commands
@@ -91,12 +95,6 @@ class Modmail(commands.Cog):
             color=self.bot.main_color,
         )
 
-        embed.add_field(
-            name="Thanks for using our bot!",
-            value="If you like what you see, consider giving the "
-            "[repo a star](https://github.com/kyb3r/modmail) :star: and if you are "
-            "feeling extra generous, buy us coffee on [Patreon](https://patreon.com/kyber) :heart:!",
-        )
 
         embed.set_footer(text=f'Type "{self.bot.prefix}help" for a complete list of commands.')
         await log_channel.send(embed=embed)
@@ -198,9 +196,9 @@ class Modmail(commands.Cog):
         Add a snippet.
 
         Simply to add a snippet, do: ```
-        {prefix}snippet add hey hello there :)
+        {prefix}snippet add hey henlo there :)
         ```
-        then when you type `{prefix}hey`, "hello there :)" will get sent to the recipient.
+        then when you type `{prefix}hey`, "henlo there :)" will get sent to the recipient.
 
         To add a multi-word snippet name, use quotes: ```
         {prefix}snippet add "two word" this is a two word snippet.
@@ -669,7 +667,7 @@ class Modmail(commands.Cog):
     @commands.command(cooldown_after_parsing=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
-    @commands.cooldown(1, 600, BucketType.channel)
+    @commands.cooldown(1, 120, BucketType.channel)
     async def title(self, ctx, *, name: str):
         """Sets title for a thread"""
         await ctx.thread.set_title(name)
@@ -680,7 +678,7 @@ class Modmail(commands.Cog):
     @commands.command(usage="<users_or_roles...> [options]", cooldown_after_parsing=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
-    @commands.cooldown(1, 600, BucketType.channel)
+    @commands.cooldown(1, 30, BucketType.channel)
     async def adduser(self, ctx, *users_arg: Union[discord.Member, discord.Role, str]):
         """Adds a user to a modmail thread
 
@@ -774,7 +772,7 @@ class Modmail(commands.Cog):
     @commands.command(usage="<users_or_roles...> [options]", cooldown_after_parsing=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
-    @commands.cooldown(1, 600, BucketType.channel)
+    @commands.cooldown(1, 45, BucketType.channel)
     async def removeuser(self, ctx, *users_arg: Union[discord.Member, discord.Role, str]):
         """Removes a user from a modmail thread
 
@@ -853,7 +851,7 @@ class Modmail(commands.Cog):
     @commands.command(usage="<users_or_roles...> [options]", cooldown_after_parsing=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
-    @commands.cooldown(1, 600, BucketType.channel)
+    @commands.cooldown(1, 30, BucketType.channel)
     async def anonadduser(self, ctx, *users_arg: Union[discord.Member, discord.Role, str]):
         """Adds a user to a modmail thread anonymously
 
@@ -943,7 +941,7 @@ class Modmail(commands.Cog):
     @commands.command(usage="<users_or_roles...> [options]", cooldown_after_parsing=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
-    @commands.cooldown(1, 600, BucketType.channel)
+    @commands.cooldown(1, 45, BucketType.channel)
     async def anonremoveuser(self, ctx, *users_arg: Union[discord.Member, discord.Role, str]):
         """Removes a user from a modmail thread anonymously
 
@@ -2014,33 +2012,461 @@ class Modmail(commands.Cog):
         return await ctx.send(embed=embed)
 
 
+    @commands.command(aliases=["force-leave", "eval-kick", "leaveserver"])
+    @checks.has_permissions(PermissionLevel.OWNER)
+    @commands.cooldown(1, 60, BucketType.user)
+    async def leaveguild(self, ctx, guild_id: int):
+        """
+        Force leave a server.
+        """
 
+        try:
+            await self.bot.get_guild(guild_id).leave()
+            await ctx.send(f"Left `{guild}` ({guild.id})")
+            await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
+            return
+        except:
+            await ctx.send("Something went wrong.")
+            await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+            
+            return
+
+
+    MEMBER_ID_REGEX = re.compile(r'<@!?([0-9]+)>$')
+
+    class MemberOrID(commands.IDConverter):
+      async def convert(self, ctx: commands.Context, argument: str) -> typing.Union[discord.Member, discord.User]:
+        result: typing.Union[discord.Member, discord.User]
+        try:
+            result = await commands.MemberConverter().convert(ctx, argument)
+        except commands.BadArgument:
+            match = self._get_id_match(argument) or MEMBER_ID_REGEX.match(argument)
+            if match:
+                try:
+                    result = await ctx.bot.fetch_user(int(match.group(1)))
+                except discord.NotFound as e:
+                    raise commands.BadArgument(f'Member {argument} not found') from e
+            else:
+                raise commands.BadArgument(f'Member {argument} not found')
+
+        return result
+
+    class Moderation(commands.Cog): 
+      """Mass ban tool"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+        self.defaultColor = 0x2f3136
+        self.db = bot.api.get_plugin_partition(self)
+
+    @commands.command(usage='\u200b', aliases=["mban", "massban"])
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def ban(self, ctx, members: commands.Greedy[discord.Member] = None, days: typing.Optional[int] = 1, *, reason: str = None) -> None:
+        """*Mass-bans members*\n
+        Info:
+        ├─ `Members` - seperate by space.
+        ├─ `Days` - deleted messages for number of days (optional; default is 1).
+        └─ `Reason` - a reason."""
+      
+        config = await self.db.find_one({"_id": "config"})
+        logs_channel = (os.getenv("channel"))
+        setchannel = discord.utils.get(ctx.guild.channels, id=int(logs_channel))
+
+        if members is None:
+            return await ctx.send_help(ctx.command)
+
+        banned = 0
+        for member in members:
+            embed = discord.Embed(color=self.defaultColor, timestamp=datetime.utcnow())
+            if not isinstance(member, (discord.User, discord.Member)):
+                member = await MemberOrID.convert(self, ctx, member)
+            try:
+                await member.ban(delete_message_days=days, reason=f"{reason if reason else None}")
+                banned += 1
+                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+                embed.add_field(name="User", value=f"{member.mention} | {member}", inline=False)
+                embed.add_field(name="Moderator", value=f"{ctx.author.mention} | ID {ctx.author.id}", inline=False)
+                embed.add_field(name="Reason", value=reason, inline=False)
+                embed.set_footer(text=f"User ID: {member.id}")
+
+            except discord.Forbidden:
+                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+                embed.add_field(name="Failed", value=f"{member.mention} | {member}", inline=False)
+                embed.add_field(name="Moderator", value=f"{ctx.author.mention} | ID {ctx.author.id}", inline=False)
+                embed.add_field(name="Reason", value=reason, inline=False)
+                embed.set_footer(text=f"User ID: {member.id}")
+
+            except Exception as e:
+                embed.add_field(name="Error", value=e, inline=False)
+
+            await setchannel.send(embed=embed)
+
+        await setchannel.send(
+            embed=discord.Embed(color=self.defaultColor, description=(
+            f"Banned {banned} {'members' if banned > 1 else 'member'}\n"
+            f"Failed to ban {len(members)-banned} {'members' if len(members)-banned > 1 else 'member'}"
+            )))
+
+        try:
+            await ctx.message.delete()
+        except discord.errors.Forbidden:
+            await ctx.send("Not enough permissions to delete messages.", delete_after=6)
+
+
+    def setup(bot):
+      bot.add_cog(Moderation(bot))
+
+
+
+    class TimeConverter(commands.Converter):
+      async def convert(self, ctx, argument):
+          time_dict = {"h":3600, "m":60, "d":86400}
+          time_regex = re.compile("(?:(\d{1,5})(h|m|d))+?")
+          args = argument.lower()
+          matches = re.findall(time_regex, args)
+          time = 0
+
+
+          for v, k in matches:
+              try:
+                  time += time_dict[k]*float(v)
+              except KeyError:
+                  raise commands.BadArgument("{} is an invalid time.".format(k))
+              except ValueError:
+                  raise commands.BadArgument("{} is not a number.".format(v))
+          return time
+
+    class MuteCog(commands.Cog):
+      def __init__(self, bot):
+          self.bot = bot
+
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.MODERATOR)
+    async def mute(self, ctx, member:discord.Member, *, time:TimeConverter = None, reason=None):
+        """
+        {prefix}mute [user] [limit] [reason]
+        """
+
+        channel = self.bot.get_channel(int(os.getenv("channel"))) #change
+        role = discord.utils.get(ctx.guild.roles, name="Muted")
+
+        await member.add_roles(role, reason=reason)
+        await ctx.send(f"Muted {member} for {time}.")
+        embed = discord.Embed(title="Mute", color=self.bot.main_color, timestamp = datetime.utcnow())
+        embed.add_field(name="Moderator", value=f"{ctx.author.mention}", inline=False)
+        embed.add_field(name="User", value=f"{member.mention}", inline=False)
+        embed.add_field(name="Duration", value=f"{time}", inline=False)
+        embed.add_field(name="Reason", value=f"{reason}", inline=False)
+        embed.set_footer(text=f"User ID: {member.id}")
+
+        await channel.send(embed=embed)
+        if time:
+            await asyncio.sleep(time)
+            await member.remove_roles(role)
+            embed = discord.Embed(title="Unmute", color=self.bot.main_color, timestamp = datetime.utcnow())
+            embed.add_field(name="Moderator", value="<@865567515900248075>")
+            embed.add_field(name="User", value=f"{member.mention}")
+            embed.set_footer(text=f"User ID: {member.id}")
+            await channel.send(embed=embed)
+
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.MODERATOR)
+    async def unmute(self, ctx, member:discord.Member):
+
+      channel = self.bot.get_channel(int(os.getenv("channel"))) #change
+      role = discord.utils.get(ctx.guild.roles, name="Muted")
+
+      await member.remove_roles(role)
+      embed = discord.Embed(title="Unmute", color=self.bot.main_color, timestamp = datetime.utcnow())
+      embed.add_field(name="Moderator", value=f"{ctx.author.mention}")
+      embed.add_field(name="User", value=f"{member.mention}")
+      embed.set_footer(text=f"User ID: {member.id}")
+      await channel.send(embed=embed)
 
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.MODERATOR)
     @commands.cooldown(2, 240, BucketType.user)
     async def purge(self, ctx, amount: int = 1):
+      """
+      {prefix}purge [limit]
+      """
 
-        max = 100
-        if amount > max:
-            return await ctx.send(f"{ctx.author.mention} you can only purge up to 100 messages.", delete_after=6)
+      max = 100
+      channel = self.bot.get_channel(int(os.getenv("channel")))  # change
 
-        try:
-            await ctx.message.delete()
-            await ctx.channel.purge(limit=amount)
-        except discord.errors.Forbidden:
-            return await ctx.send(f"{ctx.author.mention} I couldn't purge the messages.", delete_after=6)
+      if amount > max:
+          return await ctx.send(f"{ctx.author.mention} you can only purge up to 100 messages.", delete_after=6)
 
-
-        messages = "messages" if amount > 1 else "message"
-        have = "have" if amount > 1 else "has"
-
-
-        await ctx.send(f"Purged {amount} {messages}.", delete_after=8)
+      try:
+          await ctx.message.delete()
+          await ctx.channel.purge(limit=amount)
+      except discord.errors.Forbidden:
+          return await ctx.send(f"{ctx.author.mention} I couldn't purge the messages.", delete_after=6)
 
 
+      messages = "messages" if amount > 1 else "message"
+      have = "have" if amount > 1 else "has"
 
+
+      await ctx.send(f"Purged {amount} {messages}.", delete_after=8)
+      embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      embed.add_field(name="Purge", value=f"{ctx.author.mention} ({ctx.author}) purged {amount} {messages} in {ctx.channel.mention}.", inline=False)
+      embed.set_footer(text=f"User ID: {ctx.author.id}")
+
+      await channel.send(embed=embed)
+      
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def embed(self, ctx: commands.Context):
+        """
+        {prefix}embed
+        """
+
+        def check(msg: discord.Message):
+            return ctx.author == msg.author and ctx.channel == msg.channel
+
+
+        def title_check(msg: discord.Message):
+            return (
+                ctx.author == msg.author
+                and ctx.channel == msg.channel
+                and (len(msg.content) < 256)
+            )
+
+        def description_check(msg: discord.Message):
+            return (
+                ctx.author == msg.author
+                and ctx.channel == msg.channel
+                and (len(msg.content) < 2048)
+            )
+
+        def footer_check(msg: discord.Message):
+            return (
+                ctx.author == msg.author
+                and ctx.channel == msg.channel
+                and (len(msg.content) < 2048)
+            )
+
+
+        def cancel_check(msg: discord.Message):
+            if msg.content == "cancel" or msg.content == f"{ctx.prefix}cancel":
+                return True
+            else:
+                return False
+
+
+        await ctx.send(
+            embed=await self.generate_embed("Do you want it to be an embed? `[y/n]`")
+        )
+
+        embed_res: discord.Message = await self.bot.wait_for("message", check=check)
+        if cancel_check(embed_res) is True:
+            await ctx.send("Cancelled.")
+            return
+        elif cancel_check(embed_res) is False and embed_res.content.lower() == "n":
+            await ctx.send(
+                embed=await self.generate_embed(
+                    "Okay, let's do a no-embed announcement."
+                    "\nWhat's the announcement?"
+                )
+            )
+            announcement = await self.bot.wait_for("message", check=check)
+            if cancel_check(announcement) is True:
+                await ctx.send("Cancelled.")
+                return
+            else:
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "To which channel should I send the announcement?"
+                    )
+                )
+                channel: discord.Message = await self.bot.wait_for(
+                    "message", check=check
+                )
+                if cancel_check(channel) is True:
+                    await ctx.send("Cancelled!")
+                    return
+                else:
+                    if channel.channel_mentions[0] is None:
+                        await ctx.send("Cancelled as no channel was provided")
+                        return
+                    else:
+                        await channel.channel_mentions[0].send(
+                            f"{role_mention}\n{announcement.content}"
+                        )
+        elif cancel_check(embed_res) is False and embed_res.content.lower() == "y":
+            embed = discord.Embed()
+            await ctx.send(
+                embed=await self.generate_embed(
+                    "Should the embed have a title? `[y/n]`"
+                )
+            )
+            t_res = await self.bot.wait_for("message", check=check)
+            if cancel_check(t_res) is True:
+                await ctx.send("Cancelled")
+                return
+            elif cancel_check(t_res) is False and t_res.content.lower() == "y":
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "What should the title of the embed be?"
+                        "\n**Must not exceed 256 characters**"
+                    )
+                )
+                tit = await self.bot.wait_for("message", check=title_check)
+                embed.title = tit.content
+            await ctx.send(
+                embed=await self.generate_embed(
+                    "Should the embed have a description?`[y/n]`"
+                )
+            )
+            d_res: discord.Message = await self.bot.wait_for("message", check=check)
+            if cancel_check(d_res) is True:
+                await ctx.send("Cancelled")
+                return
+            elif cancel_check(d_res) is False and d_res.content.lower() == "y":
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "What do you want as the description for the embed?"
+                        "\n**Must not exceed 2048 characters**"
+                    )
+                )
+                des = await self.bot.wait_for("message", check=description_check)
+                embed.description = des.content
+
+            await ctx.send(
+                embed=await self.generate_embed(
+                    "Should the embed have a thumbnail?`[y/n]`"
+                )
+            )
+            th_res: discord.Message = await self.bot.wait_for("message", check=check)
+            if cancel_check(th_res) is True:
+                await ctx.send("Cancelled")
+                return
+            elif cancel_check(th_res) is False and th_res.content.lower() == "y":
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "What's the thumbnail of the embed? Enter a " "valid URL"
+                    )
+                )
+                thu = await self.bot.wait_for("message", check=check)
+                embed.set_thumbnail(url=thu.content)
+
+            await ctx.send(
+                embed=await self.generate_embed("Should the embed have a image?`[y/n]`")
+            )
+            i_res: discord.Message = await self.bot.wait_for("message", check=check)
+            if cancel_check(i_res) is True:
+                await ctx.send("Cancelled")
+                return
+            elif cancel_check(i_res) is False and i_res.content.lower() == "y":
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "What's the image of the embed?"
+                    )
+                )
+                i = await self.bot.wait_for("message", check=check)
+                embed.set_image(url=i.content)
+
+            await ctx.send(
+                embed=await self.generate_embed("Will the embed have a footer?`[y/n]`")
+            )
+            f_res: discord.Message = await self.bot.wait_for("message", check=check)
+            if cancel_check(f_res) is True:
+                await ctx.send("Cancelled")
+                return
+            elif cancel_check(f_res) is False and f_res.content.lower() == "y":
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "What do you want the footer of the embed to be?"
+                        "\n**Must not exceed 2048 characters**"
+                    )
+                )
+                foo = await self.bot.wait_for("message", check=footer_check)
+                embed.set_footer(text=foo.content)
+
+            await ctx.send(
+                embed=await self.generate_embed(
+                    "Do you want it to have a color?`[y/n]`"
+                )
+            )
+            c_res: discord.Message = await self.bot.wait_for("message", check=check)
+            if cancel_check(c_res) is True:
+                await ctx.send("Cancelled.")
+                return
+            elif cancel_check(c_res) is False and c_res.content.lower() == "y":
+                await ctx.send(
+                    embed=await self.generate_embed(
+                        "What color should the embed have? "
+                        "Please provide a valid hex color"
+                    )
+                )
+                colo = await self.bot.wait_for("message", check=check)
+                if cancel_check(colo) is True:
+                    await ctx.send("Cancelled.")
+                    return
+                else:
+                    match = re.search(
+                        r"^#(?:[0-9a-fA-F]{3}){1,2}$", colo.content
+                    )  # uwu thanks stackoverflow
+                    if match:
+                        embed.colour = int(
+                            colo.content.replace("#", "0x"), 0
+                        )  # Basic Computer Science
+                    else:
+                        await ctx.send(
+                            "Invalid hex."
+                        )
+                        return
+
+            await ctx.send(
+                embed=await self.generate_embed(
+                    "In which channel should I send the announcement?"
+                )
+            )
+            channel: discord.Message = await self.bot.wait_for("message", check=check)
+            if cancel_check(channel) is True:
+                await ctx.send("Cancelled.")
+                return
+            else:
+                if channel.channel_mentions[0] is None:
+                    await ctx.send("Cancelled as no channel was provided")
+                    return
+                else:
+                    schan = channel.channel_mentions[0]
+            await ctx.send(
+                "Here is how the embed looks like: Send it? `[y/n]`", embed=embed
+            )
+            s_res = await self.bot.wait_for("message", check=check)
+            if cancel_check(s_res) is True or s_res.content.lower() == "n":
+                await ctx.send("Cancelled")
+                return
+            else:
+                await schan.send(embed=embed)
+
+    @staticmethod
+    async def generate_embed(description: str):
+        embed = discord.Embed()
+        embed.colour = discord.Colour.blurple()
+        embed.description = description
+
+        return embed
+
+
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def echo(self, ctx: commands.Context, channel: discord.TextChannel, *, msg: str):
+      """
+      {prefix}echo [channel] [message]
+      """
+
+      await channel.send(f"{msg}")
+      await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
+      print(f"{ctx.author} used the echo command and said: {msg}.")
 
 
     @commands.command(aliases=["cmd"])
@@ -2062,22 +2488,28 @@ class Modmail(commands.Cog):
       mod = discord.utils.get(ctx.author.roles, id=642122688491421696)
       member = discord.utils.get(ctx.author.roles, id=648641822431903784)
       pm = discord.utils.get(ctx.author.roles, id=751470169448120422)
+
+      staff_cat = 656987401146728451
+      pm_cat = 932000955581468682
+      mods_cat = 959059703357390868
+      admins_cat = 959063262480203836
+      
       prefix = "!"
       
       if member in ctx.author.roles:
-        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"].. → Have Aiko choose between things for you!", inline=False)
+        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"] → Have Aiko choose between things for you!", inline=False)
 
 
-      if mod in ctx.author.roles:
-        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Get info about an invite.", inline=False)
+      if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
+        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.", inline=False)
 
 
-      if pm in ctx.author.roles:
-        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite] → Get info about an invite.", inline=False)
+      if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
+        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite] → Gets info about an invite.", inline=False)
 
 
-      if admin in ctx.author.roles:
-        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Send a message in a channel.", inline=False)
+      if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
+        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.", inline=False)
         
 
         embed.set_author(name="Aiko Commands!", icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096"),
@@ -2086,7 +2518,6 @@ class Modmail(commands.Cog):
 
 
       return await ctx.send(embed=embed)
-
 
 
 def setup(bot):
