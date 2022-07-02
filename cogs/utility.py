@@ -266,40 +266,8 @@ class Utility(commands.Cog):
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
 
-    @commands.command()
-    @checks.has_permissions(PermissionLevel.REGULAR)
-    @utils.trigger_typing
-    async def changelog(self, ctx, version: str.lower = ""):
-        """Shows the changelog of the Modmail."""
-        changelog = await Changelog.from_url(self.bot)
-        version = version.lstrip("v") if version else changelog.latest_version.version
 
-        try:
-            index = [v.version for v in changelog.versions].index(version)
-        except ValueError:
-            return await ctx.send(
-                embed=discord.Embed(
-                    color=self.bot.error_color,
-                    description=f"The specified version `{version}` could not be found.",
-                )
-            )
-
-        paginator = EmbedPaginatorSession(ctx, *changelog.embeds)
-        try:
-            paginator.current = index
-            await paginator.run()
-        except asyncio.CancelledError:
-            pass
-        except Exception:
-            try:
-                await paginator.close()
-            finally:
-                logger.warning("Failed to display changelog.", exc_info=True)
-                await ctx.send(
-                    f"View the changelog here: {changelog.latest_version.changelog_url}#v{version[::2]}"
-                )
-
-    @commands.command(aliases=["info"])
+    @commands.command(aliases=["info", "up"])
     @checks.has_permissions(PermissionLevel.REGULAR)
     @utils.trigger_typing
     async def about(self, ctx):
@@ -322,27 +290,6 @@ class Utility(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=["sponsor"])
-    @checks.has_permissions(PermissionLevel.REGULAR)
-    @utils.trigger_typing
-    async def sponsors(self, ctx):
-        """Shows the sponsors of this project."""
-
-        async with self.bot.session.get(
-            "https://raw.githubusercontent.com/kyb3r/modmail/master/SPONSORS.json"
-        ) as resp:
-            data = loads(await resp.text())
-
-        embeds = []
-
-        for elem in data:
-            embed = discord.Embed.from_dict(elem["embed"])
-            embeds.append(embed)
-
-        random.shuffle(embeds)
-
-        session = EmbedPaginatorSession(ctx, *embeds)
-        await session.run()
 
     @commands.group(invoke_without_command=True)
     @checks.has_permissions(PermissionLevel.OWNER)
@@ -564,12 +511,12 @@ class Utility(commands.Cog):
         if activity_type == ActivityType.listening:
             if activity_message.lower().startswith("to "):
                 # The actual message is after listening to [...]
-                # discord automatically add the "to"
+                # discord automatically adds the "to"
                 activity_message = activity_message[3:].strip()
         elif activity_type == ActivityType.competing:
             if activity_message.lower().startswith("in "):
                 # The actual message is after listening to [...]
-                # discord automatically add the "in"
+                # discord automatically adds the "in"
                 activity_message = activity_message[3:].strip()
         elif activity_type == ActivityType.streaming:
             url = self.bot.config["twitch_url"]
@@ -612,17 +559,13 @@ class Utility(commands.Cog):
         await asyncio.sleep(1800)
         logger.info("Starting presence loop.")
 
-    @commands.command()
+    @commands.command(aliases=["pong"])
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @utils.trigger_typing
     async def ping(self, ctx):
         """Pong! Returns latency."""
-      #  embed = discord.Embed(
-      #      title="Pong!",
-      #      description=f"{self.bot.ws.latency * 1000:.4f} ms",
-      #      color=self.bot.main_color,
-      #  )
-        return await ctx.send(f"Pong! {self.bot.ws.latency * 1000:.2f}ms")
+
+        return await ctx.send(f"Pong! {self.bot.ws.latency * 1000:.2f} ms")
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
