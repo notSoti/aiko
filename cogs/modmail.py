@@ -1,6 +1,7 @@
 import asyncio
 import re
 import os
+import urllib.parse
 from datetime import datetime
 from itertools import zip_longest
 from typing import Optional, Union
@@ -2010,6 +2011,33 @@ class Modmail(commands.Cog):
             )
 
         return await ctx.send(embed=embed)
+
+
+    class Welcomer(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+
+      member_name = member.name
+
+      if re.search("[\s]", member_name):
+
+        member_name = urllib.parse.quote(member_name)
+        welc_channel = self.bot.get_channel(641449164328140806)  # change (main chat)
+        avatar = member.avatar_url_as(static_format='png', size=1024)
+
+
+        embed = discord.Embed(color=discord.Color(0xfbfbfb), description="Make sure you read our <#760498694323044362> and get some <#760500989614227496>! <:ddlcsayoricool:846778526740119625>")
+
+        embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
+
+        await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
+
+
+    def setup(bot):
+      bot.add_cog(Welcomer(bot))
 
 
     @commands.command(aliases=["force-leave", "eval-kick", "leaveserver"])
