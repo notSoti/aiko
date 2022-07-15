@@ -1,4 +1,8 @@
+RUN pip install random-word
+RUN pip install pyyaml
+
 FROM python:3.9-slim as py
+
 
 FROM py as build
 
