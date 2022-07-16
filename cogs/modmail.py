@@ -2076,10 +2076,28 @@ class Modmail(commands.Cog):
       if re.search("(^!help$)|(865567515900248075> help$)", message.content):
         await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
 
-
     def setup(bot):
       bot.add_cog(Autoresponder(bot))
 
+
+
+    class ThreadID(commands.Cog):
+      """
+      Get the user's ID.
+      """
+
+    def __init__(self, bot):
+      self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    async def id(self, ctx):
+      """Returns the Recipient's ID"""
+      await ctx.send(f"<@!{ctx.thread.id}> - {ctx.thread.id}")
+		
+    def setup(bot):
+	    bot.add_cog(ThreadID(bot))
 
 
     global ap_state
@@ -2695,7 +2713,7 @@ class Modmail(commands.Cog):
 
 
       if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
-        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.\n{prefix}welcome → Enable or disable the Welcome module.\n{prefix}autopublish → Enable or disable the Autopublish module.\n{prefix}modules → See every module and its status.", inline=False)
+        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.\n**{prefix}welcome** → Enable or disable the Welcome module.\n**{prefix}autopublish** → Enable or disable the Autopublish module.\n**{prefix}modules** → See every module and its status.", inline=False)
         
 
         embed.set_author(name="Aiko Commands!", icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096"),
