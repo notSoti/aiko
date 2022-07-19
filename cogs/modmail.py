@@ -2063,24 +2063,6 @@ class Modmail(commands.Cog):
 
 
 
-    class Autoresponder(commands.Cog):
-      def __init__ (self, bot):
-        self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-
-      if message.author.bot:
-          return
-
-      if re.search("(^!help$)|(865567515900248075> help$)", message.content):
-        await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
-
-    def setup(bot):
-      bot.add_cog(Autoresponder(bot))
-
-
-
     class ThreadID(commands.Cog):
       """
       Get the user's ID.
@@ -2098,97 +2080,6 @@ class Modmail(commands.Cog):
 		
     def setup(bot):
 	    bot.add_cog(ThreadID(bot))
-
-
-    global ap_state
-    ap_state = "on"
-    class AutoPublish(commands.Cog):
-      """Auto Publish messages sent in announcement channels"""
-
-    def __init__(self, bot):
-      self.bot = bot
-      self.coll = bot.plugin_db.get_partition(self)
-
-    @commands.command(aliases=["ap"])
-    @commands.cooldown(1, 7, BucketType.user)
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    async def autopublish(self, ctx, ap_state):
-      """
-      Enable or disable Aiko's autopublish features on the selected channels.
-      {prefix}autopublish on
-      {prefix}autopublish off
-      """
-
-      if ap_state == "off":
-        await ctx.send("Disabled autopublishing.")
-        ap_state = "off"
-      elif ap_state == "on":
-        await ctx.send("Enabled autopublishing.")
-        ap_state = "on"
-
-
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-      
-      if ap_state == "on":
-
-        meow = 808786532173480036
-
-        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
-          await message.publish()
-
-
-    def setup(bot):
-      bot.add_cog(Autopublish(bot))
-
-
-    global welc_state
-    welc_state = "on"
-    class Welcomer(commands.Cog):
-      def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command()
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    @commands.cooldown(1, 7, BucketType.user)
-    async def welcome(self, ctx, welc_state):
-      """
-      Enable or disable Aiko's welcoming functions:
-      {prefix}welcome on
-      {prefix}welcome off
-      """
-
-      if welc_state == "off":
-        await ctx.send("Disabled welcoming.")
-        welc_state = "off"
-      elif welc_state == "on":
-        await ctx.send("Enabled welcoming.")
-        welc_state = "on"
-
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-
-      member_name = member.name
-
-      if welc_state == "on":
-        
-        if re.search("[\s]", member_name):
-
-          member_name = urllib.parse.quote(member_name)
-          welc_channel = self.bot.get_channel(641449164328140806)  # change (main chat)
-          avatar = member.avatar_url_as(static_format='png', size=1024)
-
-
-          embed = discord.Embed(color=discord.Color(0xfbfbfb), description="Make sure you read our <#760498694323044362> and get some <#760500989614227496>! <:ddlcsayoricool:846778526740119625>")
-
-          embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
-
-          await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
-
-
-    def setup(bot):
-      bot.add_cog(Welcomer(bot))
 
 
     @commands.command(aliases=["force-leave", "eval-kick", "leaveserver"])
@@ -2647,6 +2538,7 @@ class Modmail(commands.Cog):
       print(f"{ctx.author} used the echo command and said: {msg}.")
 
 
+
     class webhooks(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
@@ -2672,6 +2564,210 @@ class Modmail(commands.Cog):
     def setup(bot):
       bot.add_cog(webhooks(bot))
 
+
+    class wyr(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.MOD)
+    @commands.cooldown(2, 30, BucketType.user)
+    async def wyr(self, ctx, choice1, choice2):
+      """
+      A would you rather command, separate the choices with "", for example: {prefix}wyr "eat ice cream" "eat pizza"
+
+      Template:
+      <a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By [user]*||
+
+      <a:1arrow:801122446874509352> ⋆ **Option 1**
+      <a:1arrow:801122446874509352> ⋆ **Option 2**
+      ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹
+      """
+
+      wyr_channel = self.bot.get_channel(965915830661570593) # change
+      choice1 = choice1.capitalize()
+      choice2 = choice2.capitalize()
+      
+      await ctx.send(f"The message will look like this, send it?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹")
+
+      def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+      
+      try:
+        response = await self.bot.wait_for('message', check=check, timeout=30.0)
+      except asyncio.TimeoutError:
+        await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+        return
+
+      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah"):
+        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹") 
+        await msg.add_reaction("<:aiko_1:965916655878291507>")
+        await msg.add_reaction("<:aiko_2:965916656536789052>")
+      else:
+        await ctx.send("Canceled.")
+        return
+
+    def setup(bot):
+      bot.add_cog(wyr(bot))
+
+# ———————— MODULES ————————
+
+    global welc_state
+    welc_state = "on"
+    class Welcomer(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=["welc"])
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 7, BucketType.user)
+    async def welcome(self, ctx, welc_state):
+      """
+      Enable or disable Aiko's Welcome module.
+      {prefix}welcome on
+      {prefix}welcome off
+      """
+
+      if welc_state == "off":
+        await ctx.send("Disabled the Welcome module.")
+        welc_state = "off"
+      elif welc_state == "on":
+        await ctx.send("Enabled the Welcome module.")
+        welc_state = "on"
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+
+      member_name = member.name
+
+      if welc_state == "on":
+        
+        if re.search("[\s]", member_name):
+
+          member_name = urllib.parse.quote(member_name)
+          welc_channel = self.bot.get_channel(965915830661570593)  # change (main chat)
+          avatar = member.avatar_url_as(static_format='png', size=1024)
+
+
+          embed = discord.Embed(color=discord.Color(0xfbfbfb), description="Make sure you read our <#760498694323044362> and get some <#760500989614227496>! <:ddlcsayoricool:846778526740119625>")
+
+          embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
+
+          await asyncio.sleep(15)
+          await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
+
+    def setup(bot):
+      bot.add_cog(Welcomer(bot))
+
+
+    global ar_state
+    ar_state="on"
+    class Autoresponder(commands.Cog):
+      def __init__ (self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=["ar", "autoresponders"])
+    @commands.cooldown(1, 7, BucketType.user)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def autoresponder(self, ctx, ar_state):
+      """
+      Enable or disable Aiko's Autoresponder module.
+      {prefix}autoresponder on
+      {prefix}autoresponder off
+      """
+
+      if ar_state == "off":
+        await ctx.send("Disabled the Autoresponder module.")
+        ar_state = "off"
+      elif ar_state == "on":
+        await ctx.send("Enabled the Autoresponder module.")
+        ar_state = "on"
+
+    
+    @commands.Cog.listener()
+    async def on_message(self, message):
+
+      if ar_state == "on":
+
+        if message.author.bot:
+          return
+
+        if re.search("(^!help$)|(865567515900248075> help$)", message.content):
+          await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
+
+    def setup(bot):
+      bot.add_cog(Autoresponder(bot))
+
+
+
+    global ap_state
+    ap_state = "on"
+    class AutoPublish(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=["ap"])
+    @commands.cooldown(1, 7, BucketType.user)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def autopublish(self, ctx, ap_state):
+      """
+      Enable or disable Aiko's the Autopublish module.
+      {prefix}autopublish on
+      {prefix}autopublish off
+      """
+
+      if ap_state == "off":
+        await ctx.send("Disabled the Autopublish module.")
+        ap_state = "off"
+      elif ap_state == "on":
+        await ctx.send("Enabled the Autopublish module.")
+        ap_state = "on"
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+      
+      if ap_state == "on":
+
+        meow = 965915830661570593
+
+        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
+          await message.publish()
+
+    def setup(bot):
+      bot.add_cog(AutoPublish(bot))
+
+
+
+
+    class modules(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def modules(self, ctx):
+      prefix = "!"
+      embed = discord.Embed(
+
+        set_author="Modules",
+        color=self.bot.main_color
+      )
+
+      embed.add_field(name="Welcome", value=f"{welc_state}", inline=False)
+      embed.add_field(name="Autopublish", value=f"{ap_state}", inline=False)
+      embed.add_field(name="Autoresponder", value=f"{ar_state}", inline=False)
+      embed.set_footer(text=f"To enable/disable a specific module do {prefix}module_name on/off.")
+      embed.set_author(name="Modules")
+
+      await ctx.send(embed=embed)
+
+    def setup(bot):
+      bot.add_cog(modules(bot))
+
+
+    class cmds(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
 
     @commands.command(aliases=["cmd"])
     @checks.has_permissions(PermissionLevel.REGULAR)
@@ -2713,7 +2809,7 @@ class Modmail(commands.Cog):
 
 
       if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
-        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.\n**{prefix}welcome** → Enable or disable the Welcome module.\n**{prefix}autopublish** → Enable or disable the Autopublish module.\n**{prefix}modules** → See every module and its status.", inline=False)
+        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.\n**{prefix}modules** → See every module and its status.", inline=False)
         
 
         embed.set_author(name="Aiko Commands!", icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096"),
@@ -2723,6 +2819,8 @@ class Modmail(commands.Cog):
 
       return await ctx.send(embed=embed)
 
+    def setup(bot):
+      bot.add_cog(cmds(bot))
 
 def setup(bot):
     bot.add_cog(Modmail(bot))
