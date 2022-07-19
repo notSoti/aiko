@@ -2565,6 +2565,52 @@ class Modmail(commands.Cog):
       bot.add_cog(webhooks(bot))
 
 
+    class wyr(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.MOD)
+    @commands.cooldown(2, 30, BucketType.user)
+    async def wyr(self, ctx, choice1, choice2):
+      """
+      A would you rather command, separate the choices with "", for example: {prefix}wyr "eat ice cream" "eat pizza"
+
+      Template:
+      <a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By [user]*||
+
+      <a:1arrow:801122446874509352> ⋆ **Option 1**
+      <a:1arrow:801122446874509352> ⋆ **Option 2**
+      ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹
+      """
+
+      wyr_channel = self.bot.get_channel(953427472186236948) # change
+      choice1 = choice1.capitalize()
+      choice2 = choice2.capitalize()
+      
+      await ctx.send(f"The message will look like this, send it?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹")
+
+      def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+      
+      try:
+        response = await self.bot.wait_for('message', check=check, timeout=30.0)
+      except asyncio.TimeoutError:
+        await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+        return
+
+      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah"):
+        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹") 
+        await msg.add_reaction("<:aiko_1:965916655878291507>")
+        await msg.add_reaction("<:aiko_2:965916656536789052>")
+      else:
+        await ctx.send("Canceled.")
+        return
+
+    def setup(bot):
+      bot.add_cog(wyr(bot))
+
+
 # ———————— MODULES ————————
 
     global welc_state
@@ -2616,44 +2662,6 @@ class Modmail(commands.Cog):
 
 
 
-    global ap_state
-    ap_state = "on"
-    class AutoPublish(commands.Cog):
-      def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command(aliases=["ap"])
-    @commands.cooldown(1, 7, BucketType.user)
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    async def autopublish(self, ctx, ap_state):
-      """
-      Enable or disable Aiko's the Autopublish module.
-      {prefix}autopublish on
-      {prefix}autopublish off
-      """
-
-      if ap_state == "off":
-        await ctx.send("Disabled the Autopublish module.")
-        ap_state = "off"
-      elif ap_state == "on":
-        await ctx.send("Enabled the Autopublish module.")
-        ap_state = "on"
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-      
-      if ap_state == "on":
-
-        meow = 808786532173480036
-
-        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
-          await message.publish()
-
-    def setup(bot):
-      bot.add_cog(Autopublish(bot))
-
-
-
     global ar_state
     ar_state="on"
     class Autoresponder(commands.Cog):
@@ -2691,6 +2699,42 @@ class Modmail(commands.Cog):
 
     def setup(bot):
       bot.add_cog(Autoresponder(bot))
+
+
+
+    global ap_state
+    ap_state = "on"
+    class AutoPublish(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=["ap"])
+    @commands.cooldown(1, 7, BucketType.user)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    async def autopublish(self, ctx, ap_state):
+      """
+      Enable or disable Aiko's the Autopublish module.
+      {prefix}autopublish on
+      {prefix}autopublish off
+      """
+
+      if ap_state == "off":
+        await ctx.send("Disabled the Autopublish module.")
+        ap_state = "off"
+      elif ap_state == "on":
+        await ctx.send("Enabled the Autopublish module.")
+        ap_state = "on"
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+      
+      meow = 808786532173480036  # change
+
+      if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
+        await message.publish()
+
+    def setup(bot):
+      bot.add_cog(AutoPublish(bot))
 
 
 
