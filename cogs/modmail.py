@@ -2685,22 +2685,8 @@ class Modmail(commands.Cog):
         await ctx.send("Enabled the Autoresponder module.")
         ar_state = "on"
 
-    
-    @commands.Cog.listener()
-    async def on_message(self, message):
-
-      if ar_state == "on":
-
-        if message.author.bot:
-          return
-
-        if re.search("(^!help$)|(865567515900248075> help$)", message.content):
-          await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
-
     def setup(bot):
       bot.add_cog(Autoresponder(bot))
-
-
 
     global ap_state
     ap_state = "on"
@@ -2725,17 +2711,31 @@ class Modmail(commands.Cog):
         await ctx.send("Enabled the Autopublish module.")
         ap_state = "on"
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-      
-      meow = 808786532173480036  # change
-
-      if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
-        await message.publish()
-
     def setup(bot):
       bot.add_cog(AutoPublish(bot))
 
+
+
+    class on_messages(commands.Cog):
+      def __innit(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+
+      if ap_state == "on":
+        meow = 808786532173480036  # change
+        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
+          await message.publish()
+
+      if ar_state == "on":
+        if message.author.bot:
+          return
+        if re.search("(^!help$)|(865567515900248075> help$)", message.content):
+          await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
+
+    def setup(bot):
+      bot.add_cog(on_messages(bot))
 
 
     class modules(commands.Cog):
