@@ -2654,11 +2654,19 @@ class Modmail(commands.Cog):
 
       if not re.search("([!-~])", member.name):
         await member.edit(nick="change nickname!", reason="Automod - Unpingable Name")
-        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname`.", timestamp=datetime.utcnow())
+        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname` for having an unpingable name.", timestamp=datetime.utcnow())
         embed.set_footer(text=f"User ID: {member.id}")
         embed.set_author(name="Automod")
         await channel.send(embed=embed)
         await member.send("Hi! it seems that you have a name that isn't easily pingable, please give yourself an easy to type nickname so we can ping you if needed! Thanks!")
+
+      if re.search("(cunt)|(blowjob)|(whore)|(wh0re)|(retard)|(cock)|(c0ck)|(orgasm)|(0rgasm)|(masturbat)|(porn)|(p0rn)|(horny)|(卍)|(🖕)|(fuck)|(slut)|(dick)", member.name):
+        await member.edit(nick="change nickname!", reason="Automod - Inappropriate Name")
+        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname` for having an inappropriate name.", timestamp=datetime.utcnow())
+        embed.set_footer(text=f"User ID: {member.id}")
+        embed.set_author(name="Automod")
+        await channel.send(embed=embed)
+        await member.send("Your nickname was changed for containing a banned word/being inappropriate, please give yourself a nickname that follows our <#760498694323044362>.")
 
 
       member_name = member.name
@@ -2795,6 +2803,7 @@ class Modmail(commands.Cog):
       embed.add_field(name="Welcome", value=f"{welc_state}", inline=False)
       embed.add_field(name="Autopublish", value=f"{ap_state}", inline=False)
       embed.add_field(name="Autoresponder", value=f"{ar_state}", inline=False)
+      embed.add_field(name="Automod", value=f"`NaN`", inline=False)
       embed.set_footer(text=f"To enable/disable a specific module do {prefix}module_name on/off.")
       embed.set_author(name="Modules")
 
