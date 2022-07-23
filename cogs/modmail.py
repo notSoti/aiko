@@ -2650,6 +2650,17 @@ class Modmail(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
+      channel = self.bot.get_channel(int(os.getenv("channel")))
+
+      if not re.search("([!-~])", member.name):
+        await member.edit(nick="change nickname!", reason="Automod - Unpingable Name")
+        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname`.", timestamp=datetime.utcnow())
+        embed.set_footer(text=f"User ID: {member.id}")
+        embed.set_author(name="Automod")
+        await channel.send(embed=embed)
+        await member.send("Hi! it seems that you have a name that isn't easily pingable, please give yourself an easy to type nickname so we can ping you if needed! Thanks!")
+
+
       member_name = member.name
 
       if welc_state == "on":
@@ -2742,11 +2753,13 @@ class Modmail(commands.Cog):
 
       if ar_state == "on":
 
+        if message.author.bot:
+          return
         if re.search("(^!help$)|(865567515900248075> help$)", message.content):
           await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
         if re.search("(cute)", message.content):
           await message.add_reaction("<:ddlcnatsukinou:641777411578396694>")
-        if re.search("(^verify$|\? verify)", message.content) and message.channel.id == 950180899310428280:
+        if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:
           await message.channel.send(f"{message.author.mention} to verify send **?verify**", delete_after=15)
         if re.search("(865567515900248075>)", message.content):
           await message.add_reaction("<:aiko:965918603566284820>")
