@@ -12,7 +12,7 @@ import sys
 import traceback
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 from discord.role import Role
 from discord.utils import escape_markdown
@@ -2218,7 +2218,7 @@ class Modmail(commands.Cog):
         {prefix}mute [user] [limit] [reason]
         """
 
-        channel = self.bot.get_channel(int(os.getenv("channel"))) #change
+        channel = self.bot.get_channel(int(os.getenv("channel")))
         role = discord.utils.get(ctx.guild.roles, name="Muted")
 
         await member.add_roles(role, reason=reason)
@@ -2245,7 +2245,7 @@ class Modmail(commands.Cog):
     @checks.has_permissions(PermissionLevel.MODERATOR)
     async def unmute(self, ctx, member:discord.Member):
 
-      channel = self.bot.get_channel(int(os.getenv("channel"))) #change
+      channel = self.bot.get_channel(int(os.getenv("channel")))
       role = discord.utils.get(ctx.guild.roles, name="Muted")
 
       await member.remove_roles(role)
@@ -2265,7 +2265,7 @@ class Modmail(commands.Cog):
       """
 
       max = 100
-      channel = self.bot.get_channel(int(os.getenv("channel")))  # change
+      channel = self.bot.get_channel(int(os.getenv("channel")))
 
       if amount > max:
           return await ctx.send(f"{ctx.author.mention} you can only purge up to 100 messages.", delete_after=6)
@@ -2584,7 +2584,7 @@ class Modmail(commands.Cog):
       ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹
       """
 
-      wyr_channel = self.bot.get_channel(965915830661570593) # change
+      wyr_channel = self.bot.get_channel(953427472186236948) # change
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
       
@@ -2609,6 +2609,18 @@ class Modmail(commands.Cog):
 
     def setup(bot):
       bot.add_cog(wyr(bot))
+
+# ———————— CHANNELS ————————
+
+    global staff_cat
+    global pm_cat
+    global mods_cat
+    global admins_cat
+
+    staff_cat = 656987401146728451
+    pm_cat = 932000955581468682
+    mods_cat = 959059703357390868
+    admins_cat = 959063262480203836
 
 # ———————— MODULES ————————
 
@@ -2638,6 +2650,23 @@ class Modmail(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
+      channel = self.bot.get_channel(int(os.getenv("channel")))
+      if not re.search("([!-~])", member.name):
+        await member.edit(nick="change nickname!", reason="Automod - Unpingable Name")
+        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname`.", timestamp=datetime.utcnow())
+        embed.set_footer(text=f"User ID: {member.id}")
+        embed.set_author(name="Automod")
+        await channel.send(embed=embed)
+        await member.send("Hi! it seems that you have a name that isn't easily pingable, please give yourself an easy to type nickname so we can ping you if needed! Thanks!")
+
+      if re.search("(cunt)|(blowjob)|(whore)|(wh0re)|(retard)|(cock)|(c0ck)|(orgasm)|(0rgasm)|(masturbat)|(porn)|(p0rn)|(horny)|(卍)|(🖕)|(fuck)|(slut)|(dick)", member.name):
+        await member.edit(nick="change nickname!", reason="Automod - Inappropriate Name")
+        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname` for having an inappropriate name.", timestamp=datetime.utcnow())
+        embed.set_footer(text=f"User ID: {member.id}")
+        embed.set_author(name="Automod")
+        await channel.send(embed=embed)
+        await member.send("Your nickname was changed for containing a banned word/being inappropriate, please give yourself a nickname that follows our <#760498694323044362>.")
+
       member_name = member.name
 
       if welc_state == "on":
@@ -2645,7 +2674,7 @@ class Modmail(commands.Cog):
         if re.search("[\s]", member_name):
 
           member_name = urllib.parse.quote(member_name)
-          welc_channel = self.bot.get_channel(965915830661570593)  # change (main chat)
+          welc_channel = self.bot.get_channel(965915830661570593)  # change
           avatar = member.avatar_url_as(static_format='png', size=1024)
 
 
@@ -2653,11 +2682,13 @@ class Modmail(commands.Cog):
 
           embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
 
-          await asyncio.sleep(15)
+          await asyncio.sleep(20)
           await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
+
 
     def setup(bot):
       bot.add_cog(Welcomer(bot))
+
 
 
     global ar_state
@@ -2683,22 +2714,8 @@ class Modmail(commands.Cog):
         await ctx.send("Enabled the Autoresponder module.")
         ar_state = "on"
 
-    
-    @commands.Cog.listener()
-    async def on_message(self, message):
-
-      if ar_state == "on":
-
-        if message.author.bot:
-          return
-
-        if re.search("(^!help$)|(865567515900248075> help$)", message.content):
-          await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
-
     def setup(bot):
       bot.add_cog(Autoresponder(bot))
-
-
 
     global ap_state
     ap_state = "on"
@@ -2723,20 +2740,49 @@ class Modmail(commands.Cog):
         await ctx.send("Enabled the Autopublish module.")
         ap_state = "on"
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-      
-      if ap_state == "on":
-
-        meow = 965915830661570593
-
-        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
-          await message.publish()
-
     def setup(bot):
       bot.add_cog(AutoPublish(bot))
 
 
+
+    class on_messages(commands.Cog):
+      def __innit(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+
+      if ap_state == "on":
+
+        meow = 965915830661570593  # change
+        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
+          await message.publish()
+
+      if ar_state == "on":
+
+        if message.author.bot:
+          return
+        if re.search("(^!help$)|(865567515900248075> help$)", message.content):
+          await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
+        if re.search("(cute)", message.content):
+          await message.add_reaction("<:ddlcnatsukinou:641777411578396694>")
+        if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:
+          await message.channel.send(f"{message.author.mention} to verify send **?verify**", delete_after=15)
+        if re.search("(865567515900248075>)", message.content):
+          await message.add_reaction("<:aiko:965918603566284820>")
+        if re.search("(how)(.*)(report)", message.content):
+          await message.channel.send(f"Hey {message.author.mention}! Please DM me if you're looking to report another member! <:chibilapproval:818499768149999650>")
+        if re.search("(just boosted the server!$)", message.content) and message.channel.id == 641449164328140806:
+          embed=discord.Embed(description=f"**Thank you for boosting {message.guild}! Make sure to check out <#741835235737731083> to see the perks you can get!** <:ddlcsayoriheart:743601377942700114>", color=self.bot.main_color)
+          embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
+          embed.set_footer(text="DM me to claim your perks!")
+          await message.channel.send(f"{message.author.mention} just boosted us! <a:catvibing:807759270980485139>", embed=embed)
+        if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538:
+          embed=discord.Embed(color=discord.Color.from_rgb(255, 255, 255), description=f"Thanks for the partnership {message.author.mention}!")
+          await message.channel.send(embed=embed)
+
+    def setup(bot):
+      bot.add_cog(on_messages(bot))
 
 
     class modules(commands.Cog):
@@ -2775,13 +2821,11 @@ class Modmail(commands.Cog):
     async def commands(self, ctx):
 
       embed = discord.Embed(
-
         set_author="Aiko Commands!", 
         icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096",
         color=self.bot.main_color,
         set_footer=f"Requested by {ctx.author}",
         timestamp=datetime.utcnow()
-
       )
 
       admin = discord.utils.get(ctx.author.roles, id=704792380624076820)
@@ -2789,11 +2833,6 @@ class Modmail(commands.Cog):
       member = discord.utils.get(ctx.author.roles, id=648641822431903784)
       pm = discord.utils.get(ctx.author.roles, id=751470169448120422)
 
-      staff_cat = 656987401146728451
-      pm_cat = 932000955581468682
-      mods_cat = 959059703357390868
-      admins_cat = 959063262480203836
-      
       prefix = "!"
       
       if member in ctx.author.roles:

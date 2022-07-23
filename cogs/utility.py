@@ -1970,7 +1970,7 @@ class Utility(commands.Cog):
             exec(to_compile, env)  # pylint: disable=exec-used
         except Exception as exc:
             await ctx.send(f"```py\n{exc.__class__.__name__}: {exc}\n```")
-            return await self.bot.add_reaction(ctx.message, "\u2049")
+            return await self.bot.add_reaction(ctx.message, "<:aiko_error:965918214171291659>")
 
         func = env["func"]
         try:
@@ -1979,7 +1979,7 @@ class Utility(commands.Cog):
         except Exception:
             value = stdout.getvalue()
             await ctx.send(f"```py\n{value}{traceback.format_exc()}\n```")
-            return await self.bot.add_reaction(ctx.message, "\u2049")
+            return await self.bot.add_reaction(ctx.message, "<:aiko_error:965918214171291659>")
 
         else:
             value = stdout.getvalue()
@@ -2005,7 +2005,7 @@ class Utility(commands.Cog):
                             break
                         await ctx.send(f"```py\n{page}\n```")
 
-        await self.bot.add_reaction(ctx.message, "\u2705")
+        await self.bot.add_reaction(ctx.message, "<:aiko_success:965918214498443274>")
 
 
 def setup(bot):
