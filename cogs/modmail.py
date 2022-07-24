@@ -2622,7 +2622,7 @@ class Modmail(commands.Cog):
 
       total = 0
       for member in ctx.guild.members:
-        if not re.search("([!-~])", str(member.name)) and not re.search("^change nickname", str(member.nick)):
+        if not re.search("([!-~])", str(member.name)) and not re.search("(^change nickname)", str(member.nick)):
           await member.edit(nick="change nickname!", reason="Unpingable Name")
           total += 1
       await ctx.channel.send(f"Changed the nickname of {total} users.")
