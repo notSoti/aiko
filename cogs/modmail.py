@@ -2588,7 +2588,7 @@ class Modmail(commands.Cog):
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
       
-      await ctx.send(f"The message will look like this, send it?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹")
+      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹")
 
       def check(m):
         return m.author == ctx.author and m.channel == ctx.channel
@@ -2609,6 +2609,27 @@ class Modmail(commands.Cog):
 
     def setup(bot):
       bot.add_cog(wyr(bot))
+
+
+    class automod_cmds(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=["namefix", "namesfix", "fixnames"])
+    @checks.has_permissions(PermissionLevel.MOD)
+    @commands.cooldown(1, 900, BucketType.guild)
+    async def fixname(self, ctx):
+
+      total = 0
+      for member in ctx.guild.members:
+        if not re.search("([!-~])", str(member.name)) and not re.search("^change nickname", str(member.nick)):
+          await member.edit(nick="change nickname!", reason="Unpingable Name")
+          total += 1
+      await ctx.channel.send(f"Changed the nickname of {total} users.")
+
+    def setup(bot):
+      bot.add_cog(automod_cmds(bot))
+
 
 # ———————— CHANNELS ————————
 
@@ -2651,9 +2672,10 @@ class Modmail(commands.Cog):
     async def on_member_join(self, member):
 
       channel = self.bot.get_channel(int(os.getenv("channel")))
+
       if not re.search("([!-~])", member.name):
         await member.edit(nick="change nickname!", reason="Automod - Unpingable Name")
-        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname`.", timestamp=datetime.utcnow())
+        embed=discord.Embed(color=self.bot.main_color, description=f"Changed {member.mention}'s nickname to `change nickname` for having an unpingable name.", timestamp=datetime.utcnow())
         embed.set_footer(text=f"User ID: {member.id}")
         embed.set_author(name="Automod")
         await channel.send(embed=embed)
@@ -2785,6 +2807,41 @@ class Modmail(commands.Cog):
       bot.add_cog(on_messages(bot))
 
 
+    class Automod(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+
+      channel = self.bot.get_channel(int(os.getenv("channel")))
+
+      embed=discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      embed.set_footer(text=f"User ID: {after.id}")
+      embed.set_author(name="Automod")
+      
+      if re.search("(cunt)|(blowjob)|(whore)|(wh0re)|(retard)|(cock)|(c0ck)|(orgasm)|(0rgasm)|(masturbat)|(porn)|(p0rn)|(horny)|(卍)|(🖕)|(fuck)|(nazi)|(hitler)", str(after.nick)):
+        embed.description=f"Reset {after.mention}'s nickname for containing a banned word."
+        await channel.send(embed=embed)
+        await after.edit(nick=None)
+        await after.send(f"Your nickname has been reset for containing a banned word, please keep in mind our <#760498694323044362> when choosing a nickname.")
+
+      if re.search("(nigg)|(n1gg)|(fagg)|(niqqa)|(niqqer)", str(after.nick)):
+        embed.description=f"Banned {after.mention} for having a nickname with a slur."
+        await channel.send(embed=embed)
+        await after.send(f"You were banned for having a nickname that contained a slur.\n\nAppeal Link: https://dyno.gg/form/e0ea9302")
+        await after.ban(reason="Aiko Automod - Nickname with slur.", delete_message_days=1)
+
+      if re.search("(gg/)", str(after.nick)) and not re.search("(kewl)", str(after.nick)):
+        embed.description=f"Banned {after.mention} for having a nickname with an invite."
+        await channel.send(embed=embed)
+        await after.send(f"You were banned for having a server link invite in your nickname.\n\nAppeal Link: https://dyno.gg/form/e0ea9302")
+        await after.ban(reason="Aiko Automod - Invite in nickname.", delete_message_days=1)
+
+
+    def setup(bot):
+      bot.add_cog(Automod(bot))
+
     class modules(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
@@ -2840,7 +2897,7 @@ class Modmail(commands.Cog):
 
 
       if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
-        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.", inline=False)
+        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.", inline=False)
 
 
       if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
