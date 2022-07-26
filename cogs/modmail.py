@@ -2581,7 +2581,8 @@ class Modmail(commands.Cog):
 
       <a:1arrow:801122446874509352> ⋆ **Option 1**
       <a:1arrow:801122446874509352> ⋆ **Option 2**
-      ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹
+
+      ⊹ ─── ⊹ ─── ⊹ ─── <@&760529762450931718> ─── ⊹ ─── ⊹ ─── ⊹
       """
 
       wyr_channel = self.bot.get_channel(1000806786447720548) # change
@@ -2600,7 +2601,7 @@ class Modmail(commands.Cog):
         return
 
       if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah"):
-        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹") 
+        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events ping]** ─── ⊹ ─── ⊹ ─── ⊹") 
         await msg.add_reaction("<:aiko_1:965916655878291507>")
         await msg.add_reaction("<:aiko_2:965916656536789052>")
       else:
@@ -2618,7 +2619,7 @@ class Modmail(commands.Cog):
 
       total = 0
       for member in ctx.guild.members:
-        if not re.search("([!-~])", str(member.name)) and not re.search("^change nickname", str(member.nick)):
+        if not re.search("([!-~])", str(member.name)) and not re.search("(^change nickname)|([!-~])", str(member.nick)):
           await member.edit(nick="change nickname!", reason="Unpingable Name")
           total += 1
       await ctx.channel.send(f"Changed the nickname of {total} users.")
@@ -2626,6 +2627,48 @@ class Modmail(commands.Cog):
     def setup(bot):
       bot.add_cog(automod_cmds(bot))
 
+
+    class restart(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.OWNER)
+    @commands.cooldown(1, 15, BucketType.user)
+    async def restart(self, ctx):
+
+      await ctx.channel.send("Restarting.")
+      system("kill 11") 
+
+
+    def setup(bot):
+      bot.add_cog(restart(bot))
+
+
+    class partner(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    async def partner(self, ctx):
+
+      partner = discord.utils.get(ctx.guild.roles, id=741774737168007219)
+      channel = self.bot.get_channel(int(os.getenv("channel")))
+      member = ctx.guild.get_member(ctx.thread.id)
+
+
+      embed=discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      embed.add_field(name="Role Added", value=f"{ctx.thread.recipient.mention} ({ctx.thread.recipient}) was given the <@&741774737168007219> role by {ctx.author.mention} ({ctx.author}).")
+      embed.set_footer(text=f"PM ID: {ctx.author.id} - User ID: {ctx.thread.recipient.id}")
+
+      await member.add_roles(partner, reason="Partnership", atomic=True)
+      await channel.send(embed=embed)
+      await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
+
+    def setup(bot):
+      bot.add_cog(partner(bot))
 
 
 # ———————— CHANNELS ————————
