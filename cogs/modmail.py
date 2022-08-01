@@ -10,9 +10,11 @@ import typing
 from types import SimpleNamespace
 import sys
 import traceback
+from replit import db
+from os import system
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 from discord.role import Role
 from discord.utils import escape_markdown
@@ -2571,7 +2573,7 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.MOD)
-    @commands.cooldown(2, 30, BucketType.user)
+    @commands.cooldown(3, 3600, BucketType.guild)
     async def wyr(self, ctx, choice1, choice2):
       """
       A would you rather command, separate the choices with "", for example: {prefix}wyr "eat ice cream" "eat pizza"
@@ -2589,19 +2591,19 @@ class Modmail(commands.Cog):
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
       
-      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹")
+      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events ping]** ─── ⊹ ─── ⊹ ─── ⊹")
 
       def check(m):
         return m.author == ctx.author and m.channel == ctx.channel
       
       try:
-        response = await self.bot.wait_for('message', check=check, timeout=30.0)
+        response = await self.bot.wait_for('message', check=check, timeout=30)
       except asyncio.TimeoutError:
         await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
         return
 
-      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah"):
-        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events ping]** ─── ⊹ ─── ⊹ ─── ⊹") 
+      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh"):
+        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
         await msg.add_reaction("<:aiko_1:965916655878291507>")
         await msg.add_reaction("<:aiko_2:965916656536789052>")
       else:
@@ -2614,7 +2616,7 @@ class Modmail(commands.Cog):
 
     @commands.command(aliases=["namefix", "namesfix", "fixnames"])
     @checks.has_permissions(PermissionLevel.MOD)
-    @commands.cooldown(1, 900, BucketType.guild)
+    @commands.cooldown(1, 3600, BucketType.guild)
     async def fixname(self, ctx):
 
       total = 0
@@ -2634,7 +2636,7 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.OWNER)
-    @commands.cooldown(1, 15, BucketType.user)
+    @commands.cooldown(1, 60, BucketType.user)
     async def restart(self, ctx):
 
       await ctx.channel.send("Restarting.")
@@ -2669,6 +2671,118 @@ class Modmail(commands.Cog):
 
     def setup(bot):
       bot.add_cog(partner(bot))
+
+
+
+    class rules(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+
+    @commands.group(invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def rules(self, ctx):
+      """
+      Displays every unverified member that has been in the server for more than 10 hours.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      message = "Every unverified member that has been in the server for more than 10h, use **!rules kick** to kick them.\n\n"
+
+
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+          
+          if delta >= 10:
+            message += f"{member.mention} - `{delta} hours ago`\n"
+      await ctx.channel.send(message)
+
+    @rules.command(name="kick")
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 120, BucketType.guild)
+    async def rules_kick(self, ctx):
+      """
+      Kicks every unverified member that has been in the server for more than 10 hours.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      count = 0
+      
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+
+          if delta >= 10:
+
+            await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
+            await member.kick(reason="Didn't verify")
+            count += 1
+
+      if count == 1:
+        await ctx.channel.send(f"Kicked {count} unverified member.")
+      else:
+        await ctx.channel.send(f"Kicked {count} unverified member.")
+
+
+    @rules.command(name="raw")
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def rules_raw(self, ctx):
+      """
+      Displays a raw list of ID's for every unverified member that has been in the server for more than 10 hours.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      message = "```\n"
+
+
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+
+          if delta >= 10:
+            message += f"{member.id}\n"
+
+      message += "```"
+      await ctx.channel.send(message)
+
+    @rules.command(name="all")
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 15, BucketType.user)
+    async def rules_all(self, ctx):
+      """
+      Displays every unverified member in the server.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      message = "Every unverified member in the server.\n\n"
+
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+          
+          message += f"{member.mention} - `{delta} hours ago`\n"
+      await ctx.channel.send(message)
+
+
+    def setup(bot):
+      bot.add_cog(rules(bot))
+
+
 
 
 # ———————— CHANNELS ————————
@@ -2745,7 +2859,7 @@ class Modmail(commands.Cog):
 
           embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
 
-          await asyncio.sleep(20)
+          await asyncio.sleep(30)
           await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
 
     def setup(bot):
@@ -2943,7 +3057,7 @@ class Modmail(commands.Cog):
 
 
       if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
-        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite] → Gets info about an invite.", inline=False)
+        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}partner → Gives the user the partner role (only usable in threads).**\n**{prefix}inv** [invite] → Gets info about an invite.", inline=False)
 
 
       if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
