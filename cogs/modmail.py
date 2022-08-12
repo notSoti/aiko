@@ -2573,7 +2573,7 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.MOD)
-    @commands.cooldown(3, 3600, BucketType.guild)
+    @commands.cooldown(1, 36000, BucketType.guild)
     async def wyr(self, ctx, choice1, choice2):
       """
       A would you rather command, separate the choices with "", for example: {prefix}wyr "eat ice cream" "eat pizza"
@@ -2600,6 +2600,7 @@ class Modmail(commands.Cog):
         response = await self.bot.wait_for('message', check=check, timeout=30)
       except asyncio.TimeoutError:
         await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+        ctx.command.reset_cooldown(ctx)
         return
 
       if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh"):
@@ -2608,6 +2609,7 @@ class Modmail(commands.Cog):
         await msg.add_reaction("<:aiko_2:965916656536789052>")
       else:
         await ctx.send("Canceled.")
+        ctx.command.reset_cooldown(ctx)
         return
 
     def setup(bot):
@@ -2782,6 +2784,96 @@ class Modmail(commands.Cog):
     def setup(bot):
       bot.add_cog(rules(bot))
 
+
+
+    class customRoles(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+
+    @commands.command(aliases=["mycolour"], cooldown_after_parsing=True)
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def mycolor(self, ctx, hex):
+
+      """
+      Change the color of your custom role!
+      """
+
+      winter = discord.utils.get(ctx.guild.roles, id=808860767050530823)  # change
+      cinni = discord.utils.get(ctx.guild.roles, id=905070283851968603)  # change
+      realist = discord.utils.get(ctx.guild.roles, id=905199204060786711)  # change
+      emy = discord.utils.get(ctx.guild.roles, id=923331031111712868)  # change
+      dis = discord.utils.get(ctx.guild.roles, id=1004176857849155614)  # change
+      soti = discord.utils.get(ctx.guild.roles, id=771879416061886495)  # change
+      lillie = discord.utils.get(ctx.guild.roles, id=891821208646086708)  # change
+      star = discord.utils.get(ctx.guild.roles, id=801202456499060737)  # change
+      lina = discord.utils.get(ctx.guild.roles, id=767441062255001653)  # change
+      vera = discord.utils.get(ctx.guild.roles, id=790043781473763351)  # change
+      voter = discord.utils.get(ctx.guild.roles, id=973539832829730856)  # change
+
+
+      embed=discord.Embed(color=discord.Color.from_rgb(47, 49, 54))
+
+      if re.search("(^#)", hex):
+          hex = hex.replace("#", "0x")
+
+      new_hex = int(hex, 16)
+
+      if winter in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {winter.mention} role to {hex}.", inline=False)
+          await winter.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif cinni in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {cinni.mention} role to {hex}.", inline=False)
+          await cinni.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+      
+      elif realist in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {realist.mention} role to {hex}.", inline=False)
+          await realist.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif emy in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {emy.mention} role to {hex}.", inline=False)
+          await emy.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif dis in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {dis.mention} role to {hex}.", inline=False)
+          await dis.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif soti in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {soti.mention} role to {hex}.", inline=False)
+          await soti.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif lillie in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {lillie.mention} role to {hex}.", inline=False)
+          await lillie.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif star in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {star.mention} role to {hex}.", inline=False)
+          await star.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif lina in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {lina.mention} role to {hex}.", inline=False)
+          await lina.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif vera in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {vera.mention} role to {hex}.", inline=False)
+          await vera.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+      
+
+      elif voter in ctx.author.roles and (winter and cinni and realist and emy and dis and soti and lillie and star and lina and vera not in ctx.author.roles):
+        embed.add_field(name="Color Changed", value=f"Changed the color of the {voter.mention} role to {hex}.", inline=False)
+        await voter.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      else:
+        embed.add_field(name="No custom role found!", value=f"Head to <#741835235737731083> to learn how to get a custom role!", inline=False)
+
+      await ctx.channel.send(embed=embed)
+
+
+    def setup(bot):
+      bot.add_cog(customRoles(bot))
 
 
 
@@ -3049,7 +3141,7 @@ class Modmail(commands.Cog):
       prefix = "!"
       
       if member in ctx.author.roles:
-        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!", inline=False)
+        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role.", inline=False)
 
 
       if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
