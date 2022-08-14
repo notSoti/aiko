@@ -2574,12 +2574,12 @@ class Modmail(commands.Cog):
     @commands.command()
     @checks.has_permissions(PermissionLevel.MOD)
     @commands.cooldown(1, 36000, BucketType.guild)
-    async def wyr(self, ctx, choice1, choice2):
+    async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = "None"):
       """
-      A would you rather command, separate the choices with "", for example: {prefix}wyr "eat ice cream" "eat pizza"
+      A would you rather command, separate the choices with "".
 
       Template:
-      <a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By [user]*||
+      <a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by [user])*
 
       <a:1arrow:801122446874509352> ⋆ **Option 1**
       <a:1arrow:801122446874509352> ⋆ **Option 2**
@@ -2587,11 +2587,19 @@ class Modmail(commands.Cog):
       ⊹ ─── ⊹ ─── ⊹ ─── <@&760529762450931718> ─── ⊹ ─── ⊹ ─── ⊹
       """
 
-      wyr_channel = self.bot.get_channel(1000806786447720548) # change
+      wyr_channel = self.bot.get_channel(965915830661570593) # change
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
+
+      if suggester != "None":
+        suggester = self.bot.guild.get_member(suggester.id)
+        await ctx.channel.send(suggester)
+        suggester = suggester.mention
+        await ctx.channel.send(suggester)
+      else:
+        suggester = ctx.author.mention
       
-      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events ping]** ─── ⊹ ─── ⊹ ─── ⊹")
+      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹")
 
       def check(m):
         return m.author == ctx.author and m.channel == ctx.channel
@@ -2604,7 +2612,7 @@ class Modmail(commands.Cog):
         return
 
       if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh"):
-        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
+        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
         await msg.add_reaction("<:aiko_1:965916655878291507>")
         await msg.add_reaction("<:aiko_2:965916656536789052>")
       else:
