@@ -2587,15 +2587,13 @@ class Modmail(commands.Cog):
       ⊹ ─── ⊹ ─── ⊹ ─── <@&760529762450931718> ─── ⊹ ─── ⊹ ─── ⊹
       """
 
-      wyr_channel = self.bot.get_channel(965915830661570593) # change
+      wyr_channel = self.bot.get_channel(1000806786447720548) # change
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
 
       if suggester != "None":
         suggester = self.bot.guild.get_member(suggester.id)
-        await ctx.channel.send(suggester)
         suggester = suggester.mention
-        await ctx.channel.send(suggester)
       else:
         suggester = ctx.author.mention
       
