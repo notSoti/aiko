@@ -2604,12 +2604,12 @@ class Modmail(commands.Cog):
       
       try:
         response = await self.bot.wait_for('message', check=check, timeout=30)
-      except asyncio.TimeoutError:
+      except:
         await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
         ctx.command.reset_cooldown(ctx)
         return
 
-      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh"):
+      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm"):
         msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
         await msg.add_reaction("<:aiko_1:965916655878291507>")
         await msg.add_reaction("<:aiko_2:965916656536789052>")
@@ -2883,6 +2883,102 @@ class Modmail(commands.Cog):
 
 
 
+    class partnerships(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.group(aliases=["p"], invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @trigger_typing
+    @commands.cooldown(1, 5, BucketType.user)
+    async def partnerships(self, ctx, member: discord.Member = "None"):
+      """
+      See how many partnerships you or another PM has posted.
+      """
+
+      embed = discord.Embed(color=0x2f3136, timestamp=datetime.utcnow())
+      
+      if member != "None":
+        member = self.bot.guild.get_member(member.id)
+      else:
+        member = ctx.author
+
+      try:
+        count = db[f"{member.id}"]
+        embed.description = f"{member.mention} has posted {count} partnerships!"
+      except KeyError:
+        embed.description = "No data found!"
+
+      await ctx.channel.send(embed=embed)
+
+    @partnerships.command(name="lb")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @trigger_typing
+    @commands.cooldown(1, 5, BucketType.user)
+    async def partner_lb(self, ctx):
+      """
+      See who has posted the most partnerships!
+      """
+
+      pms = discord.utils.get(ctx.guild.roles, id=751470169448120422)  # change
+      embed = discord.Embed(color=0x2f3136, timestamp=datetime.utcnow())
+      message = "**Partnerships leaderboard!**\n\n"
+
+      for member in ctx.guild.members:
+        if pms in member.roles:
+          try:
+            value = db[f"{member.id}"]
+          except KeyError:
+            value = 0
+          message += f"{member.mention} → {value}\n"
+
+      embed.description = message
+      await ctx.channel.send(embed=embed)
+
+
+    @partnerships.command(name="set")
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def partner_set(self, ctx, member: discord.Member, value: int):
+      """
+      Change a PM's partnership count.
+      """
+
+      embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      
+
+      db[f"{member.id}"] = value
+      embed.add_field(name="Partnership Count", value=f"Set {member.mention}'s partnership count to {value}.", inline=False)
+
+      await ctx.channel.send(embed=embed)
+
+
+    @partnerships.command(name="delete")
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @trigger_typing
+    @commands.cooldown(1, 20, BucketType.user)
+    async def partner_del(self, ctx, member: int):
+      """
+      Delete a PM's partnership count data (not reversible, only usable with user ID's).
+      """
+
+      embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      
+      try:
+        del db[f"{member}"]
+        embed.add_field(name="Partnership Count", value=f"Deleted <@{member}>'s ({member}) partnership data.", inline=False)
+      except:
+        embed.add_field(name="Partnership Count", value=f"No data found for that user.", inline=False)
+
+      await ctx.channel.send(embed=embed)
+
+
+    def setup(bot):
+      bot.add_cog(partnerships(bot))
+
+
+
 # ———————— CHANNELS ————————
 
     global staff_cat
@@ -2946,7 +3042,7 @@ class Modmail(commands.Cog):
 
       if welc_state == "on":
         
-        if re.search("[\s]", member_name):
+        if re.search("[\s]", member_name) and self.bot.guild.id == 641449164328140802:
 
           member_name = urllib.parse.quote(member_name)
           welc_channel = self.bot.get_channel(641449164328140806)  # change
@@ -3029,7 +3125,7 @@ class Modmail(commands.Cog):
       if ap_state == "on":
 
         meow = 808786532173480036  # change
-        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
+        if message.channel.id == meow and re.search("(\.png|\.jpg|\.jpeg|\.gif|\.mov)", message.content) and not re.search("(809487761005346866|^\?|^\!)", message.content):
           await message.publish()
 
       if ar_state == "on":
@@ -3051,8 +3147,20 @@ class Modmail(commands.Cog):
           embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
           embed.set_footer(text="DM me to claim your perks!")
           await message.channel.send(f"{message.author.mention} just boosted us! <a:catvibing:807759270980485139>", embed=embed)
+
+
         if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538:
-          embed=discord.Embed(color=discord.Color.from_rgb(255, 255, 255), description=f"Thanks for the partnership {message.author.mention}!")
+
+          try:
+            db[f"{message.author.id}"] = db[f"{message.author.id}"] + 1
+
+          except KeyError:
+            db[f"{message.author.id}"] = 1
+          
+          count = db[f"{message.author.id}"]
+          
+          embed=discord.Embed(color=0x2f3136, description=f"Thanks for the partnership {message.author.mention}!")
+          embed.set_footer(text=f"You have posted {count} in total!")
           await message.channel.send(embed=embed)
 
     def setup(bot):
@@ -3155,7 +3263,7 @@ class Modmail(commands.Cog):
 
 
       if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(pm$)", ctx.message.content))):
-        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}partner → Gives the user the partner role (only usable in threads).**\n**{prefix}inv** [invite] → Gets info about an invite.", inline=False)
+        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}partner → Gives the user the partner role (only usable in threads).**\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}p** → Shows you how many partnerships you or another PM has posted.", inline=False)
 
 
       if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(admin$)", ctx.message.content))):
