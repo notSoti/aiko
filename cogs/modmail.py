@@ -10,6 +10,8 @@ import typing
 from types import SimpleNamespace
 import sys
 import traceback
+from replit import db
+from os import system
 
 import discord
 from discord.ext import commands, tasks
@@ -2571,64 +2573,413 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.MOD)
-    @commands.cooldown(2, 30, BucketType.user)
-    async def wyr(self, ctx, choice1, choice2):
+    #@commands.has_role(819234810543210496)
+    @commands.cooldown(1, 36000, BucketType.guild)
+    async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = "None"):
       """
-      A would you rather command, separate the choices with "", for example: {prefix}wyr "eat ice cream" "eat pizza"
+      A would you rather command, separate the choices with "".
 
       Template:
-      <a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By [user]*||
+      <a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by [user])*
 
       <a:1arrow:801122446874509352> ⋆ **Option 1**
       <a:1arrow:801122446874509352> ⋆ **Option 2**
-      ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹
+
+      ⊹ ─── ⊹ ─── ⊹ ─── <@&760529762450931718> ─── ⊹ ─── ⊹ ─── ⊹
       """
 
-      wyr_channel = self.bot.get_channel(953427472186236948) # change
+      wyr_channel = self.bot.get_channel(1000806786447720548) # change
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
+
+      if suggester != "None":
+        suggester = self.bot.guild.get_member(suggester.id)
+        suggester = suggester.mention
+      else:
+        suggester = ctx.author.mention
       
-      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹")
+      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹")
 
       def check(m):
         return m.author == ctx.author and m.channel == ctx.channel
       
       try:
-        response = await self.bot.wait_for('message', check=check, timeout=30.0)
-      except asyncio.TimeoutError:
+        response = await self.bot.wait_for('message', check=check, timeout=30)
+      except:
         await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+        ctx.command.reset_cooldown(ctx)
         return
 
-      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah"):
-        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather? ||*By {ctx.author.mention}*||\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹ ─── ⊹") 
+
+      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm", "yea"):
+        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
         await msg.add_reaction("<:aiko_1:965916655878291507>")
         await msg.add_reaction("<:aiko_2:965916656536789052>")
       else:
         await ctx.send("Canceled.")
+        ctx.command.reset_cooldown(ctx)
         return
+
 
     def setup(bot):
       bot.add_cog(wyr(bot))
 
 
-    class automod_cmds(commands.Cog):
-      def __init__(self, bot):
-        self.bot = bot
-
     @commands.command(aliases=["namefix", "namesfix", "fixnames"])
     @checks.has_permissions(PermissionLevel.MOD)
-    @commands.cooldown(1, 900, BucketType.guild)
+    @commands.cooldown(1, 3600, BucketType.guild)
     async def fixname(self, ctx):
 
       total = 0
       for member in ctx.guild.members:
-        if not re.search("([!-~])", str(member.name)) and not re.search("(^change nickname)", str(member.nick)):
+        if not re.search("([!-~])", str(member.name)) and not re.search("(^change nickname)|([!-~])", str(member.nick)):
           await member.edit(nick="change nickname!", reason="Unpingable Name")
           total += 1
       await ctx.channel.send(f"Changed the nickname of {total} users.")
 
     def setup(bot):
       bot.add_cog(automod_cmds(bot))
+
+
+    class restart(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 180, BucketType.user)
+    async def restart(self, ctx):
+
+      await ctx.channel.send("Restarting.")
+      system("kill 11") 
+
+
+    def setup(bot):
+      bot.add_cog(restart(bot))
+
+
+    class partner(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    async def partner(self, ctx):
+
+      partner = discord.utils.get(ctx.guild.roles, id=741774737168007219)
+      channel = self.bot.get_channel(int(os.getenv("channel")))
+      member = ctx.guild.get_member(ctx.thread.id)
+
+
+      embed=discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      embed.add_field(name="Role Added", value=f"{ctx.thread.recipient.mention} ({ctx.thread.recipient}) was given the <@&741774737168007219> role by {ctx.author.mention} ({ctx.author}).")
+      embed.set_footer(text=f"PM ID: {ctx.author.id} - User ID: {ctx.thread.recipient.id}")
+
+      await member.add_roles(partner, reason="Partnership", atomic=True)
+      await channel.send(embed=embed)
+      await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
+
+    def setup(bot):
+      bot.add_cog(partner(bot))
+
+
+
+    class rules(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+
+    @commands.group(invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def rules(self, ctx):
+      """
+      Displays every unverified member that has been in the server for more than 10 hours.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      message = "Every unverified member that has been in the server for more than 10h, use **!rules kick** to kick them.\n\n"
+
+
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+          
+          if delta >= 10:
+            message += f"{member.mention} - `{delta} hours ago`\n"
+      await ctx.channel.send(message)
+
+    @rules.command(name="kick")
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 120, BucketType.guild)
+    async def rules_kick(self, ctx):
+      """
+      Kicks every unverified member that has been in the server for more than 10 hours.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      count = 0
+      
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+
+          if delta >= 10:
+
+            await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
+            await member.kick(reason="Didn't verify")
+            count += 1
+
+      if count == 1:
+        await ctx.channel.send(f"Kicked {count} unverified member.")
+      else:
+        await ctx.channel.send(f"Kicked {count} unverified member.")
+
+
+    @rules.command(name="raw")
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def rules_raw(self, ctx):
+      """
+      Displays a raw list of ID's for every unverified member that has been in the server for more than 10 hours.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      message = "```\n"
+
+
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+
+          if delta >= 10:
+            message += f"{member.id}\n"
+
+      message += "```"
+      await ctx.channel.send(message)
+
+    @rules.command(name="all")
+    @checks.has_permissions(PermissionLevel.MOD)
+    @trigger_typing
+    @commands.cooldown(1, 15, BucketType.user)
+    async def rules_all(self, ctx):
+      """
+      Displays every unverified member in the server.
+      """
+
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+      message = "Every unverified member in the server.\n\n"
+
+      for member in ctx.guild.members:
+        if member.bot == False and role not in member.roles:
+
+          today = datetime.now()
+          delta = int(((today - member.joined_at).total_seconds())/3600)
+          
+          message += f"{member.mention} - `{delta} hours ago`\n"
+      await ctx.channel.send(message)
+
+
+    def setup(bot):
+      bot.add_cog(rules(bot))
+
+
+
+    class customRoles(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+
+    @commands.command(aliases=["mycolour"], cooldown_after_parsing=True)
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def mycolor(self, ctx, hex):
+
+      """
+      Change the color of your custom role!
+      """
+
+      winter = discord.utils.get(ctx.guild.roles, id=808860767050530823)  # change
+      cinni = discord.utils.get(ctx.guild.roles, id=905070283851968603)  # change
+      realist = discord.utils.get(ctx.guild.roles, id=905199204060786711)  # change
+      emy = discord.utils.get(ctx.guild.roles, id=923331031111712868)  # change
+      dis = discord.utils.get(ctx.guild.roles, id=1004176857849155614)  # change
+      soti = discord.utils.get(ctx.guild.roles, id=771879416061886495)  # change
+      lillie = discord.utils.get(ctx.guild.roles, id=891821208646086708)  # change
+      star = discord.utils.get(ctx.guild.roles, id=801202456499060737)  # change
+      lina = discord.utils.get(ctx.guild.roles, id=767441062255001653)  # change
+      vera = discord.utils.get(ctx.guild.roles, id=790043781473763351)  # change
+      voter = discord.utils.get(ctx.guild.roles, id=973539832829730856)  # change
+
+
+      embed=discord.Embed(color=discord.Color.from_rgb(47, 49, 54))
+
+      if re.search("(^#)", hex):
+          hex = hex.replace("#", "0x")
+
+      new_hex = int(hex, 16)
+
+      if winter in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {winter.mention} role to {hex}.", inline=False)
+          await winter.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif cinni in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {cinni.mention} role to {hex}.", inline=False)
+          await cinni.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+      
+      elif realist in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {realist.mention} role to {hex}.", inline=False)
+          await realist.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif emy in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {emy.mention} role to {hex}.", inline=False)
+          await emy.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif dis in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {dis.mention} role to {hex}.", inline=False)
+          await dis.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif soti in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {soti.mention} role to {hex}.", inline=False)
+          await soti.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif lillie in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {lillie.mention} role to {hex}.", inline=False)
+          await lillie.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif star in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {star.mention} role to {hex}.", inline=False)
+          await star.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif lina in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {lina.mention} role to {hex}.", inline=False)
+          await lina.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      elif vera in ctx.author.roles:
+          embed.add_field(name="Color Changed", value=f"Changed the color of the {vera.mention} role to {hex}.", inline=False)
+          await vera.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+      
+
+      elif voter in ctx.author.roles and (winter and cinni and realist and emy and dis and soti and lillie and star and lina and vera not in ctx.author.roles):
+        embed.add_field(name="Color Changed", value=f"Changed the color of the {voter.mention} role to {hex}.", inline=False)
+        await voter.edit(color = new_hex, reason = f"Custom role color change by {ctx.author}")
+
+      else:
+        embed.add_field(name="No custom role found!", value=f"Head to <#741835235737731083> to learn how to get a custom role!", inline=False)
+
+      await ctx.channel.send(embed=embed)
+
+
+    def setup(bot):
+      bot.add_cog(customRoles(bot))
+
+
+
+    class partnerships(commands.Cog):
+      def __init__(self, bot):
+        self.bot = bot
+
+    @commands.group(aliases=["p", "pm"], invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @trigger_typing
+    @commands.cooldown(1, 5, BucketType.user)
+    async def partnerships(self, ctx, member: discord.Member = "None"):
+      """
+      See how many partnerships you or another PM has posted.
+      """
+
+      embed = discord.Embed(color=0x2f3136, timestamp=datetime.utcnow())
+      
+      if member != "None":
+        member = self.bot.guild.get_member(member.id)
+      else:
+        member = ctx.author
+
+      try:
+        count = db[f"{member.id}"]
+        embed.description = f"{member.mention} has posted {count} partnerships!"
+      except KeyError:
+        embed.description = "No data found!"
+
+      await ctx.channel.send(embed=embed)
+
+    @partnerships.command(name="lb")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @trigger_typing
+    @commands.cooldown(1, 5, BucketType.user)
+    async def partner_lb(self, ctx):
+      """
+      See who has posted the most partnerships!
+      """
+
+      pms = discord.utils.get(ctx.guild.roles, id=751470169448120422)  # change
+      embed = discord.Embed(color=0x2f3136, timestamp=datetime.utcnow())
+      message = "**Partnerships leaderboard!**\n\n"
+
+      for member in ctx.guild.members:
+        if pms in member.roles:
+          try:
+            value = db[f"{member.id}"]
+          except KeyError:
+            value = 0
+          message += f"{member.mention} → {value}\n"
+
+      embed.description = message
+      await ctx.channel.send(embed=embed)
+
+
+    @partnerships.command(name="set")
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @trigger_typing
+    @commands.cooldown(1, 10, BucketType.user)
+    async def partner_set(self, ctx, member: discord.Member, value: int):
+      """
+      Change a PM's partnership count.
+      """
+
+      embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      
+
+      db[f"{member.id}"] = value
+      embed.add_field(name="Partnership Count", value=f"Set {member.mention}'s partnership count to {value}.", inline=False)
+
+      await ctx.channel.send(embed=embed)
+
+
+    @partnerships.command(name="delete")
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @trigger_typing
+    @commands.cooldown(1, 20, BucketType.user)
+    async def partner_del(self, ctx, member: int):
+      """
+      Delete a PM's partnership count data (not reversible, only usable with user ID's).
+      """
+
+      embed = discord.Embed(color=self.bot.main_color, timestamp=datetime.utcnow())
+      
+      try:
+        del db[f"{member}"]
+        embed.add_field(name="Partnership Count", value=f"Deleted <@{member}>'s ({member}) partnership data.", inline=False)
+      except:
+        embed.add_field(name="Partnership Count", value=f"No data found for that user.", inline=False)
+
+      await ctx.channel.send(embed=embed)
+
+
+    def setup(bot):
+      bot.add_cog(partnerships(bot))
+
 
 
 # ———————— CHANNELS ————————
@@ -2689,14 +3040,15 @@ class Modmail(commands.Cog):
         await channel.send(embed=embed)
         await member.send("Your nickname was changed for containing a banned word/being inappropriate, please give yourself a nickname that follows our <#760498694323044362>.")
 
+
       member_name = member.name
 
       if welc_state == "on":
         
-        if re.search("[\s]", member_name):
+        if re.search("[\s]", member_name) and self.bot.guild.id == 641449164328140802:
 
           member_name = urllib.parse.quote(member_name)
-          welc_channel = self.bot.get_channel(965915830661570593)  # change
+          welc_channel = self.bot.get_channel(641449164328140806)  # change
           avatar = member.avatar_url_as(static_format='png', size=1024)
 
 
@@ -2704,9 +3056,8 @@ class Modmail(commands.Cog):
 
           embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
 
-          await asyncio.sleep(20)
+          await asyncio.sleep(60)
           await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
-
 
     def setup(bot):
       bot.add_cog(Welcomer(bot))
@@ -2776,8 +3127,8 @@ class Modmail(commands.Cog):
 
       if ap_state == "on":
 
-        meow = 965915830661570593  # change
-        if message.channel.id == meow and not re.search("(809487761005346866)", message.content):
+        meow = 808786532173480036  # change
+        if message.channel.id == meow and re.search("(\.png|\.jpg|\.jpeg|\.gif|\.mov|\.mp4)", message.content) and not re.search("(809487761005346866|^\?|^\!)", message.content):
           await message.publish()
 
       if ar_state == "on":
@@ -2794,13 +3145,25 @@ class Modmail(commands.Cog):
           await message.add_reaction("<:aiko:965918603566284820>")
         if re.search("(how)(.*)(report)", message.content):
           await message.channel.send(f"Hey {message.author.mention}! Please DM me if you're looking to report another member! <:chibilapproval:818499768149999650>")
-        if re.search("(just boosted the server!$)", message.content) and message.channel.id == 641449164328140806:
+        if re.search("(just boosted the server!)", message.content) and message.channel.id == 641449164328140806:
           embed=discord.Embed(description=f"**Thank you for boosting {message.guild}! Make sure to check out <#741835235737731083> to see the perks you can get!** <:ddlcsayoriheart:743601377942700114>", color=self.bot.main_color)
           embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
           embed.set_footer(text="DM me to claim your perks!")
           await message.channel.send(f"{message.author.mention} just boosted us! <a:catvibing:807759270980485139>", embed=embed)
+
+
         if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538:
-          embed=discord.Embed(color=discord.Color.from_rgb(255, 255, 255), description=f"Thanks for the partnership {message.author.mention}!")
+
+          try:
+            db[f"{message.author.id}"] = db[f"{message.author.id}"] + 1
+
+          except KeyError:
+            db[f"{message.author.id}"] = 1
+          
+          count = db[f"{message.author.id}"]
+          
+          embed=discord.Embed(color=0x2f3136, description=f"Thanks for the partnership {message.author.mention}!")
+          embed.set_footer(text=f"You have posted {count} in total!")
           await message.channel.send(embed=embed)
 
     def setup(bot):
@@ -2842,6 +3205,7 @@ class Modmail(commands.Cog):
     def setup(bot):
       bot.add_cog(Automod(bot))
 
+
     class modules(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
@@ -2859,6 +3223,7 @@ class Modmail(commands.Cog):
       embed.add_field(name="Welcome", value=f"{welc_state}", inline=False)
       embed.add_field(name="Autopublish", value=f"{ap_state}", inline=False)
       embed.add_field(name="Autoresponder", value=f"{ar_state}", inline=False)
+      embed.add_field(name="Automod", value=f"`NaN`", inline=False)
       embed.set_footer(text=f"To enable/disable a specific module do {prefix}module_name on/off.")
       embed.set_author(name="Modules")
 
@@ -2893,19 +3258,19 @@ class Modmail(commands.Cog):
       prefix = "!"
       
       if member in ctx.author.roles:
-        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!", inline=False)
+        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role.", inline=False)
 
 
-      if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
+      if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(mod$)", ctx.message.content))):
         embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.", inline=False)
 
 
-      if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
-        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite] → Gets info about an invite.", inline=False)
+      if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(pm$)", ctx.message.content))):
+        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}partner → Gives the user the partner role (only usable in threads).**\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}p** → Shows you how many partnerships you or another PM has posted.", inline=False)
 
 
-      if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat):
-        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.\n**{prefix}modules** → See every module and its status.", inline=False)
+      if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(admin$)", ctx.message.content))):
+        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.", inline=False)
         
 
         embed.set_author(name="Aiko Commands!", icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096"),

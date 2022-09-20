@@ -198,7 +198,7 @@ class ModmailBot(commands.Bot):
         return self.api.db
 
     async def get_prefix(self, message=None):
-        return [self.prefix, f"<@{self.user.id}> ", f"<@!{self.user.id}> ", "aiko!"]
+        return [self.prefix, f"<@{self.user.id}> ", f"<@!{self.user.id}> ", "aiko!", "a!"]
 
     def run(self):
         loop = self.loop

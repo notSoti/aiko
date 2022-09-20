@@ -1,2 +1,19 @@
 language = "python3"
 run = "pip install pipenv && pipenv install && pip install random-word && pip install pyyaml && python bot.py"
+
+# Per-language configuration: python3
+[languages.python3]
+# Treats all files that end with `.py` as Python.
+pattern = "**/*.py"
+# Tells the workspace editor to syntax-highlight these files as
+# Python.
+syntax = "python"
+
+  # The command needed to start the Language Server Protocol. For
+  # linting and formatting.
+  [languages.python3.languageServer]
+  start = ["pylsp"]
+
+# Enable unit tests. This is only supported for a few languages.
+[unitTest]
+language = "python3"
