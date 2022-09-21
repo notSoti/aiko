@@ -957,7 +957,7 @@ class Thread:
                     name = tag
                 avatar_url = self.bot.config["anon_avatar_url"]
                 if avatar_url is None:
-                    avatar_url = self.bot.guild.icon.url
+                    avatar_url = self.bot.guild.icon
                 embed.set_author(
                     name=name,
                     icon_url=avatar_url,

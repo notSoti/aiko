@@ -744,7 +744,7 @@ class Modmail(commands.Cog):
             username += entry["recipient"]["discriminator"]
 
             embed = discord.Embed(color=self.bot.main_color, timestamp=created_at)
-            embed.set_author(name=f"{title} - {username}", icon_url=avatar_url, url=log_url)
+            embed.set_author(name=f"{title} - {username}", icon_url=avatar_url.url, url=log_url)
             embed.url = log_url
             embed.add_field(name="Created", value=human_timedelta(created_at))
             closer = entry.get("closer")
@@ -1040,7 +1040,7 @@ class Modmail(commands.Cog):
             avatar_url = self.bot.config["anon_avatar_url"]
             if avatar_url is None:
                 avatar_url = self.bot.guild.icon.url
-            em.set_footer(text=name, icon_url=avatar_url)
+            em.set_footer(text=name, icon_url=avatar_url.url)
 
             for u in users:
                 to_exec.append(u.send(embed=em))
@@ -1129,7 +1129,7 @@ class Modmail(commands.Cog):
             avatar_url = self.bot.config["anon_avatar_url"]
             if avatar_url is None:
                 avatar_url = self.bot.guild.icon.url
-            em.set_footer(text=name, icon_url=avatar_url)
+            em.set_footer(text=name, icon_url=avatar_url.url)
 
             for u in users:
                 to_exec.append(u.send(embed=em))
@@ -2340,14 +2340,14 @@ class Modmail(commands.Cog):
             try:
                 await member.ban(delete_message_days=days, reason=f"{reason if reason else None}")
                 banned += 1
-                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
                 embed.add_field(name="User", value=f"{member.mention} | {member}", inline=False)
                 embed.add_field(name="Moderator", value=f"{ctx.author.mention} | ID {ctx.author.id}", inline=False)
                 embed.add_field(name="Reason", value=reason, inline=False)
                 embed.set_footer(text=f"User ID: {member.id}")
 
             except discord.Forbidden:
-                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
                 embed.add_field(name="Failed", value=f"{member.mention} | {member}", inline=False)
                 embed.add_field(name="Moderator", value=f"{ctx.author.mention} | ID {ctx.author.id}", inline=False)
                 embed.add_field(name="Reason", value=reason, inline=False)
@@ -2739,7 +2739,7 @@ class Modmail(commands.Cog):
         """
 
         webhook = await ctx.channel.create_webhook(name="su")
-        await webhook.send(content=msg, username=self.bot.name, avatar_url=self.bot.avatar)
+        await webhook.send(content=msg, username=self.bot.name, avatar_url=self.bot.avatar.url)
         await webhook.delete()
 
         message = ctx.message

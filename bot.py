@@ -1634,7 +1634,7 @@ class ModmailBot(commands.Bot):
                 )
                 embed.set_author(
                     name=user["username"] + " - Updating Bot",
-                    icon_url=user["avatar_url"],
+                    icon_url=user["avatar"],
                     url=user["url"],
                 )
 
