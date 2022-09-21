@@ -737,5 +737,5 @@ class Plugins(commands.Cog):
         await paginator.run()
 
 
-def setup(bot):
-    bot.add_cog(Plugins(bot))
+async def setup(bot):
+    await bot.add_cog(Plugins(bot))
