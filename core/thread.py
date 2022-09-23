@@ -466,7 +466,7 @@ class Thread:
                 _nsfw = ""
 
             #desc = f"[`{_nsfw}{log_data['key']}`]({log_url}): "
-            desc += truncate(sneak_peak, max=75 - 13)
+            desc = truncate(sneak_peak, max=75 - 13)
         else:
             desc = "Could not resolve log url."
             log_url = None
@@ -485,7 +485,7 @@ class Thread:
 
         embed.title = user
 
-        event = "Thread Closed as Scheduled" if scheduled else "Thread Closed"
+        event = "Thread closed as scheduled" if scheduled else "Thread closed"
         # embed.set_author(name=f"Event: {event}", url=log_url)
         embed.set_footer(text=f"{event} by {_closer}", icon_url=closer.display_avatar.url)
         embed.timestamp = discord.utils.utcnow()
@@ -498,7 +498,7 @@ class Thread:
                 view.add_item(discord.ui.Button(label="Thread", url=log_url, style=discord.ButtonStyle.url))
             else:
                 view = None
-            tasks.append(self.bot.log_channel.send(embed=embed, view=view))
+            tasks.append(self.bot.log_channel.send(f"{self.recipient.mention}", embed=embed, view=view))
 
         # Thread closed message
 
