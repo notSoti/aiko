@@ -2573,6 +2573,7 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.MOD)
+    #@commands.has_role(819234810543210496)
     @commands.cooldown(1, 36000, BucketType.guild)
     async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = "None"):
       """
@@ -2609,7 +2610,8 @@ class Modmail(commands.Cog):
         ctx.command.reset_cooldown(ctx)
         return
 
-      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm"):
+
+      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm", "yea"):
         msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
         await msg.add_reaction("<:aiko_1:965916655878291507>")
         await msg.add_reaction("<:aiko_2:965916656536789052>")
@@ -2617,6 +2619,7 @@ class Modmail(commands.Cog):
         await ctx.send("Canceled.")
         ctx.command.reset_cooldown(ctx)
         return
+
 
     def setup(bot):
       bot.add_cog(wyr(bot))
@@ -2643,8 +2646,8 @@ class Modmail(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @checks.has_permissions(PermissionLevel.OWNER)
-    @commands.cooldown(1, 60, BucketType.user)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 180, BucketType.user)
     async def restart(self, ctx):
 
       await ctx.channel.send("Restarting.")
@@ -2887,7 +2890,7 @@ class Modmail(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(aliases=["p"], invoke_without_command=True)
+    @commands.group(aliases=["p", "pm"], invoke_without_command=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @trigger_typing
     @commands.cooldown(1, 5, BucketType.user)
@@ -3125,7 +3128,7 @@ class Modmail(commands.Cog):
       if ap_state == "on":
 
         meow = 808786532173480036  # change
-        if message.channel.id == meow and re.search("(\.png|\.jpg|\.jpeg|\.gif|\.mov)", message.content) and not re.search("(809487761005346866|^\?|^\!)", message.content):
+        if message.channel.id == meow and re.search("(\.png|\.jpg|\.jpeg|\.gif|\.mov|\.mp4)", message.content) and not re.search("(809487761005346866|^\?|^\!)", message.content):
           await message.publish()
 
       if ar_state == "on":
