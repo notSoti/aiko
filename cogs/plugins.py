@@ -258,7 +258,7 @@ class Plugins(commands.Cog):
                 sys.path.insert(0, USER_SITE)
 
         try:
-            self.bot.load_extension(plugin.ext_string)
+            await self.bot.load_extension(plugin.ext_string)
             logger.info("Loaded plugin: %s", plugin.ext_string.split(".")[-1])
             self.loaded_plugins.add(plugin)
 
@@ -432,7 +432,7 @@ class Plugins(commands.Cog):
 
         if self.bot.config.get("enable_plugins"):
             try:
-                self.bot.unload_extension(plugin.ext_string)
+                await self.bot.unload_extension(plugin.ext_string)
                 self.loaded_plugins.remove(plugin)
             except (commands.ExtensionNotLoaded, KeyError):
                 logger.warning("Plugin was never loaded.")
@@ -737,5 +737,5 @@ class Plugins(commands.Cog):
         await paginator.run()
 
 
-def setup(bot):
-    bot.add_cog(Plugins(bot))
+async def setup(bot):
+    await bot.add_cog(Plugins(bot))

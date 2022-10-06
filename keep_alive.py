@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def main():
-    return "<code>Aiko! prod version.<code>"
+    return "Aiko! Prod version."
 
 def run():
     app.run(host="0.0.0.0", port=8080)
