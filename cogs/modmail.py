@@ -3,10 +3,13 @@ import re
 from datetime import datetime, timezone
 import datetime
 from socket import MSG_DONTROUTE
+from turtle import goto
 from random_word import Wordnik
 import random
 import string
 import os
+import aiohttp
+import io
 import sys
 import traceback
 import json
@@ -509,7 +512,7 @@ class Modmail(commands.Cog):
             if thread.close_task is not None or thread.auto_close_task is not None:
                 await thread.cancel_closure(all=True)
                 embed = discord.Embed(
-                    color=self.bot.error_color, description="Scheduled close has been cancelled."
+                    color=self.bot.main_color, description="Scheduled close has been cancelled."
                 )
             else:
                 embed = discord.Embed(
@@ -2649,7 +2652,7 @@ class Modmail(commands.Cog):
     @checks.has_permissions(PermissionLevel.ADMIN)
     @checks.thread_only()
     @commands.cooldown(1, 10, BucketType.user)
-    async def custom(self, ctx, name, color: str, icon: str = None):
+    async def custom(self, ctx, name, color: str, icon = None):
         """
         Give the user in the thread a custom role.
         
@@ -2664,8 +2667,22 @@ class Modmail(commands.Cog):
         color = discord.Color.from_str(color)
         embed=discord.Embed(title=f"Role assigned to {member}!", color=color, timestamp=discord.utils.utcnow())
 
+
         if icon != None:
-            embed.set_thumbnail(url=str(icon))
+            if not re.search("(\.png|\.jpg)$", icon):
+                embed.description="Something went wrong. Keep in mind the image link needs to end in either `.png` or `.jpg`."
+            else:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(icon) as resp:
+
+                        if resp.status != 200:
+                            embed.description="Something went wrong."
+                
+                        else:
+                            data = io.BytesIO(await resp.read())
+                            icon = data.read()
+
+                embed.set_thumbnail(url=icon)
             has_icon = "Yes"
         else:
             has_icon = "No"
@@ -3338,9 +3355,228 @@ class Modmail(commands.Cog):
     async def setup(bot):
       await bot.add_cog(Fun(bot))
 
-    class say_cmd(commands.Cog):
-      def __init__(self, bot):
-          self.bot = bot
+
+    @commands.group(aliases=["avset"], usage="[avatar link]]", invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 300, BucketType.guild)
+    async def setav(self, ctx, av):
+        """
+        Change Aiko's avatar.
+        """
+
+        embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Requested by {ctx.author}")
+
+        if not re.search("(\.png|\.jpg)$", av):
+            embed.description="Something went wrong. Keep in mind the image link needs to end in either `.png` or `.jpg`."
+            await ctx.send(embed=embed)
+            return
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(av) as resp:
+
+                if resp.status != 200:
+                    embed.description="Something went wrong."
+                
+                else:
+                    embed.title = "Changed Aiko's avatar to:"
+                    embed.set_image(url=av)
+                    data = io.BytesIO(await resp.read())
+                    av = data.read()
+
+        await self.bot.user.edit(avatar=av)
+        await ctx.send(embed=embed)
+
+    @setav.group(name="revert", aliases=["reset"])
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 300, BucketType.guild)
+    async def setav_revert(self, ctx):
+        """
+        Revert Aiko's avatar to her default one.
+        """
+
+        embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Requested by {ctx.author}")
+
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://cdn.discordapp.com/avatars/865700778622713886/837d46e9c7e38a0b600ae654eaca1f35.png?size=1024") as resp:
+
+                if resp.status != 200:
+                    embed.description="Something went wrong."
+                
+                else:
+                    embed.title = "Reverted Aiko's avatar."
+                    data = io.BytesIO(await resp.read())
+                    av = data.read()
+
+        await self.bot.user.edit(avatar=av)
+        await ctx.send(embed=embed)
+
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 3600, BucketType.guild)
+    async def theme(self, ctx):
+        """
+        Change the channel names based on the pre-selected theme (this won't change private cateogries and some other channels).
+        """
+
+        emoji1 = "🎃"
+        emoji2 = "🍬"
+        emoji3 = "🦇"
+        emoji4 = "🌜"
+        emoji5 = "🍭"
+        emoji6 = "🍫"
+        emoji7 = "🦉"
+        emoji8 = "🕷️"
+
+        hello_cat = ctx.guild.get_channel(641780013003440178)
+        com_cat = ctx.guild.get_channel(740595824639082576)
+        general_cat = ctx.guild.get_channel(641449164328140804)
+        play_cat = ctx.guild.get_channel(763825244581920838)
+        calls_cat = ctx.guild.get_channel(688115144693121041)
+        partner_cat = ctx.guild.get_channel(808781797718097971)
+        stats_cat = ctx.guild.get_channel(741087382010462289)
+
+        staff_apps = ctx.guild.get_channel(973718907221319760)
+
+        newbies = ctx.guild.get_channel(641780135996948480)
+        rules_fake = ctx.guild.get_channel(950180899310428280)
+        rules = ctx.guild.get_channel(760498694323044362)
+        intros = ctx.guild.get_channel(757681621171306676)
+        roles = ctx.guild.get_channel(760500989614227496)
+        crayons = ctx.guild.get_channel(760159326693752879)
+
+        info = ctx.guild.get_channel(741835235737731083)
+        mailbox = ctx.guild.get_channel(646476610853273601)
+        meow = ctx.guild.get_channel(808786532173480036)
+        bot_news = ctx.guild.get_channel(750476824433262674)
+        cookies = ctx.guild.get_channel(741428273191583854)
+        wyr = ctx.guild.get_channel(1000806786447720548)
+        feedback = ctx.guild.get_channel(709969553026711562)
+
+        main = ctx.guild.get_channel(641449164328140806)
+        media = ctx.guild.get_channel(642840124505456641)
+        selfies = ctx.guild.get_channel(798216652964495400)
+        arts = ctx.guild.get_channel(703757494949773403)
+        vent = ctx.guild.get_channel(683780684007079981)
+
+        promo = ctx.guild.get_channel(769582489421217822)
+        count = ctx.guild.get_channel(653055287510433824)
+        cursed = ctx.guild.get_channel(660484550316523549)
+        spam = ctx.guild.get_channel(641777941818245160)
+        bots = ctx.guild.get_channel(949772478937440346)
+
+        vc_room = ctx.guild.get_channel(741726855849050143)
+        playlist = ctx.guild.get_channel(657012154699874324)
+        chit_chat = ctx.guild.get_channel(642131623638204416)
+        music = ctx.guild.get_channel(645740142752956416)
+        music2 = ctx.guild.get_channel(949770280706899998)
+        people2 = ctx.guild.get_channel(786590934099820544)
+        people3 = ctx.guild.get_channel(788056412550070292)
+
+        req = ctx.guild.get_channel(741333159274086400)
+        links = ctx.guild.get_channel(651753340623126538)
+
+        members = ctx.guild.get_channel(976869277355356230)
+        goal = ctx.guild.get_channel(749308698047807578)
+
+        msg = await ctx.send("Editing the channels/categories, this will take some time!")
+
+        await hello_cat.edit(name=f"꒰ {emoji1} ꒱ helloo! ୨୧")
+        await asyncio.sleep(2)
+        await com_cat.edit(name=f"꒰ {emoji1} ꒱ community ୨୧")
+        await asyncio.sleep(2)
+        await general_cat.edit(name=f"꒰ {emoji1} ꒱ general ୨୧")
+        await asyncio.sleep(2)
+        await play_cat.edit(name=f"꒰ {emoji1} ꒱ playground ୨୧")
+        await asyncio.sleep(2)
+        await calls_cat.edit(name=f"꒰ {emoji1} ꒱ calls ୨୧")
+        await asyncio.sleep(2)
+        await partner_cat.edit(name=f"꒰ {emoji1} ꒱ partner ୨୧")
+        await asyncio.sleep(2)
+        await stats_cat.edit(name=f"꒰ {emoji1} ꒱ stats ୨୧")
+        await asyncio.sleep(2)
+
+        await staff_apps.edit(name=f"{emoji7}੭┆staff-apps！")
+        await asyncio.sleep(2)
+
+        await newbies.edit(name=f"୨{emoji5}ɞ﹕newbies")
+        await asyncio.sleep(2)
+        await rules_fake.edit(name=f"{emoji1}┆rules-ˊˎ")
+        await asyncio.sleep(2)
+        await rules.edit(name=f"{emoji1}┆rulesˊˎ")
+        await asyncio.sleep(2)
+        await intros.edit(name=f"╭ʚ{emoji3}﹕intros")
+        await asyncio.sleep(2)
+        await roles.edit(name=f"{emoji8}੭┆roles・٩ˊᗜˋو")
+        await asyncio.sleep(2)
+        await crayons.edit(name=f"╰ʚ{emoji2}﹕crayons")
+        await asyncio.sleep(2)
+
+        await info.edit(name=f"๑{emoji8}・info")
+        await asyncio.sleep(2)
+        await mailbox.edit(name=f"╭ʚ{emoji1}﹕mailbox")
+        await asyncio.sleep(2)
+        await meow.edit(name=f"{emoji7}੭┆meow！♡")
+        await asyncio.sleep(2)
+        await bot_news.edit(name=f"╰ʚ{emoji5}﹕bot-news")
+        await asyncio.sleep(2)
+        await cookies.edit(name=f"{emoji4}┆cookies•₊°")
+        await asyncio.sleep(2)
+        await wyr.edit(name=f"๑{emoji2}・wyr")
+        await asyncio.sleep(2)
+        await feedback.edit(name=f"{emoji3}┆feedback•₊°")
+        await asyncio.sleep(2)
+
+        await main.edit(name=f"୨{emoji1}ɞ﹕main")
+        await asyncio.sleep(2)
+        await media.edit(name=f"{emoji2}┆mediaˊˎ")
+        await asyncio.sleep(2)
+        await selfies.edit(name=f"{emoji4}┆selfiesˊˎ")
+        await asyncio.sleep(2)
+        await arts.edit(name=f"୨{emoji5}ɞ﹕arts-n-crafts")
+        await asyncio.sleep(2)
+        await vent.edit(name=f"{emoji3}┆vent-n-rantˊˎ")
+        await asyncio.sleep(2)
+
+        await promo.edit(name=f"୨{emoji3}ɞ﹕promo")
+        await asyncio.sleep(2)
+        await count.edit(name=f"๑{emoji2}・123")
+        await asyncio.sleep(2)
+        await cursed.edit(name=f"{emoji8}┆cursed•₊°")
+        await asyncio.sleep(2)
+        await spam.edit(name=f"{emoji7}┆spam•₊°")
+        await asyncio.sleep(2)
+        await bots.edit(name=f"๑{emoji1}・bots")
+        await asyncio.sleep(2)
+
+        await vc_room.edit(name=f"๑{emoji1}・vc-room")
+        await asyncio.sleep(2)
+        await playlist.edit(name=f"{emoji3}┆playlist•₊°")
+        await asyncio.sleep(2)
+        await chit_chat.edit(name=f"꒰꒰ {emoji1} chit chat")
+        await asyncio.sleep(2)
+        await music.edit(name=f"꒰꒰ {emoji1} moosic")
+        await asyncio.sleep(2)
+        await music2.edit(name=f"꒰꒰ {emoji1} moosic 2")
+        await asyncio.sleep(2)
+        await people2.edit(name=f"꒰꒰ {emoji1} 2 buddies :D")
+        await asyncio.sleep(2)
+        await people3.edit(name=f"꒰꒰ {emoji1} 3 buddies :D")
+        await asyncio.sleep(2)
+
+        await req.edit(name=f"╭ʚ{emoji1}﹕req")
+        await asyncio.sleep(2)
+        await links.edit(name=f"╰ʚ{emoji4}﹕links・๑•͈ᴗ•͈")
+        await asyncio.sleep(2)
+
+        await members.edit(name=f"꒰꒰ {emoji1} members: 750")
+        await asyncio.sleep(2)
+        await goal.edit(name=f"꒰꒰ {emoji1} goal: 850")
+
+        await msg.edit(content="Finished editing the channels!")
 
 
     @commands.group(invoke_without_command=True)
@@ -3394,9 +3630,9 @@ class Modmail(commands.Cog):
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
     @commands.cooldown(1, 10, BucketType.user)
-    async def closing(self, ctx, when="None"):
+    async def closing(self, ctx):
         """
-        Close a thread. Say "now" to close it immediately, otherwise it'll automatically close after 5 minutes.
+        Close the thread automatically after 5 minutes.
         """
 
         embed=discord.Embed(color=self.bot.main_color, title="Closing Thread", description="The thread will close in 5 minutes unless the user sends another message.", timestamp=discord.utils.utcnow())
@@ -3404,26 +3640,71 @@ class Modmail(commands.Cog):
 
         if ctx.channel.category.id == 932000955581468682:   # change (and below)
             self.bot.config["log_channel_id"] = 959059849197531156
-            await ctx.invoke(self.bot.get_command("freply"), msg = "We will now close this thread, replying will create a new thread!")
+            await ctx.invoke(self.bot.get_command("freply"), msg = "We will now close this thread, replying will create a new one!")
 
         elif ctx.channel.category.id == 959059703357390868:
             self.bot.config["log_channel_id"] = 932001516754206820
-            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new thread!")
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
 
         else:
             self.bot.config["log_channel_id"] = 959063351772717116
-            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new thread!")
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
 
 
-        if when == "now" or when == "Now":
-            await ctx.thread.close(silent=True, after=0, closer=ctx.author, message=None)
+        await ctx.thread.close(silent=True, after=300, closer=ctx.author, message=None)
+        await ctx.send(embed=embed)
+        await asyncio.sleep(302)
+        self.bot.config["log_channel_id"] = 932001516754206820
+
+
+    @closing.command(name="now")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    @commands.cooldown(1, 10, BucketType.user)
+    async def closing_now(self, ctx):
+        """
+        Close the thread immediately.
+        """
+        
+        if ctx.channel.category.id == 932000955581468682:   # change (and below)
+            self.bot.config["log_channel_id"] = 959059849197531156
+            await ctx.invoke(self.bot.get_command("freply"), msg = "We will now close this thread, replying will create a new one!")
+
+        elif ctx.channel.category.id == 959059703357390868:
+            self.bot.config["log_channel_id"] = 932001516754206820
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
+
+        else:
+            self.bot.config["log_channel_id"] = 959063351772717116
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
+
+
+        await ctx.thread.close(silent=True, after=0, closer=ctx.author, message=None)
+        self.bot.config["log_channel_id"] = 932001516754206820
+
+
+    @closing.command(name="silently", aliases=["silent"])
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    @commands.cooldown(1, 10, BucketType.user)
+    async def closing_silent(self, ctx):
+        """
+        Close the thread immediately without notifying the user.
+
+        *Note:* You should only use this subcommand when a user sends an insignificant message in a thread while pending to be closed, thus cancelling its closure.
+        """
+        
+        if ctx.channel.category.id == 932000955581468682:   # change (and below)
+            self.bot.config["log_channel_id"] = 959059849197531156
+
+        elif ctx.channel.category.id == 959059703357390868:
             self.bot.config["log_channel_id"] = 932001516754206820
 
         else:
-            await ctx.thread.close(silent=True, after=300, closer=ctx.author, message=None)
-            await ctx.send(embed=embed)
-            await asyncio.sleep(302)
-            self.bot.config["log_channel_id"] = 932001516754206820
+            self.bot.config["log_channel_id"] = 959063351772717116
+
+        await ctx.thread.close(silent=True, after=0, closer=ctx.author, message=None)
+        self.bot.config["log_channel_id"] = 932001516754206820
 
 
     @closing.command(name="cancel")
@@ -3435,6 +3716,7 @@ class Modmail(commands.Cog):
         Cancel the automatic closure of a thread.
         """
         await ctx.invoke(self.bot.get_command("close"), option="cancel")
+
 
     @commands.command(usage="[message]")
     @checks.has_permissions(PermissionLevel.SUPPORTER)
@@ -3458,9 +3740,6 @@ class Modmail(commands.Cog):
         ctx.message.content = msg
         async with ctx.typing():
             await ctx.thread.reply(ctx.message, anonymous=True)
-
-    async def setup(bot):
-      await bot.add_cog(say_cmd(bot))
 
 # ———————— CHANNELS ————————
 
