@@ -2492,13 +2492,18 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.ADMIN)
-    async def echo(self, ctx: commands.Context, channel: discord.TextChannel = None, *, msg: str):
+    async def echo(self, ctx, channel: discord.TextChannel, *, msg: str):
       """
       Send a message through Aiko!
       """
 
-      if channel == None:
-        channel = ctx.channel
+      #channel = re.findall("", channel)
+
+      #try:
+      #channel = await self.bot.fetch_channel(int(channel))
+      #except:
+        #await ctx.send("Channel not found.")
+        #return
 
       await channel.send(f"{msg}")
       await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
@@ -3588,7 +3593,7 @@ class Modmail(commands.Cog):
       p = "!!"
       embed=discord.Embed(color=self.bot.main_color, title="Server's Snippets")
 
-      embed.description = f"{p}1boost\n{p}2boosts\n{p}status\n{p}ad\n{p}hi\n{p}noreply\n{p}proof\n{p}report"
+      embed.description = f"{p}1boost\n{p}2boosts\n{p}status\n{p}ad\n{p}hi\n{p}noreply\n{p}proof\n{p}report\n{p}troll"
       embed.set_footer(text="To see what a snippet does run !s show [snippet name]")
 
       await ctx.send(embed=embed)
@@ -3620,6 +3625,8 @@ class Modmail(commands.Cog):
             embed.description += "Please provide all the necessary proof if you're trying to report another user, such as message links, screenshots, full DM history etc. (what's considered necessary depends on what you're trying to report)."
         elif re.search("report$", s):
             embed.description += "Thanks for the report, we'll investigate and take action if needed!\n\nThe thread will be closed, if there's anything else you'd like to add please do so now, otherwise don't reply!"
+        elif re.search("troll$", s):
+            embed.description += "Aiko is not a place for you to play around, don't open threads for no actual reason or to joke around, this behavior regularly could result in a block or even potentially a ban from the server."
         else:
             embed.description = "Couldn't find that snippet."
 
@@ -3741,6 +3748,106 @@ class Modmail(commands.Cog):
         async with ctx.typing():
             await ctx.thread.reply(ctx.message, anonymous=True)
 
+    
+    @commands.command(aliases=["tot"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 600, BucketType.user)
+    async def trickortreat(self, ctx):
+      "Trick or treat?"
+
+      halloween = True
+
+      if halloween == True:
+
+        tricked = discord.utils.get(ctx.guild.roles, id=895808816703225916)    # change
+        treated = discord.utils.get(ctx.guild.roles, id=895808709140299807)
+
+        rng = random.randint(1, 29)
+        clrs = ["#751a01", "#ae3204", "#e65104", "#ee9e20", "#f0c22c", "#541708", "#000000", "#09ff00", "#c900ff", "#a78eb8", "#2d341e", "#252c3c", "#f7cd82", "#c1d234", "#65141b", "#fe791a"]
+        clr = random.choice(clrs)
+        embed = discord.Embed(color=discord.Color.from_str(clr), title="Trick or Treat?")
+        embed.set_footer(text="You can use the command again in 10 minutes!", icon_url="https://cdn.discordapp.com/emojis/1030326215187374142.gif?size=96&quality=lossless")
+
+        if rng == 1 or rng == 2 or rng == 3 or rng == 4:    # mute
+
+            admin = discord.utils.get(ctx.guild.roles, id=704792380624076820)  # change
+            if admin in  ctx.author.roles:
+                embed.description="You're lucky you're an admin... <:sus:653057730013167616>"
+                await ctx.send(embed=embed)
+                return
+
+            mute_time = random.randint(1, 60)
+            mute_time = readable_time = f"{mute_time}m"
+            time_conversion = {"m": 60}
+            mute_time = int(mute_time[:-1]) * time_conversion[mute_time[-1]]
+
+            await ctx.author.timeout(discord.utils.utcnow() + datetime.timedelta(seconds=int(mute_time)), reason="Trick or Treat'd!")
+
+            embed.description = f"You tried but... you got tricked and muted for {readable_time}!"
+            embed.remove_footer()
+
+        elif rng == 5 or rng == 6 or rng == 7 or rng == 8 or rng == 9:  # role
+
+            role_rng = random.randint(1,2)
+
+            tricked_r = [f"You were unlucky and got tricked! But hey, at least you got the {tricked.mention} role!", f"You got tricked and the {tricked.mention} role!", f"You asked for a treat... but got the {tricked.mention} role instead.", f"You were caught trying to steal candy and got the {tricked.mention} role instead!"]
+            ran_tricked = random.choice(tricked_r)
+            treated_r = [f"You were lucky and got candy! One of them was the {treated.mention} role!", f"You got loads of candy and the {treated.mention} role!", f"You got chocolate and the {treated.mention} role!"]
+            ran_treated = random.choice(treated_r)
+
+
+            if role_rng == 1:   # tricked
+                await ctx.author.add_roles(tricked)
+                if treated in ctx.author.roles:
+                    await ctx.author.remove_roles(treated)
+
+                embed.description = ran_tricked
+
+            else:     # treated
+                await ctx.author.add_roles(treated)
+                if treated in ctx.author.roles:
+                    await ctx.author.remove_roles(tricked)
+
+                embed.description = ran_treated
+
+        elif rng == 10 or rng == 11 or rng == 12 or rng == 13:  # role edit
+
+            role_rng2 = random.randint(1,2)
+
+            if role_rng2 == 1:  # tricked
+                await tricked.edit(color=discord.Color.from_str(clr))
+                embed.description = f"Changed the color of {tricked.mention} to {clr}!"
+
+            else:   # treated
+                await treated.edit(color=discord.Color.from_str(clr))
+                embed.description = f"Changed the color of {treated.mention} to {clr}!"
+        
+        elif rng == 14 or rng == 15 or rng == 16 or rng == 17:  # nicks
+
+            nicks = ["Spoopy", "Spooky", "Scary", "Fearful", "Wicked", "Evil", "Ghostly", "Fearsome", "Haunted", "Menacing", "Frightened", "Dreadful"]
+            nick = random.choice(nicks)
+
+            try:
+                new_nick = await ctx.author.edit(nick=f"{nick} {ctx.author.name}", reason="Trick or Treat!")
+                embed.description = f"AHA! I changed your nickname to {new_nick}!"
+            except:
+                embed.description = "Boo! <a:ghostie:1031911081288933466>"
+
+        else:   # random fact
+
+            responses = [f"Happy Halloween from {ctx.guild.name}!", "Boo!", "Did you know \"Jack o'lantern\" comes from the Irish legend of Stingy Jack? 🎃", "Did you know candy corn was originally called Chicken Feed? 🍬", "Did you know the most lit jack o'lanterns on display is 30,581!", "Did you know halloween dates back more than 2,000 years?", "Did you know Halloween is the second largest commercial holiday in the world?", "Did you know some shelters used to suspend black cat adoptions for Halloween?", "Did you know the word \"witch\" comes from the Old English \"Wicce\", meaning wise woman? 🧹", "Did you know people originally carved turnips instead of pumpkins?", "Did you know pumpkins are classified as a fruit instead of a vegetable?", "Did you know Trick-or-treating has existed since medieval times?", "Did you know the most common Halloween costumes for adults are cats and witches?", "Did you know the most popular costume for kids is Spiderman?" ,"Did you know the fear of Halloween is called Samhainophobia?", "Did you know Harry Houdini died on Halloween in 1926? 🧙‍♂️", "Did you know the Headless Horseman isn't linked to Halloween?", "Did you know Halloween is also known as All Hallows' Eve and All Saints Eve?", "Did you know some Halloween traditions include making a bonfire and playing divination games?", "Did you know it is believed that if a child is born on Halloween, they will be able to talk to the spirits?", "Did you know China holds Halloween festivals by lighting dragon-shaped lanterns?", "Did you know the night before Halloween is referred to as Mischief Night or Goosey Night?", "Did you know a full moon on Halloween night is considered rare?", "Did you know there's a ghost behind you right now?"]
+
+            embed.description = random.choice(responses)
+    
+      else:
+        embed = discord.Embed(color=0xf26600, title="Trick or Treat...?", description="Isn't it a bit too late for that? Maybe again next year? <a:ghost_wave:1031912745077047399>")
+        embed.set_image(url="https://cdn.discordapp.com/attachments/965915830661570593/1031921939985485944/giphy.gif")
+
+      await ctx.send(embed=embed)
+
+      channel = await self.bot.fetch_channel(1031926058154467398)
+      await channel.send(content=ctx.author.mention, embed=embed)
+
 # ———————— CHANNELS ————————
 
     global staff_cat
@@ -3834,8 +3941,8 @@ class Modmail(commands.Cog):
             embed=discord.Embed(description=f"**・ʚ ₊˚୨ Boosting Perks!**\n\n**1 boost:**\n・A **hoisted** role all boosters get!\n・**Image/Embed** perms!\n・Perms to **post** in <#769582489421217822>!\n・**Every** color from <#760159326693752879>!\n・One **free background** for the /rank command!\n・**7k cookies** for <@493716749342998541> every week!\n\n**2 boosts:**\n・The **previous** perks!\n・**2 free levels**!\n・**Another free background** for the </rank:981143682495434775> command!\n・A **custom role** and you'll be able to **change its color**!\n\n**2 boosts for at least a month:**\n・**All The previous** perks!\n・A **role icon** for your custom role!\n・You can **promote** something in <#646476610853273601> *or* have your **Twitch/Youtube streams/videos** get automatically announced in <#769582489421217822>!", color=self.bot.main_color)
             embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
             embed.set_footer(text="DM me to claim your perks!")
-            await mailbox.send(f"**{message.author.mention} Thank you for boosting {message.guild}! We now have **{message.guild.premium_subscription_count}** boosts! <a:catvibing:807759270980485139>**", embed=embed)
-            await mailbox.add_reaction("<a:kawaiihearts:770332490065248312>")
+            msg = await mailbox.send(f"**{message.author.mention} Thank you for boosting {message.guild}! We now have **{message.guild.premium_subscription_count}** boosts! <a:catvibing:807759270980485139>**", embed=embed)
+            await msg.add_reaction("<a:kawaiihearts:770332490065248312>")
 
         if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538: # change
 
