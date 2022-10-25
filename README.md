@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
   <img src="https://i.imgur.com/o558Qnq.png" align="center">
   <br>
@@ -220,3 +221,6 @@ If you like this project and would like to show your appreciation, support us on
 Our [development](https://github.com/kyb3r/modmail/tree/development) branch is where most of our features are tested before public release. Be warned that there could be bugs in various commands so keep it away from any large servers you manage.
 
 If you wish to test the new features and play around with them, feel free to join our [Public Test Server](https://discord.gg/v5hTjKC). Bugs can be raised within that server or in our Github issues (state that you are using the development branch though).
+=======
+Aiko!
+>>>>>>> facac8293c4644185f6f60419b5c2a03882f7574
