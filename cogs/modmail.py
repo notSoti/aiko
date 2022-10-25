@@ -2,11 +2,18 @@ import asyncio
 import re
 from datetime import datetime, timezone
 import datetime
-import random_word
+from socket import MSG_DONTROUTE
+from turtle import goto
+from random_word import Wordnik
 import random
+import string
 import os
+import aiohttp
+import io
 import sys
 import traceback
+import json
+from random import randint, choice
 import urllib.parse
 from replit import db
 from os import system
@@ -482,19 +489,15 @@ class Modmail(commands.Cog):
     ):
         """
         Close the current thread.
-
         Close after a period of time:
         - `{prefix}close in 5 hours`
         - `{prefix}close 2m30s`
-
         Custom close messages:
         - `{prefix}close 2 hours The issue has been resolved.`
         - `{prefix}close We will contact you once we find out more.`
-
         Silently close a thread (no message)
         - `{prefix}close silently`
         - `{prefix}close in 10m silently`
-
         Stop a thread from closing:
         - `{prefix}close cancel`
         """
@@ -509,7 +512,7 @@ class Modmail(commands.Cog):
             if thread.close_task is not None or thread.auto_close_task is not None:
                 await thread.cancel_closure(all=True)
                 embed = discord.Embed(
-                    color=self.bot.error_color, description="Scheduled close has been cancelled."
+                    color=self.bot.main_color, description="Scheduled close has been cancelled."
                 )
             else:
                 embed = discord.Embed(
@@ -538,6 +541,7 @@ class Modmail(commands.Cog):
         elif user_or_role in {"here", "everyone", "@here", "@everyone"}:
             mention = "@" + user_or_role.lstrip("@")
         return mention
+
 
     @commands.command(aliases=["alert"])
     @checks.has_permissions(PermissionLevel.SUPPORTER)
@@ -1493,7 +1497,7 @@ class Modmail(commands.Cog):
             return await ctx.send(
                 embed=discord.Embed(
                     title="Failed",
-                    description="Cannot find a message to edit. Plain messages are not supported.",
+                    description="Cannot find a message to edit.",
                     color=self.bot.error_color,
                 )
             )
@@ -1982,7 +1986,7 @@ class Modmail(commands.Cog):
             return await ctx.send(
                 embed=discord.Embed(
                     title="Failed",
-                    description="Cannot find a message to delete. Plain messages are not supported.",
+                    description="Cannot find a message to delete.",
                     color=self.bot.error_color,
                 )
             )
@@ -2431,6 +2435,9 @@ class Modmail(commands.Cog):
     @commands.command()
     @checks.has_permissions(PermissionLevel.MODERATOR)
     async def unmute(self, ctx, member:discord.Member):
+      """
+      Unmute a member, if they are muted.
+      """
 
       channel = self.bot.get_channel(int(os.getenv("channel")))
 
@@ -2450,12 +2457,12 @@ class Modmail(commands.Cog):
       await bot.add_cog(MuteCog(bot))
 
 
-    @commands.command()
+    @commands.command(usage="[limit]")
     @checks.has_permissions(PermissionLevel.MODERATOR)
     @commands.cooldown(2, 240, BucketType.user)
     async def purge(self, ctx, amount: int = 0):
       """
-      {prefix}purge [limit]
+      Purge up to 100 messages in the channel.
       """
 
       max = 100
@@ -2485,251 +2492,21 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.ADMIN)
-    async def embed(self, ctx: commands.Context):
-        """
-        {prefix}embed
-        """
-
-        def check(msg: discord.Message):
-            return ctx.author == msg.author and ctx.channel == msg.channel
-
-
-        def title_check(msg: discord.Message):
-            return (
-                ctx.author == msg.author
-                and ctx.channel == msg.channel
-                and (len(msg.content) < 256)
-            )
-
-        def description_check(msg: discord.Message):
-            return (
-                ctx.author == msg.author
-                and ctx.channel == msg.channel
-                and (len(msg.content) < 2048)
-            )
-
-        def footer_check(msg: discord.Message):
-            return (
-                ctx.author == msg.author
-                and ctx.channel == msg.channel
-                and (len(msg.content) < 2048)
-            )
-
-
-        def cancel_check(msg: discord.Message):
-            if msg.content == "cancel" or msg.content == f"{ctx.prefix}cancel":
-                return True
-            else:
-                return False
-
-
-        await ctx.send(
-            embed=await self.generate_embed("Do you want it to be an embed? `[y/n]`")
-        )
-
-        embed_res: discord.Message = await self.bot.wait_for("message", check=check)
-        if cancel_check(embed_res) is True:
-            await ctx.send("Cancelled.")
-            return
-        elif cancel_check(embed_res) is False and embed_res.content.lower() == "n":
-            await ctx.send(
-                embed=await self.generate_embed(
-                    "Okay, let's do a no-embed announcement."
-                    "\nWhat's the announcement?"
-                )
-            )
-            announcement = await self.bot.wait_for("message", check=check)
-            if cancel_check(announcement) is True:
-                await ctx.send("Cancelled.")
-                return
-            else:
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "To which channel should I send the announcement?"
-                    )
-                )
-                channel: discord.Message = await self.bot.wait_for(
-                    "message", check=check
-                )
-                if cancel_check(channel) is True:
-                    await ctx.send("Cancelled!")
-                    return
-                else:
-                    if channel.channel_mentions[0] is None:
-                        await ctx.send("Cancelled as no channel was provided")
-                        return
-                    else:
-                        await channel.channel_mentions[0].send(
-                            f"{role_mention}\n{announcement.content}"
-                        )
-        elif cancel_check(embed_res) is False and embed_res.content.lower() == "y":
-            embed = discord.Embed()
-            await ctx.send(
-                embed=await self.generate_embed(
-                    "Should the embed have a title? `[y/n]`"
-                )
-            )
-            t_res = await self.bot.wait_for("message", check=check)
-            if cancel_check(t_res) is True:
-                await ctx.send("Cancelled")
-                return
-            elif cancel_check(t_res) is False and t_res.content.lower() == "y":
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "What should the title of the embed be?"
-                        "\n**Must not exceed 256 characters**"
-                    )
-                )
-                tit = await self.bot.wait_for("message", check=title_check)
-                embed.title = tit.content
-            await ctx.send(
-                embed=await self.generate_embed(
-                    "Should the embed have a description?`[y/n]`"
-                )
-            )
-            d_res: discord.Message = await self.bot.wait_for("message", check=check)
-            if cancel_check(d_res) is True:
-                await ctx.send("Cancelled")
-                return
-            elif cancel_check(d_res) is False and d_res.content.lower() == "y":
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "What do you want as the description for the embed?"
-                        "\n**Must not exceed 2048 characters**"
-                    )
-                )
-                des = await self.bot.wait_for("message", check=description_check)
-                embed.description = des.content
-
-            await ctx.send(
-                embed=await self.generate_embed(
-                    "Should the embed have a thumbnail?`[y/n]`"
-                )
-            )
-            th_res: discord.Message = await self.bot.wait_for("message", check=check)
-            if cancel_check(th_res) is True:
-                await ctx.send("Cancelled")
-                return
-            elif cancel_check(th_res) is False and th_res.content.lower() == "y":
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "What's the thumbnail of the embed? Enter a " "valid URL"
-                    )
-                )
-                thu = await self.bot.wait_for("message", check=check)
-                embed.set_thumbnail(url=thu.content)
-
-            await ctx.send(
-                embed=await self.generate_embed("Should the embed have a image?`[y/n]`")
-            )
-            i_res: discord.Message = await self.bot.wait_for("message", check=check)
-            if cancel_check(i_res) is True:
-                await ctx.send("Cancelled")
-                return
-            elif cancel_check(i_res) is False and i_res.content.lower() == "y":
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "What's the image of the embed?"
-                    )
-                )
-                i = await self.bot.wait_for("message", check=check)
-                embed.set_image(url=i.content)
-
-            await ctx.send(
-                embed=await self.generate_embed("Will the embed have a footer?`[y/n]`")
-            )
-            f_res: discord.Message = await self.bot.wait_for("message", check=check)
-            if cancel_check(f_res) is True:
-                await ctx.send("Cancelled")
-                return
-            elif cancel_check(f_res) is False and f_res.content.lower() == "y":
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "What do you want the footer of the embed to be?"
-                        "\n**Must not exceed 2048 characters**"
-                    )
-                )
-                foo = await self.bot.wait_for("message", check=footer_check)
-                embed.set_footer(text=foo.content)
-
-            await ctx.send(
-                embed=await self.generate_embed(
-                    "Do you want it to have a color?`[y/n]`"
-                )
-            )
-            c_res: discord.Message = await self.bot.wait_for("message", check=check)
-            if cancel_check(c_res) is True:
-                await ctx.send("Cancelled.")
-                return
-            elif cancel_check(c_res) is False and c_res.content.lower() == "y":
-                await ctx.send(
-                    embed=await self.generate_embed(
-                        "What color should the embed have? "
-                        "Please provide a valid hex color"
-                    )
-                )
-                colo = await self.bot.wait_for("message", check=check)
-                if cancel_check(colo) is True:
-                    await ctx.send("Cancelled.")
-                    return
-                else:
-                    match = re.search(
-                        r"^#(?:[0-9a-fA-F]{3}){1,2}$", colo.content
-                    )  # uwu thanks stackoverflow
-                    if match:
-                        embed.colour = int(
-                            colo.content.replace("#", "0x"), 0
-                        )  # Basic Computer Science
-                    else:
-                        await ctx.send(
-                            "Invalid hex."
-                        )
-                        return
-
-            await ctx.send(
-                embed=await self.generate_embed(
-                    "In which channel should I send the announcement?"
-                )
-            )
-            channel: discord.Message = await self.bot.wait_for("message", check=check)
-            if cancel_check(channel) is True:
-                await ctx.send("Cancelled.")
-                return
-            else:
-                if channel.channel_mentions[0] is None:
-                    await ctx.send("Cancelled as no channel was provided")
-                    return
-                else:
-                    schan = channel.channel_mentions[0]
-            await ctx.send(
-                "Here is how the embed looks like: Send it? `[y/n]`", embed=embed
-            )
-            s_res = await self.bot.wait_for("message", check=check)
-            if cancel_check(s_res) is True or s_res.content.lower() == "n":
-                await ctx.send("Cancelled")
-                return
-            else:
-                await schan.send(embed=embed)
-
-    @staticmethod
-    async def generate_embed(description: str):
-        embed = discord.Embed()
-        embed.colour = discord.Colour.blurple()
-        embed.description = description
-
-        return embed
-
-
-    @commands.command()
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    async def echo(self, ctx: commands.Context, channel: discord.TextChannel, *, msg: str):
+    async def echo(self, ctx, channel: discord.TextChannel, *, msg: str):
       """
-      {prefix}echo [channel] [message]
+      Send a message through Aiko!
       """
+
+      #channel = re.findall("", channel)
+
+      #try:
+      #channel = await self.bot.fetch_channel(int(channel))
+      #except:
+        #await ctx.send("Channel not found.")
+        #return
 
       await channel.send(f"{msg}")
       await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
-      print(f"{ctx.author} used the echo command and said: {msg}.")
 
 
 
@@ -2759,10 +2536,10 @@ class Modmail(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(usage="[option 1] [option 2] (suggester)")
     @checks.has_permissions(PermissionLevel.MOD)
     #@commands.has_role(819234810543210496)
-    @commands.cooldown(1, 36000, BucketType.guild)
+    @commands.cooldown(2, 36000, BucketType.guild)
     async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = "None"):
       """
       A would you rather command, separate the choices with "".
@@ -2855,22 +2632,79 @@ class Modmail(commands.Cog):
     @checks.thread_only()
     async def partner(self, ctx):
 
-      partner = discord.utils.get(ctx.guild.roles, id=741774737168007219)
+      partner = discord.utils.get(ctx.guild.roles, id=741774737168007219)   # change
       channel = self.bot.get_channel(int(os.getenv("channel")))
       member = ctx.guild.get_member(ctx.thread.id)
 
 
       embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
-      embed.add_field(name="Role Added", value=f"{ctx.thread.recipient.mention} ({ctx.thread.recipient}) was given the <@&741774737168007219> role by {ctx.author.mention} ({ctx.author}).")
+      embed.add_field(name="Role Added", value=f"{ctx.thread.recipient.mention} ({ctx.thread.recipient}) was given the {partner.mention} role by {ctx.author.mention} ({ctx.author}).")
       embed.set_footer(text=f"PM ID: {ctx.author.id} - User ID: {ctx.thread.recipient.id}")
 
       await member.add_roles(partner, reason="Partnership", atomic=True)
       await channel.send(embed=embed)
-      await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
+      await ctx.send(content=f"Gave {member.mention} the {partner.mention} role", allowed_mentions=discord.AllowedMentions(roles=False))
 
     async def setup(bot):
       await bot.add_cog(partner(bot))
 
+
+    class customRole(commands.Cog):
+        def __innit__(self, bot):
+            self.bot = bot
+
+    @commands.command(usage="[role name] [color] (role icon link)")
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @checks.thread_only()
+    @commands.cooldown(1, 10, BucketType.user)
+    async def custom(self, ctx, name, color: str, icon = None):
+        """
+        Give the user in the thread a custom role.
+        
+        *Notes:*
+            ・ The role icon is optional.
+            ・ If the role name is more than one word enclose it in " ".
+            ・ Only use hex values for the color (i.e. #1a2748).
+            ・ The role icon **needs** to be a link and end in either `.png` or `.jpg`.
+        """
+
+        member = ctx.guild.get_member(ctx.thread.id)
+        color = discord.Color.from_str(color)
+        embed=discord.Embed(title=f"Role assigned to {member}!", color=color, timestamp=discord.utils.utcnow())
+
+
+        if icon != None:
+            if not re.search("(\.png|\.jpg)$", icon):
+                embed.description="Something went wrong. Keep in mind the image link needs to end in either `.png` or `.jpg`."
+            else:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(icon) as resp:
+
+                        if resp.status != 200:
+                            embed.description="Something went wrong."
+                
+                        else:
+                            data = io.BytesIO(await resp.read())
+                            icon = data.read()
+
+                embed.set_thumbnail(url=icon)
+            has_icon = "Yes"
+        else:
+            has_icon = "No"
+
+        new_role = await ctx.guild.create_role(name=name, color=color, display_icon=icon, reason=f"Custom role for {member} by {ctx.author}")
+        await new_role.edit(position=100)
+        await member.add_roles(new_role, reason=f"Custom role for {member} by {ctx.author}", atomic=True)
+
+        embed.description = f"Role: {new_role.mention} ({new_role.name})\nColor: {color}\nHas role icon: {has_icon}"
+        embed.set_footer(text=f"Role ID: {new_role.id} | Created by {ctx.author}")
+
+        await ctx.send(embed=embed)
+
+
+
+    async def setup(bot):
+        await bot.add_cog(customRole(bot))
 
     class rules(commands.Cog):
       def __init__(self, bot):
@@ -2885,7 +2719,7 @@ class Modmail(commands.Cog):
       Displays every unverified member that has been in the server for more than 10 hours.
       """
 
-      role = discord.utils.get(ctx.guild.roles, id=1004830449283125288)  # change
+      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
       count = 0
       message = ""
 
@@ -2932,7 +2766,7 @@ class Modmail(commands.Cog):
             try:
                 await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
             except discord.Forbidden:
-                continue
+                pass
             await member.kick(reason="Didn't verify")
             count += 1
 
@@ -2959,7 +2793,7 @@ class Modmail(commands.Cog):
             try:
                 await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
             except discord.Forbidden:
-                continue
+                pass
             await member.kick(reason="Didn't verify (kick-all)")
             count += 1
 
@@ -3095,7 +2929,6 @@ class Modmail(commands.Cog):
 
 
       if re.search("(random)$", clr):
-        #clr = "#" + (str(hex(random.randint(0,16777215))))[2:]
         clr = random.randint(0,16777215)
         clr = "#" + (str(hex(clr)))[2:]
 
@@ -3177,7 +3010,7 @@ class Modmail(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(aliases=["p", "pm"], invoke_without_command=True)
+    @commands.group(aliases=["p", "pm"], usage="(member)", invoke_without_command=True)
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @trigger_typing
     @commands.cooldown(1, 5, BucketType.user)
@@ -3187,19 +3020,26 @@ class Modmail(commands.Cog):
       """
 
       embed = discord.Embed(color=0x2f3136, timestamp=discord.utils.utcnow())
+      pms = discord.utils.get(ctx.guild.roles, id=751470169448120422)  # change
+      links = self.bot.get_channel(651753340623126538) # change
+      count = 0
       
       if member != "None":
         member = self.bot.guild.get_member(member.id)
       else:
         member = ctx.author
 
-      try:
-        count = db[f"{member.id}"]
-        embed.description = f"{member.mention} has posted {count} partnerships!"
-      except KeyError:
-        embed.description = "No data found!"
+      if pms in member.roles:
+        async for message in links.history(limit=2000):
+            if message.author == member:
+                count += 1
+        msg = f"{member.mention} has posted {count} partnerships!"
+      else:
+        msg = "That user is not a PM!"
 
-      await ctx.channel.send(embed=embed)
+      embed.add_field(name="Partnership Count!", value=msg)
+
+      await ctx.reply(embed=embed)
 
     @partnerships.command(name="lb")
     @checks.has_permissions(PermissionLevel.SUPPORTER)
@@ -3212,91 +3052,801 @@ class Modmail(commands.Cog):
 
       pms = discord.utils.get(ctx.guild.roles, id=751470169448120422)  # change
       embed = discord.Embed(color=0x2f3136, timestamp=discord.utils.utcnow())
-      message = "**Partnerships leaderboard!**\n\n"
+      links = self.bot.get_channel(651753340623126538) # change
+      msg = "**Partnerships leaderboard!**\n\n"
 
       for member in ctx.guild.members:
+        count = 0
         if pms in member.roles:
-          try:
-            value = db[f"{member.id}"]
-          except KeyError:
-            value = 0
-          message += f"{member.mention} → {value}\n"
+            async for message in links.history(limit=2000):
+                if message.author == member:
+                    count += 1
+            msg += f"{member.mention} → {count}\n"
 
-      embed.description = message
-      await ctx.channel.send(embed=embed)
-
-
-    @partnerships.command(name="set")
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    @trigger_typing
-    @commands.cooldown(1, 10, BucketType.user)
-    async def partner_set(self, ctx, member: discord.Member, value: int):
-      """
-      Change a PM's partnership count.
-      """
-
-      embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
-      
-
-      db[f"{member.id}"] = value
-      embed.add_field(name="Partnership Count", value=f"Set {member.mention}'s partnership count to {value}.", inline=False)
-
-      await ctx.channel.send(embed=embed)
-
-
-    @partnerships.command(name="delete")
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    @trigger_typing
-    @commands.cooldown(1, 20, BucketType.user)
-    async def partner_del(self, ctx, member: int):
-      """
-      Delete a PM's partnership count data (not reversible, only usable with user ID's).
-      """
-
-      embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
-      
-      try:
-        del db[f"{member}"]
-        embed.add_field(name="Partnership Count", value=f"Deleted <@{member}>'s ({member}) partnership data.", inline=False)
-      except:
-        embed.add_field(name="Partnership Count", value=f"No data found for that user.", inline=False)
-
+      embed.description = msg
       await ctx.channel.send(embed=embed)
 
 
     async def setup(bot):
       await bot.add_cog(partnerships(bot))
 
-
-    class say_cmd(commands.Cog):
+    class Fun(commands.Cog):
       def __init__(self, bot):
           self.bot = bot
 
+    @commands.group(aliases=["av"], usage="(member)", invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def avatar(self, ctx, member: discord.User = "None"):
+        """
+        Get your or another user's avatar.
+        """
+
+        if member != "None":
+            member = await self.bot.fetch_user(member.id)
+        else:
+            member = ctx.author
+
+        embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+        embed.title=f"{member.name}'s avatar"
+        embed.set_footer(text=f"ID: {member.id}")
+        embed.set_image(url=member.avatar.url)
+
+        await ctx.send(embed=embed)
+    
+    @avatar.command(name="guild", aliases=["server"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def av_guild(self, ctx, member: discord.Member = "None"):
+        """
+        Get your or another user's server avatar, if it exists.
+        """
+
+        if member != "None":
+            member = self.bot.guild.get_member(member.id)
+        else:
+            member = ctx.author
+
+        embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+
+        if member.display_avatar.url == member.avatar.url:
+            embed.title=f"{member.name} doesn't have a server avatar!"
+        else:
+            embed.title=f"{member.name}'s server avatar"
+            embed.set_image(url=member.avatar.url)
+
+        embed.set_footer(text=f"ID: {member.id}")
+
+        await ctx.send(embed=embed)
+
+
+    @commands.command(usage="(member)")
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def banner(self, ctx, member: discord.User = "None"):
+        """
+        Get your or another user's banner.
+        """
+
+        embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+
+        if member != "None":
+            member = await self.bot.fetch_user(member.id)
+        else:
+            member = ctx.author
+
+
+        if member.banner != None:
+            embed.title=f"{member.name}'s banner"
+            embed.set_footer(text=f"ID: {member.id}")
+            embed.set_image(url=member.banner.url)
+        else:
+            embed.title=f"{member.name} doesn't have a banner!"
+
+        await ctx.send(embed=embed)
+
+
+    @commands.command(usage="[role]")
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def roleinfo(self, ctx, *, role: discord.Role):
+        """
+        Get a role's stats.
+        """
+
+        rolecolor = str(role.color).upper()
+
+        embed = discord.Embed(color=role.color)
+
+        embed.set_author(name=f"Stats about {role.name}")
+
+        embed.add_field(name="Role Name", value=f"{role.name}")
+        embed.add_field(name="Color", value=rolecolor)
+        embed.add_field(name="Members", value=len(role.members))
+        embed.add_field(name="Created at", value=discord.utils.format_dt(role.created_at, "f"))
+        embed.add_field(name="Role Position", value=role.position)
+        embed.add_field(name="Mention", value=role.mention)
+        embed.add_field(name="Hoisted", value=role.hoist)
+        embed.add_field(name="Mentionable", value=role.mentionable)
+        embed.add_field(name="Managed", value=role.managed)
+
+        embed.set_footer(text=f"Role ID: {role.id}")
+
+        await ctx.send(embed=embed)
+
+
+    @commands.command(aliases=["guildinfo"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def serverinfo(self, ctx):
+        """
+        Get the server's stats.
+        """
+
+        g = ctx.guild
+
+        bots = len([m for m in g.members if m.bot])
+        humans = len([m for m in g.members if not m.bot])
+        online = len([m for m in g.members if m.status == discord.Status.online])
+        idle = len([m for m in g.members if m.status == discord.Status.idle])
+        dnd = len([m for m in g.members if m.status == discord.Status.dnd])
+
+        embed = discord.Embed(color=self.bot.main_color)
+
+        embed.set_author(name=f"{g.name}'s Stats")
+
+        embed.add_field(
+            name=f"Member Count",
+            value=f"Online: {online}\nIdle: {idle}\nDND: {dnd}\nHumans: {humans}\nBots: {bots}\nMember Count: {g.member_count}",
+        )
+        embed.add_field(name="Categories", value=len(g.categories))
+        embed.add_field(name="Text Channels", value=len(g.text_channels))
+        embed.add_field(name="Voice Channels", value=len(g.voice_channels))
+        embed.add_field(name="Roles", value=len(g.roles))
+        embed.add_field(name="Server Owner", value=g.owner.mention)
+        embed.add_field(name="Boost Count", value=g.premium_subscription_count)
+        embed.add_field(name="Created", value=discord.utils.format_dt(g.created_at, "f"))
+
+        embed.set_thumbnail(url=str(g.icon))
+        embed.set_footer(text=f"Server ID: {g.id}")
+
+        await ctx.send(embed=embed)
+
+
+    @commands.command(aliases=["emote"], usage="[emoji]")
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def emoji(self, ctx, *, emoji: discord.Emoji):
+        """
+        Get an emoji's stats.
+        """
+
+        e: discord.Emoji = self.emoji
+
+        embed = discord.Embed(color=self.bot.main_color)
+        
+        emote = await e.guild.fetch_emoji(e.id)
+        if emote.user:
+            embed.add_field(name="Creator", value=emote.user.mention)
+            embed.add_field(name="Creator's ID", value=emote.user.id)
+
+        embed.set_author(name=f"{e.name.title()}'s Stats")
+
+        embed.add_field(name="Created", value=discord.utils.format_dt(e.created_at, "f"))
+        embed.add_field(name="Animated", value=e.animated)
+        embed.add_field(name="Managed", value=e.managed)
+
+        embed.set_thumbnail(url=str(e.url))
+        embed.set_footer(text=f"Emoji ID: {e.id}")
+
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def choose(self, ctx, *choices):
+        """
+        Choose between a few options (use "" to define the options).
+        """
+
+        for c in choices:
+            choices = [c for c in choices]
+        embed = discord.Embed(color=ctx.author.color)
+        if len(choices) < 2:
+            embed.description="You need to specify at least 2 options!"
+        else:
+            embed.title="I choose"
+            embed.description=(choice(choices))
+
+        await ctx.reply(embed=embed)
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 3, BucketType.user)
+    async def flip(self,ctx):
+        """Flip a coin"""
+        answer = choice(["heads", "tails"])
+        await ctx.reply(f"It landed on **{answer}**!")
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def reverse(self, ctx, *, text):
+        """!txeT ruoY esreveR"""
+
+        embed=discord.Embed(color=ctx.author.color)
+
+        text =  "".join(list(reversed(str(text))))
+        embed.description=text
+
+        await ctx.reply(embed=embed)
+
+    @commands.command(usage="(member)")
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def roast(self, ctx,*, user: discord.Member = "None"):
+        """
+        Roast someone! If you suck at roasting them yourself.
+        """
+
+        if user != "None":
+            msg = f"Hey, {user.mention}!"
+        else:
+            user = ctx.author
+            msg = ""
+
+        roasts = ["I'd give you a nasty look but you've already got one.", "If you're going to be two-faced, at least make one of them pretty.", "It looks like your face caught fire and someone tried to put it out with a hammer.", "Scientists say the universe is made up of neutrons, protons and electrons. They forgot to mention morons.", "Why is it acceptable for you to be an idiot but not for me to point it out?", "Just because you have one doesn't mean you need to act like one.", "Someday you'll go far... and I hope you stay there.", "No, those pants don't make you look fatter - how could they?", "Save your breath - you'll need it to blow up your date.", "If you really want to know about mistakes, you should ask your parents.", "Whatever kind of look you were going for, you missed.", "I don't know what makes you so stupid, but it really works.", "You are proof that evolution can go in reverse.", "Brains aren't everything. In your case they're nothing.", "I thought of you today. It reminded me to take the garbage out.", "You're so ugly when you look in the mirror, your reflection looks away.", "Quick - check your face! I just found your nose in my business.", "It's better to let someone think you're stupid than open your mouth and prove it.", "You're such a beautiful, intelligent, wonderful person. Oh I'm sorry, I thought we were having a lying competition.", "I'd slap you but I don't want to make your face look any better.", "You have the right to remain silent because whatever you say will probably be stupid anyway."]
+
+        if str(user.id) == str(ctx.bot.user.id):
+            return await ctx.send(f"Nice try. Instead I am going to roast you now.\n\n {ctx.author.mention} {choice(roasts)}")
+
+        await ctx.reply(f"{msg} {choice(roasts)}")
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def smallcaps(self, ctx, *, message):
+        """
+        ᴄᴏɴᴠᴇʀᴛ ʏᴏᴜʀ ᴛᴇxᴛ ᴛᴏ ꜱᴍᴀʟʟ ᴄᴀᴘꜱ!!
+        """
+        alpha = list(string.ascii_lowercase)     
+        converter = ['ᴀ', 'ʙ', 'ᴄ', 'ᴅ', 'ᴇ', 'ꜰ', 'ɢ', 'ʜ', 'ɪ', 'ᴊ', 'ᴋ', 'ʟ', 'ᴍ', 'ɴ', 'ᴏ', 'ᴘ', 'ǫ', 'ʀ', 'ꜱ', 'ᴛ', 'ᴜ', 'ᴠ', 'ᴡ', 'x', 'ʏ', 'ᴢ']
+        new = ""
+        exact = message.lower()
+        for letter in exact:
+            if letter in alpha:
+                index = alpha.index(letter)
+                new += converter[index]
+            else:
+                new += letter
+        await ctx.reply(new)
+
+    @commands.command(aliases=["soti"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def cringe(self, ctx, *, message):
+        """
+        mAkE ThE TeXt cRiNgY!!
+        """
+        text_list = list(message) #convert string to list to be able to edit it
+
+        for i in range(0,len(message)):
+            if i % 2 == 0:
+                text_list[i]= text_list[i].lower()
+            else:
+                text_list[i]=text_list[i].upper()
+
+        message = "".join(text_list) #convert list back to string(message) to print it as a word
+
+        await ctx.reply(message)
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 3, BucketType.user)
+    async def roll(self, ctx, number: int = 6):
+        """Roll a random number.
+        The result will be between 1 and `<number>`.
+        `<number>` defaults to 6.
+        """
+
+        author = ctx.author
+
+        if number > 1:
+            n = randint(1, number)
+            await ctx.reply(":game_die: {n} :game_die:".format(author=author, n=n))
+        else:
+            await ctx.reply(("Maybe higher than 1?").format(author=author))
+
+    async def setup(bot):
+      await bot.add_cog(Fun(bot))
+
+
+    @commands.group(aliases=["avset"], usage="[avatar link]]", invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 300, BucketType.guild)
+    async def setav(self, ctx, av):
+        """
+        Change Aiko's avatar.
+        """
+
+        embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Requested by {ctx.author}")
+
+        if not re.search("(\.png|\.jpg)$", av):
+            embed.description="Something went wrong. Keep in mind the image link needs to end in either `.png` or `.jpg`."
+            await ctx.send(embed=embed)
+            return
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(av) as resp:
+
+                if resp.status != 200:
+                    embed.description="Something went wrong."
+                
+                else:
+                    embed.title = "Changed Aiko's avatar to:"
+                    embed.set_image(url=av)
+                    data = io.BytesIO(await resp.read())
+                    av = data.read()
+
+        await self.bot.user.edit(avatar=av)
+        await ctx.send(embed=embed)
+
+    @setav.group(name="revert", aliases=["reset"])
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 300, BucketType.guild)
+    async def setav_revert(self, ctx):
+        """
+        Revert Aiko's avatar to her default one.
+        """
+
+        embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Requested by {ctx.author}")
+
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://cdn.discordapp.com/avatars/865700778622713886/837d46e9c7e38a0b600ae654eaca1f35.png?size=1024") as resp:
+
+                if resp.status != 200:
+                    embed.description="Something went wrong."
+                
+                else:
+                    embed.title = "Reverted Aiko's avatar."
+                    data = io.BytesIO(await resp.read())
+                    av = data.read()
+
+        await self.bot.user.edit(avatar=av)
+        await ctx.send(embed=embed)
+
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 3600, BucketType.guild)
+    async def theme(self, ctx):
+        """
+        Change the channel names based on the pre-selected theme (this won't change private cateogries and some other channels).
+        """
+
+        emoji1 = "🎃"
+        emoji2 = "🍬"
+        emoji3 = "🦇"
+        emoji4 = "🌜"
+        emoji5 = "🍭"
+        emoji6 = "🍫"
+        emoji7 = "🦉"
+        emoji8 = "🕷️"
+
+        hello_cat = ctx.guild.get_channel(641780013003440178)
+        com_cat = ctx.guild.get_channel(740595824639082576)
+        general_cat = ctx.guild.get_channel(641449164328140804)
+        play_cat = ctx.guild.get_channel(763825244581920838)
+        calls_cat = ctx.guild.get_channel(688115144693121041)
+        partner_cat = ctx.guild.get_channel(808781797718097971)
+        stats_cat = ctx.guild.get_channel(741087382010462289)
+
+        staff_apps = ctx.guild.get_channel(973718907221319760)
+
+        newbies = ctx.guild.get_channel(641780135996948480)
+        rules_fake = ctx.guild.get_channel(950180899310428280)
+        rules = ctx.guild.get_channel(760498694323044362)
+        intros = ctx.guild.get_channel(757681621171306676)
+        roles = ctx.guild.get_channel(760500989614227496)
+        crayons = ctx.guild.get_channel(760159326693752879)
+
+        info = ctx.guild.get_channel(741835235737731083)
+        mailbox = ctx.guild.get_channel(646476610853273601)
+        meow = ctx.guild.get_channel(808786532173480036)
+        bot_news = ctx.guild.get_channel(750476824433262674)
+        cookies = ctx.guild.get_channel(741428273191583854)
+        wyr = ctx.guild.get_channel(1000806786447720548)
+        feedback = ctx.guild.get_channel(709969553026711562)
+
+        main = ctx.guild.get_channel(641449164328140806)
+        media = ctx.guild.get_channel(642840124505456641)
+        selfies = ctx.guild.get_channel(798216652964495400)
+        arts = ctx.guild.get_channel(703757494949773403)
+        vent = ctx.guild.get_channel(683780684007079981)
+
+        promo = ctx.guild.get_channel(769582489421217822)
+        count = ctx.guild.get_channel(653055287510433824)
+        cursed = ctx.guild.get_channel(660484550316523549)
+        spam = ctx.guild.get_channel(641777941818245160)
+        bots = ctx.guild.get_channel(949772478937440346)
+
+        vc_room = ctx.guild.get_channel(741726855849050143)
+        playlist = ctx.guild.get_channel(657012154699874324)
+        chit_chat = ctx.guild.get_channel(642131623638204416)
+        music = ctx.guild.get_channel(645740142752956416)
+        music2 = ctx.guild.get_channel(949770280706899998)
+        people2 = ctx.guild.get_channel(786590934099820544)
+        people3 = ctx.guild.get_channel(788056412550070292)
+
+        req = ctx.guild.get_channel(741333159274086400)
+        links = ctx.guild.get_channel(651753340623126538)
+
+        members = ctx.guild.get_channel(976869277355356230)
+        goal = ctx.guild.get_channel(749308698047807578)
+
+        msg = await ctx.send("Editing the channels/categories, this will take some time!")
+
+        await hello_cat.edit(name=f"꒰ {emoji1} ꒱ helloo! ୨୧")
+        await asyncio.sleep(2)
+        await com_cat.edit(name=f"꒰ {emoji1} ꒱ community ୨୧")
+        await asyncio.sleep(2)
+        await general_cat.edit(name=f"꒰ {emoji1} ꒱ general ୨୧")
+        await asyncio.sleep(2)
+        await play_cat.edit(name=f"꒰ {emoji1} ꒱ playground ୨୧")
+        await asyncio.sleep(2)
+        await calls_cat.edit(name=f"꒰ {emoji1} ꒱ calls ୨୧")
+        await asyncio.sleep(2)
+        await partner_cat.edit(name=f"꒰ {emoji1} ꒱ partner ୨୧")
+        await asyncio.sleep(2)
+        await stats_cat.edit(name=f"꒰ {emoji1} ꒱ stats ୨୧")
+        await asyncio.sleep(2)
+
+        await staff_apps.edit(name=f"{emoji7}੭┆staff-apps！")
+        await asyncio.sleep(2)
+
+        await newbies.edit(name=f"୨{emoji5}ɞ﹕newbies")
+        await asyncio.sleep(2)
+        await rules_fake.edit(name=f"{emoji1}┆rules-ˊˎ")
+        await asyncio.sleep(2)
+        await rules.edit(name=f"{emoji1}┆rulesˊˎ")
+        await asyncio.sleep(2)
+        await intros.edit(name=f"╭ʚ{emoji3}﹕intros")
+        await asyncio.sleep(2)
+        await roles.edit(name=f"{emoji8}੭┆roles・٩ˊᗜˋو")
+        await asyncio.sleep(2)
+        await crayons.edit(name=f"╰ʚ{emoji2}﹕crayons")
+        await asyncio.sleep(2)
+
+        await info.edit(name=f"๑{emoji8}・info")
+        await asyncio.sleep(2)
+        await mailbox.edit(name=f"╭ʚ{emoji1}﹕mailbox")
+        await asyncio.sleep(2)
+        await meow.edit(name=f"{emoji7}੭┆meow！♡")
+        await asyncio.sleep(2)
+        await bot_news.edit(name=f"╰ʚ{emoji5}﹕bot-news")
+        await asyncio.sleep(2)
+        await cookies.edit(name=f"{emoji4}┆cookies•₊°")
+        await asyncio.sleep(2)
+        await wyr.edit(name=f"๑{emoji2}・wyr")
+        await asyncio.sleep(2)
+        await feedback.edit(name=f"{emoji3}┆feedback•₊°")
+        await asyncio.sleep(2)
+
+        await main.edit(name=f"୨{emoji1}ɞ﹕main")
+        await asyncio.sleep(2)
+        await media.edit(name=f"{emoji2}┆mediaˊˎ")
+        await asyncio.sleep(2)
+        await selfies.edit(name=f"{emoji4}┆selfiesˊˎ")
+        await asyncio.sleep(2)
+        await arts.edit(name=f"୨{emoji5}ɞ﹕arts-n-crafts")
+        await asyncio.sleep(2)
+        await vent.edit(name=f"{emoji3}┆vent-n-rantˊˎ")
+        await asyncio.sleep(2)
+
+        await promo.edit(name=f"୨{emoji3}ɞ﹕promo")
+        await asyncio.sleep(2)
+        await count.edit(name=f"๑{emoji2}・123")
+        await asyncio.sleep(2)
+        await cursed.edit(name=f"{emoji8}┆cursed•₊°")
+        await asyncio.sleep(2)
+        await spam.edit(name=f"{emoji7}┆spam•₊°")
+        await asyncio.sleep(2)
+        await bots.edit(name=f"๑{emoji1}・bots")
+        await asyncio.sleep(2)
+
+        await vc_room.edit(name=f"๑{emoji1}・vc-room")
+        await asyncio.sleep(2)
+        await playlist.edit(name=f"{emoji3}┆playlist•₊°")
+        await asyncio.sleep(2)
+        await chit_chat.edit(name=f"꒰꒰ {emoji1} chit chat")
+        await asyncio.sleep(2)
+        await music.edit(name=f"꒰꒰ {emoji1} moosic")
+        await asyncio.sleep(2)
+        await music2.edit(name=f"꒰꒰ {emoji1} moosic 2")
+        await asyncio.sleep(2)
+        await people2.edit(name=f"꒰꒰ {emoji1} 2 buddies :D")
+        await asyncio.sleep(2)
+        await people3.edit(name=f"꒰꒰ {emoji1} 3 buddies :D")
+        await asyncio.sleep(2)
+
+        await req.edit(name=f"╭ʚ{emoji1}﹕req")
+        await asyncio.sleep(2)
+        await links.edit(name=f"╰ʚ{emoji4}﹕links・๑•͈ᴗ•͈")
+        await asyncio.sleep(2)
+
+        await members.edit(name=f"꒰꒰ {emoji1} members: 750")
+        await asyncio.sleep(2)
+        await goal.edit(name=f"꒰꒰ {emoji1} goal: 850")
+
+        await msg.edit(content="Finished editing the channels!")
+
+
+    @commands.group(invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def s(self, ctx):
+      "See every snippet."
+
+      p = "!!"
+      embed=discord.Embed(color=self.bot.main_color, title="Server's Snippets")
+
+      embed.description = f"{p}1boost\n{p}2boosts\n{p}status\n{p}ad\n{p}hi\n{p}noreply\n{p}proof\n{p}report\n{p}troll"
+      embed.set_footer(text="To see what a snippet does run !s show [snippet name]")
+
+      await ctx.send(embed=embed)
+
+    @s.command(name="show", usage="[snippet name]")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def s_show(self, ctx, s: str):
+        """
+        See a snippet's response.
+        """
+
+        embed=discord.Embed(color=self.bot.main_color, title="Snippet Response", description="Replies with:\n\n")
+        embed.set_footer(text=f"Requested by {ctx.author}")
+
+        if re.search("1boost$", s):
+            embed.description += "Thank you for boosting us! We have given you one free background for the </rank:981143682495434775> command! To redeem it head to <#949772478937440346> and use the </edit rank:981143682495434780> command, afterwards just find one you like and use the \"buy\" button! You also have the rest of the perks mentioned in <#741835235737731083>!"
+        elif re.search("2boosts$", s):
+            embed.description += "Thank you for boosting us twice!! We have given you two free backgrounds for the </rank:981143682495434775> command! To redeem them head to <#949772478937440346> and use the </edit rank:981143682495434780> command, afterwards just find one you like and use the \"buy\" button! You also got 2 free levels on top of the previous perks!\n\nAlso since you've boosted us twice you can get a custom role that you can change the color of whenever you want along with a role icon! What would you like to name it, what color should it have and do you want a role icon?"
+        elif re.search("status$", s):
+            embed.description += "Thank you for having a server invite in your status or about me, we have given you the **・ kewler member!₊˚ɞ** role (you can change its color using the `!mycolor` command)! Make sure to keep it there otherwise we'll remove the role!"
+        elif re.search("ad$", s):
+            embed.description = "Replies with the server's ad and gives the recipient the <@&741774737168007219> role."
+        elif re.search("hi$", s):
+            embed.description += "Hi! What can we help you with?"
+        elif re.search("noreply$", s):
+            embed.description += "Hey, we haven't heard from you in a bit <:c_sadbearcat:789175391704317952> If you don't respond soon the thread will be closed..."
+        elif re.search("proof$", s):
+            embed.description += "Please provide all the necessary proof if you're trying to report another user, such as message links, screenshots, full DM history etc. (what's considered necessary depends on what you're trying to report)."
+        elif re.search("report$", s):
+            embed.description += "Thanks for the report, we'll investigate and take action if needed!\n\nThe thread will be closed, if there's anything else you'd like to add please do so now, otherwise don't reply!"
+        elif re.search("troll$", s):
+            embed.description += "Aiko is not a place for you to play around, don't open threads for no actual reason or to joke around, this behavior regularly could result in a block or even potentially a ban from the server."
+        else:
+            embed.description = "Couldn't find that snippet."
+
+        await ctx.reply(embed=embed)
+
+
+    @commands.group(invoke_without_command=True, usage="")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    @commands.cooldown(1, 10, BucketType.user)
+    async def closing(self, ctx):
+        """
+        Close the thread automatically after 5 minutes.
+        """
+
+        embed=discord.Embed(color=self.bot.main_color, title="Closing Thread", description="The thread will close in 5 minutes unless the user sends another message.", timestamp=discord.utils.utcnow())
+        embed.set_footer(text="Cancel it with !closing cancel")
+
+        if ctx.channel.category.id == 932000955581468682:   # change (and below)
+            self.bot.config["log_channel_id"] = 959059849197531156
+            await ctx.invoke(self.bot.get_command("freply"), msg = "We will now close this thread, replying will create a new one!")
+
+        elif ctx.channel.category.id == 959059703357390868:
+            self.bot.config["log_channel_id"] = 932001516754206820
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
+
+        else:
+            self.bot.config["log_channel_id"] = 959063351772717116
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
+
+
+        await ctx.thread.close(silent=True, after=300, closer=ctx.author, message=None)
+        await ctx.send(embed=embed)
+        await asyncio.sleep(302)
+        self.bot.config["log_channel_id"] = 932001516754206820
+
+
+    @closing.command(name="now")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    @commands.cooldown(1, 10, BucketType.user)
+    async def closing_now(self, ctx):
+        """
+        Close the thread immediately.
+        """
+        
+        if ctx.channel.category.id == 932000955581468682:   # change (and below)
+            self.bot.config["log_channel_id"] = 959059849197531156
+            await ctx.invoke(self.bot.get_command("freply"), msg = "We will now close this thread, replying will create a new one!")
+
+        elif ctx.channel.category.id == 959059703357390868:
+            self.bot.config["log_channel_id"] = 932001516754206820
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
+
+        else:
+            self.bot.config["log_channel_id"] = 959063351772717116
+            await ctx.invoke(self.bot.get_command("fareply"), msg = "We will now close this thread, replying will create a new one!")
+
+
+        await ctx.thread.close(silent=True, after=0, closer=ctx.author, message=None)
+        self.bot.config["log_channel_id"] = 932001516754206820
+
+
+    @closing.command(name="silently", aliases=["silent"])
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    @commands.cooldown(1, 10, BucketType.user)
+    async def closing_silent(self, ctx):
+        """
+        Close the thread immediately without notifying the user.
+
+        *Note:* You should only use this subcommand when a user sends an insignificant message in a thread while pending to be closed, thus cancelling its closure.
+        """
+        
+        if ctx.channel.category.id == 932000955581468682:   # change (and below)
+            self.bot.config["log_channel_id"] = 959059849197531156
+
+        elif ctx.channel.category.id == 959059703357390868:
+            self.bot.config["log_channel_id"] = 932001516754206820
+
+        else:
+            self.bot.config["log_channel_id"] = 959063351772717116
+
+        await ctx.thread.close(silent=True, after=0, closer=ctx.author, message=None)
+        self.bot.config["log_channel_id"] = 932001516754206820
+
+
+    @closing.command(name="cancel")
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    @commands.cooldown(1, 15, BucketType.user)
+    async def closing_cancel(self, ctx):
+        """
+        Cancel the automatic closure of a thread.
+        """
+        await ctx.invoke(self.bot.get_command("close"), option="cancel")
+
+
     @commands.command(usage="[message]")
     @checks.has_permissions(PermissionLevel.SUPPORTER)
-    @commands.cooldown(1, 2, BucketType.user)
+    @checks.thread_only()
+    @commands.cooldown(1, 3, BucketType.user)
     async def say(self, ctx, *, msg: str = ""):
       "Reply in a thread."
 
-      if ctx.channel.category.id == 966078852625481808: # change
-          msg = self.bot.formatter.format(msg, channel=ctx.channel, recipient=ctx.thread.recipient, author=ctx.message.author)
-          ctx.message.content = msg
-          async with ctx.typing():
-            await ctx.thread.reply(ctx.message, plain=True)
-
-
-      elif ctx.channel.category.id == 965919544008921119:   # change
-          msg = self.bot.formatter.format(msg, channel=ctx.channel, recipient=ctx.thread.recipient, author=ctx.message.author)
-          ctx.message.content = msg
-          async with ctx.typing():
-            await ctx.thread.reply(ctx.message, anonymous=True)
+      if ctx.channel.category.id == 932000955581468682: # change
+        msg = self.bot.formatter.format(
+            msg, channel=ctx.channel, recipient=ctx.thread.recipient, author=ctx.message.author
+        )
+        ctx.message.content = msg
+        async with ctx.typing():
+            await ctx.thread.reply(ctx.message)
 
       else:
-        await ctx.send("Something went wrong.")
+        msg = self.bot.formatter.format(
+            msg, channel=ctx.channel, recipient=ctx.thread.recipient, author=ctx.message.author
+        )
+        ctx.message.content = msg
+        async with ctx.typing():
+            await ctx.thread.reply(ctx.message, anonymous=True)
+
+    
+    @commands.command(aliases=["tot"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 600, BucketType.user)
+    async def trickortreat(self, ctx):
+      "Trick or treat?"
+
+      halloween = True
+
+      if halloween == True:
+
+        tricked = discord.utils.get(ctx.guild.roles, id=895808816703225916)    # change
+        treated = discord.utils.get(ctx.guild.roles, id=895808709140299807)
+
+        rng = random.randint(1, 29)
+        clrs = ["#751a01", "#ae3204", "#e65104", "#ee9e20", "#f0c22c", "#541708", "#000000", "#09ff00", "#c900ff", "#a78eb8", "#2d341e", "#252c3c", "#f7cd82", "#c1d234", "#65141b", "#fe791a"]
+        clr = random.choice(clrs)
+        embed = discord.Embed(color=discord.Color.from_str(clr), title="Trick or Treat?")
+        embed.set_footer(text="You can use the command again in 10 minutes!", icon_url="https://cdn.discordapp.com/emojis/1030326215187374142.gif?size=96&quality=lossless")
+
+        if rng == 1 or rng == 2 or rng == 3 or rng == 4:    # mute
+
+            admin = discord.utils.get(ctx.guild.roles, id=704792380624076820)  # change
+            if admin in  ctx.author.roles:
+                embed.description="You're lucky you're an admin... <:sus:653057730013167616>"
+                await ctx.send(embed=embed)
+                return
+
+            mute_time = random.randint(1, 60)
+            mute_time = readable_time = f"{mute_time}m"
+            time_conversion = {"m": 60}
+            mute_time = int(mute_time[:-1]) * time_conversion[mute_time[-1]]
+
+            await ctx.author.timeout(discord.utils.utcnow() + datetime.timedelta(seconds=int(mute_time)), reason="Trick or Treat'd!")
+
+            embed.description = f"You tried but... you got tricked and muted for {readable_time}!"
+            embed.remove_footer()
+
+        elif rng == 5 or rng == 6 or rng == 7 or rng == 8 or rng == 9:  # role
+
+            role_rng = random.randint(1,2)
+
+            tricked_r = [f"You were unlucky and got tricked! But hey, at least you got the {tricked.mention} role!", f"You got tricked and the {tricked.mention} role!", f"You asked for a treat... but got the {tricked.mention} role instead.", f"You were caught trying to steal candy and got the {tricked.mention} role instead!"]
+            ran_tricked = random.choice(tricked_r)
+            treated_r = [f"You were lucky and got candy! One of them was the {treated.mention} role!", f"You got loads of candy and the {treated.mention} role!", f"You got chocolate and the {treated.mention} role!"]
+            ran_treated = random.choice(treated_r)
 
 
-    async def setup(bot):
-      await bot.add_cog(say_cmd(bot))
+            if role_rng == 1:   # tricked
+                await ctx.author.add_roles(tricked)
+                if treated in ctx.author.roles:
+                    await ctx.author.remove_roles(treated)
+
+                embed.description = ran_tricked
+
+            else:     # treated
+                await ctx.author.add_roles(treated)
+                if treated in ctx.author.roles:
+                    await ctx.author.remove_roles(tricked)
+
+                embed.description = ran_treated
+
+        elif rng == 10 or rng == 11 or rng == 12 or rng == 13:  # role edit
+
+            role_rng2 = random.randint(1,2)
+
+            if role_rng2 == 1:  # tricked
+                await tricked.edit(color=discord.Color.from_str(clr))
+                embed.description = f"Changed the color of {tricked.mention} to {clr}!"
+
+            else:   # treated
+                await treated.edit(color=discord.Color.from_str(clr))
+                embed.description = f"Changed the color of {treated.mention} to {clr}!"
+        
+        elif rng == 14 or rng == 15 or rng == 16 or rng == 17:  # nicks
+
+            nicks = ["Spoopy", "Spooky", "Scary", "Fearful", "Wicked", "Evil", "Ghostly", "Fearsome", "Haunted", "Menacing", "Frightened", "Dreadful"]
+            nick = random.choice(nicks)
+
+            try:
+                new_nick = await ctx.author.edit(nick=f"{nick} {ctx.author.name}", reason="Trick or Treat!")
+                embed.description = f"AHA! I changed your nickname to {new_nick}!"
+            except:
+                embed.description = "Boo! <a:ghostie:1031911081288933466>"
+
+        else:   # random fact
+
+            responses = [f"Happy Halloween from {ctx.guild.name}!", "Boo!", "Did you know \"Jack o'lantern\" comes from the Irish legend of Stingy Jack? 🎃", "Did you know candy corn was originally called Chicken Feed? 🍬", "Did you know the most lit jack o'lanterns on display is 30,581!", "Did you know halloween dates back more than 2,000 years?", "Did you know Halloween is the second largest commercial holiday in the world?", "Did you know some shelters used to suspend black cat adoptions for Halloween?", "Did you know the word \"witch\" comes from the Old English \"Wicce\", meaning wise woman? 🧹", "Did you know people originally carved turnips instead of pumpkins?", "Did you know pumpkins are classified as a fruit instead of a vegetable?", "Did you know Trick-or-treating has existed since medieval times?", "Did you know the most common Halloween costumes for adults are cats and witches?", "Did you know the most popular costume for kids is Spiderman?" ,"Did you know the fear of Halloween is called Samhainophobia?", "Did you know Harry Houdini died on Halloween in 1926? 🧙‍♂️", "Did you know the Headless Horseman isn't linked to Halloween?", "Did you know Halloween is also known as All Hallows' Eve and All Saints Eve?", "Did you know some Halloween traditions include making a bonfire and playing divination games?", "Did you know it is believed that if a child is born on Halloween, they will be able to talk to the spirits?", "Did you know China holds Halloween festivals by lighting dragon-shaped lanterns?", "Did you know the night before Halloween is referred to as Mischief Night or Goosey Night?", "Did you know a full moon on Halloween night is considered rare?", "Did you know there's a ghost behind you right now?"]
+
+            embed.description = random.choice(responses)
+    
+      else:
+        embed = discord.Embed(color=0xf26600, title="Trick or Treat...?", description="Isn't it a bit too late for that? Maybe again next year? <a:ghost_wave:1031912745077047399>")
+        embed.set_image(url="https://cdn.discordapp.com/attachments/965915830661570593/1031921939985485944/giphy.gif")
+
+      await ctx.send(embed=embed)
+
+      channel = await self.bot.fetch_channel(1031926058154467398)
+      await channel.send(content=ctx.author.mention, embed=embed)
 
 # ———————— CHANNELS ————————
 
@@ -3373,7 +3923,7 @@ class Modmail(commands.Cog):
             await message.publish()
 
 
-        mailbox = self.bot.get_channel(965915830661570593) # change
+        mailbox = self.bot.get_channel(646476610853273601) # change
 
         if message.author.bot:
             return
@@ -3381,32 +3931,33 @@ class Modmail(commands.Cog):
             await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
         if re.search("(cute)", message.content):
             await message.add_reaction("<:ddlcnatsukinou:641777411578396694>")
-        if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:
+        if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:    # change
             await message.channel.send(f"{message.author.mention} to verify send **?verify**", delete_after=15)
-        if re.search("(865567515900248075>)", message.content):
-            await message.add_reaction("<:aiko:965918603566284820>")
         if re.search("(how)(.*)(report)", message.content):
             await message.channel.send(f"Hey {message.author.mention}! Please DM me if you're looking to report another member! <:chibilapproval:818499768149999650>")
-        if message.type == discord.MessageType.premium_guild_subscription and message.channel.id == 641449164328140806:
+
+
+        if message.type == discord.MessageType.premium_guild_subscription and message.channel.id == 641449164328140806: # change
             embed=discord.Embed(description=f"**・ʚ ₊˚୨ Boosting Perks!**\n\n**1 boost:**\n・A **hoisted** role all boosters get!\n・**Image/Embed** perms!\n・Perms to **post** in <#769582489421217822>!\n・**Every** color from <#760159326693752879>!\n・One **free background** for the /rank command!\n・**7k cookies** for <@493716749342998541> every week!\n\n**2 boosts:**\n・The **previous** perks!\n・**2 free levels**!\n・**Another free background** for the </rank:981143682495434775> command!\n・A **custom role** and you'll be able to **change its color**!\n\n**2 boosts for at least a month:**\n・**All The previous** perks!\n・A **role icon** for your custom role!\n・You can **promote** something in <#646476610853273601> *or* have your **Twitch/Youtube streams/videos** get automatically announced in <#769582489421217822>!", color=self.bot.main_color)
             embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
             embed.set_footer(text="DM me to claim your perks!")
-            await mailbox.send(f"**{message.author.mention} Thank you for boosting {message.guild}! We now have **{message.guild.premium_subscription_count}** boosts! <a:catvibing:807759270980485139>**", embed=embed)
+            msg = await mailbox.send(f"**{message.author.mention} Thank you for boosting {message.guild}! We now have **{message.guild.premium_subscription_count}** boosts! <a:catvibing:807759270980485139>**", embed=embed)
+            await msg.add_reaction("<a:kawaiihearts:770332490065248312>")
+
+        if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538: # change
+
+            count = 0
+            links = self.bot.get_channel(651753340623126538) # change
+
+            messages = [message async for message in links.history(limit=2000)]
+            for m in messages:
+                if m.author == message.author:
+                    count += 1
 
 
-        if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538:
-
-            try:
-                db[f"{message.author.id}"] = db[f"{message.author.id}"] + 1
-
-            except KeyError:
-                db[f"{message.author.id}"] = 1
-          
-            count = db[f"{message.author.id}"]
-          
             embed=discord.Embed(color=0x2f3136, description=f"Thanks for the partnership {message.author.mention}!")
             embed.set_footer(text=f"You have posted {count} in total!")
-            await message.channel.send(embed=embed)
+            await message.reply(embed=embed, allowed_mentions=discord.AllowedMentions(replied_user=False))
 
     async def setup(bot):
       await bot.add_cog(on_messages(bot))
@@ -3426,7 +3977,7 @@ class Modmail(commands.Cog):
       embed.set_author(name="Automod")
       
       if re.search("(cunt)|(blowjob)|(whore)|(wh0re)|(retard)|(cock)|(c0ck)|(orgasm)|(0rgasm)|(masturbat)|(porn)|(p0rn)|(horny)|(卍)|(🖕)|(fuck)|(nazi)|(hitler)", str(after.nick)):
-        embed.description=f"Reset {after.mention}'s nickname for containing a banned word."
+        embed.description=f"Reset `{after.name}`'s nickname for containing a banned word."
         await channel.send(embed=embed)
         await after.edit(nick=None)
         await after.send(f"Your nickname has been reset for containing a banned word, please keep in mind our <#760498694323044362> when choosing a nickname.")
@@ -3448,6 +3999,25 @@ class Modmail(commands.Cog):
       await bot.add_cog(Automod(bot))
 
 
+    class Buttons(discord.ui.View):
+      def __init__(self, *, timeout=180):
+        super().__init__(timeout=timeout)
+      
+      @discord.ui.button(label="Button",style=discord.ButtonStyle.gray)
+      async def blurple_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.edit_message(content=f"This is an edited button response!",view=self)
+
+    class test(commands.Cog):
+      def __init__(self, bot: commands.Bot) -> None:
+        self.bot = bot
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def button(self, ctx):
+        await ctx.send("This message has buttons!",view=Buttons())
+
+
+
     class cmds(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
@@ -3457,13 +4027,9 @@ class Modmail(commands.Cog):
     @trigger_typing
     async def commands(self, ctx):
 
-      embed = discord.Embed(
-        set_author="Aiko Commands!", 
-        icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096",
-        color=self.bot.main_color,
-        set_footer=f"Requested by {ctx.author}",
-        timestamp=discord.utils.utcnow()
-      )
+      embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+      embed.set_footer(text=f"Requested by {ctx.author}")
+      embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
 
       admin = discord.utils.get(ctx.author.roles, id=704792380624076820)
       mod = discord.utils.get(ctx.author.roles, id=642122688491421696)
@@ -3473,27 +4039,22 @@ class Modmail(commands.Cog):
       prefix = "!"
       
       if member in ctx.author.roles:
-        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar.\n**{prefix}emoji** → Get info about an emoji.\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}userstatus** → Get the status of a member.\n**{prefix}rps** → Play rock, paper, scissors!\n**{prefix}flip** → Flip a coin.\n**{prefix}meme** → Sends a meme!\n**{prefix}roast** → Roast someone!\n**{prefix}roll** → Roll a dice!\n**{prefix}8ball** [question] → Ask the 8ball a question!\n**{prefix}choose** [\"option 1\"] [\"option 2\"] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role.", inline=False)
+        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar (they don't need to be in the server!).\n**{prefix}banner** → Get a user's banner (they don't need to be in the server!).\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}flip** → Flip a coin.\n**{prefix}roast** → Roast someone (or yourself)!\n**{prefix}roll** → Roll a dice!\n**{prefix}choose** [options...] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role.", inline=False)
 
 
       if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(mod$)", ctx.message.content))):
-        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}close silently** → Immediately closes the thread silently (always use !closing first).\n**{prefix}new** [user] silently → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.", inline=False)
+        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}s** → See every available snippet.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}new** [user] → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.", inline=False)
 
 
       if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(pm$)", ctx.message.content))):
-        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}pm-close** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}partner → Gives the user the partner role (only usable in threads).**\n**{prefix}inv** [invite] → Gets info about an invite.\n**{prefix}p** → Shows you how many partnerships you or another PM has posted.", inline=False)
+        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}edit** → Edit one of the messages you sent.\n**{prefix}delete** → Delete one of the messages you sent.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}pm** → Shows you how many partnerships you or another PM has posted.", inline=False)
 
 
       if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(admin$)", ctx.message.content))):
-        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}embed** → Creates an embed.\n**{prefix}webhook** [user] [message] → Create a webhook disguised as a user.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.", inline=False)
-        
-
-        embed.set_author(name="Aiko Commands!", icon_url="https://cdn.discordapp.com/avatars/865567515900248075/dec4082f6e9a227908637bf834169649.png?size=4096"),
-        color=self.bot.main_color,
-        embed.set_footer(text=f"Requested by {ctx.author}")
+        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.", inline=False)
 
 
-      return await ctx.send(embed=embed)
+      await ctx.reply(embed=embed)
 
     async def setup(bot):
       await bot.add_cog(cmds(bot))

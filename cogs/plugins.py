@@ -432,7 +432,7 @@ class Plugins(commands.Cog):
 
         if self.bot.config.get("enable_plugins"):
             try:
-                self.bot.unload_extension(plugin.ext_string)
+                await self.bot.unload_extension(plugin.ext_string)
                 self.loaded_plugins.remove(plugin)
             except (commands.ExtensionNotLoaded, KeyError):
                 logger.warning("Plugin was never loaded.")
