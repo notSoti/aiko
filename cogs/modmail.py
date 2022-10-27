@@ -3154,12 +3154,12 @@ class Modmail(commands.Cog):
     @commands.command(usage="(member)", aliases=["userinfo", "w"])
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 5, BucketType.user)
-    async def whois(self, ctx, *, member: discord.User = None):
+    async def whois(self, ctx, *, member: discord.User = "None"):
         """
         Get a user's info.
         """
 
-        if member != None:
+        if member != "None":
             try:
                 member = await self.bot.get_user(member.id)
                 in_server = True
