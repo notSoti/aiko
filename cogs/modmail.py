@@ -2211,7 +2211,10 @@ class Modmail(commands.Cog):
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 120, BucketType.user)
     async def wordle(self, ctx):
-      r = random_word.RandomWords()
+
+      word = Wordnik()
+      #r = random_word.RandomWords()
+      r = Wordnik(api_key="z50ig8roorenuuwsltd0y2wrq2v5yozey6bfbhgp87f4d7e41")
       new_word = r.get_random_word(
         hasDictionaryDef="true",
         includePartOfSpeech="noun",
