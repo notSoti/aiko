@@ -3,7 +3,6 @@ import re
 from datetime import datetime, timezone
 import datetime
 from socket import MSG_DONTROUTE
-from turtle import goto
 from random_word import Wordnik
 import random
 import string
@@ -15,7 +14,6 @@ import traceback
 import json
 from random import randint, choice
 import urllib.parse
-from replit import db
 from os import system
 from itertools import zip_longest
 import typing
