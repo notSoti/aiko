@@ -19,6 +19,7 @@ from itertools import zip_longest
 import typing
 from typing import Optional, Union, List, Tuple, Literal
 from types import SimpleNamespace
+from git import RemoteProgress, Repo
 
 import discord
 from discord.ext import commands
@@ -2610,27 +2611,15 @@ class Modmail(commands.Cog):
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.OWNER)
-    async def reboot(self, ctx):
+    @commands.cooldown(1, 3600, BucketType.guild)
+    async def restart(self, ctx):
         """Clears Cached Logs & Reboots The Bot"""
-        msg = await ctx.send(embed=discord.Embed(
-            color=self.bot.main_color,
-            description="Processing..."
-        ))
+        
+        await ctx.send("Restarting...")
 
-        # Clear The cached logs
-        #with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-       #                        '../../../temp/logs.log'), 'w'):
-          #  pass
-        await ctx.invoke(self.bot.get_command('debug clear'))
-        emsg = await msg.edit(embed=discord.Embed(
-            color=self.bot.main_color,
-            description="✅ Cleared Cached Logs"
-        ))
-        logger.info("==== Rebooting Bot ====")
-        await msg.edit(embed=discord.Embed(
-            color=self.bot.main_color,
-            description="`✅ | Cleared Cached Logs`\n\n`✅ | Rebooting....`"
-        ))
+        repo = Repo(self.rorepo.working_tree_dir)
+
+        repo.pull().raise_if_error()
         os.execl(sys.executable, sys.executable, * sys.argv)
 
 
