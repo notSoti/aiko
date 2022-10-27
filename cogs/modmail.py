@@ -3154,7 +3154,7 @@ class Modmail(commands.Cog):
     @commands.command(usage="(member)", aliases=["userinfo", "w"])
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 5, BucketType.user)
-    async def whois(self, ctx, member: discord.User = None):
+    async def whois(self, ctx, *, member: discord.User = None):
         """
         Get a user's info.
         """
@@ -3168,6 +3168,7 @@ class Modmail(commands.Cog):
                 in_server = False
         else:
             member = ctx.author
+            in_server = True
 
         embed=discord.Embed(color=member.color, title=f"{member.name}'s profile", timestamp=discord.utils.utcnow())
         embed.set_thumbnail(url=member.avatar.url)
