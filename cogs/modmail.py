@@ -3171,7 +3171,7 @@ class Modmail(commands.Cog):
 
         embed=discord.Embed(color=member.color, title=f"{member.name}'s profile", timestamp=discord.utils.utcnow())
         embed.set_thumbnail(url=member.avatar.url)
-        embed.set_footer(f"ID: {member.id}")
+        embed.set_footer(text=f"ID: {member.id}")
         embed.add_field(name="Mention", value=member.mention)
         embed.add_field(name="Username", value=member.name)
 
