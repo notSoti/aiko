@@ -2617,9 +2617,6 @@ class Modmail(commands.Cog):
         
         await ctx.send("Restarting...")
 
-        repo = Repo(self.rorepo.working_tree_dir)
-
-        repo.pull().raise_if_error()
         os.execl(sys.executable, sys.executable, * sys.argv)
 
 

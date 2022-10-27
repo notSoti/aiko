@@ -38,4 +38,4 @@ tinycss2==1.1.1; python_version >= '3.6'
 uvloop==0.16.0; sys_platform != 'win32'
 webencodings==0.5.1
 yarl==1.7.2; python_version >= '3.6'
-pip install typing_extensions >= 3.7.3.4
+typing_extensions >= 3.7.3.4
