@@ -2604,9 +2604,9 @@ class Modmail(commands.Cog):
       await bot.add_cog(automod_cmds(bot))
 
 
-class RebootCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+    class RebootCog(commands.Cog):
+        def __init__(self, bot):
+            self.bot = bot
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.OWNER)
@@ -2634,8 +2634,8 @@ class RebootCog(commands.Cog):
         os.execl(sys.executable, sys.executable, * sys.argv)
 
 
-def setup(bot):
-    bot.add_cog(RebootCog(bot))
+    def setup(bot):
+        bot.add_cog(RebootCog(bot))
 
 
     class partner(commands.Cog):
