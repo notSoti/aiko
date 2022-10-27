@@ -3151,6 +3151,45 @@ class Modmail(commands.Cog):
         await ctx.send(embed=embed)
 
 
+    @commands.command(usage="(member)", aliases=["userinfo", "w"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def whois(self, ctx, member: discord.User = None):
+        """
+        Get a user's info.
+        """
+
+        if member != None:
+            try:
+                member = await self.bot.get_user(member.id)
+                in_server = True
+            except:
+                member = await self.bot.fetch_user(member.id)
+                in_server = False
+        else:
+            member = ctx.author
+
+        embed=discord.Embed(color=member.color, title=f"{member.name}'s profile", timestamp=discord.utils.utcnow())
+        embed.set_thumbnail(url=member.avatar.url)
+        embed.set_footer(f"ID: {member.id}")
+        embed.add_field(name="Mention", value=member.mention)
+        embed.add_field(name="Username", value=member.name)
+
+        if in_server == False:
+            embed.description = "This user is not in the server"
+        else:
+            embed.description = "This user is in the server."
+            embed.add_field(name="Joined Server", value=discord.utils.format_dt(member.joined_at, "F"))
+
+        if member.bot == True:
+            embed.description += " and is a bot."
+        else:
+            embed.description += " and is not a bot."
+        
+        embed.add_field(name="Account Created", value=discord.utils.format_dt(member.created_at, "F"))
+
+
+
     @commands.command(usage="[role]")
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 5, BucketType.user)
