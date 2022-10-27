@@ -2618,6 +2618,7 @@ class Modmail(commands.Cog):
         await ctx.send("Restarting...")
 
         os.execl(sys.executable, sys.executable, * sys.argv)
+        exit()
 
 
     def setup(bot):
