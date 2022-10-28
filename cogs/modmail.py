@@ -3189,7 +3189,7 @@ class Modmail(commands.Cog):
         
         embed.add_field(name="Account Created", value=discord.utils.format_dt(member.created_at, "F"))
 
-
+        await ctx.send(embed=embed)
 
     @commands.command(usage="[role]")
     @checks.has_permissions(PermissionLevel.REGULAR)
@@ -3976,6 +3976,10 @@ class Modmail(commands.Cog):
             await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
         if re.search("(cute)", message.content):
             await message.add_reaction("<:ddlcnatsukinou:641777411578396694>")
+        if re.search("(name)", message.content) and message.channel.id == 757681621171306676:
+            reactions = ["<a:bearquack:807233432160829472>", "<a:bunnypet:807756848286793778>", "<:c_wowiee:834557805171834880>", "<:catblushies7:834516662140665886>", "<:catblushies:728992066125692979>", "<:catblushies10:834528743715635220>", "<:cattolove:679847609619578924>", "<a:cc_cutebongo:792523864742559794>", "<a:cc_kittenhophop:807756847821094932>", "<:cc_kittenhearts:736648341311455314>", "<a:cc_kittenchuu:801489400298995732>", "<a:cc_kittenpatpat:807411928870944808>", "<:cc_kittyblushies:774734365154344972>", "<:cc_kittyheart:732250535943733327>", "<:chibiheart:800526569969942528>", "<:chibihihi:818515382720921672>", "<:chibilove:732250382507442219>", "<:chickhearts:779846329445908480>", "<:ddlcsayoriheart:743601377942700114>", "<a:kawaiihearts:770332490065248312>", "<:pikalovechu:780159990525722624>", "<:penguinflower:847103924750254080>", "<a:sugoi:807373099242094603>", "<a:uwu_wigglewiggle:807773634097053726>", "<a:wavE:779882812887138304>", "<a:yysmiley:800460720176496690>", "<a:yy_omgomg:807756847896985612>", "<a:yycheer:834543109983174676>"]
+            react = random.choice(reactions)
+            await message.add_reaction(react)
         if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:    # change
             await message.channel.send(f"{message.author.mention} to verify send **?verify**", delete_after=15)
         if re.search("(how)(.*)(report)", message.content):
