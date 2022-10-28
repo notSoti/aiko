@@ -3179,7 +3179,7 @@ class Modmail(commands.Cog):
         if in_server == False:
             embed.description = "This user is not in the server"
         else:
-            embed.description = "This user is in the server."
+            embed.description = "This user is in the server"
             embed.add_field(name="Joined Server", value=discord.utils.format_dt(member.joined_at, "F"))
 
         if member.bot == True:
@@ -3855,7 +3855,7 @@ class Modmail(commands.Cog):
 
                 embed.description = ran_treated
 
-        elif rng == 10 or rng == 11 or rng == 12 or rng == 13:  # role edit
+        elif rng == 10 or rng == 11 or rng == 12 or rng == 13 or rng == 14 or rng == 15:  # role edit
 
             role_rng2 = random.randint(1,2)
 
@@ -3867,7 +3867,7 @@ class Modmail(commands.Cog):
                 await treated.edit(color=discord.Color.from_str(clr))
                 embed.description = f"Changed the color of {treated.mention} to {clr}!"
         
-        elif rng == 14 or rng == 15 or rng == 16 or rng == 17:  # nicks
+        elif rng == 16 or rng == 17 or rng == 18 or rng == 19 or rng == 20:  # nicks
 
             nicks = ["Spoopy", "Spooky", "Scary", "Fearful", "Wicked", "Evil", "Ghostly", "Fearsome", "Haunted", "Menacing", "Frightened", "Dreadful"]
             nick = random.choice(nicks)
