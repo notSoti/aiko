@@ -3927,7 +3927,7 @@ class Modmail(commands.Cog):
         
       if re.search("[\s]", member_name) and member.guild.id == 641449164328140802:
 
-        member_name = urllib.parse.quote(member_name)
+        member_name = urllib.parse.quote(member_name, encoding="-")
         welc_channel = self.bot.get_channel(641449164328140806)  # change
         avatar = member.avatar.replace(static_format='png', size=1024)
 
