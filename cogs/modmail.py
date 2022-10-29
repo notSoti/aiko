@@ -3372,13 +3372,13 @@ class Modmail(commands.Cog):
         search = requests.get("https://some-random-api.ml/dictionary?word=random")
 
         if 300 > search.status_code >= 200:
-            content = search.json()
+            search = search.json()
 
             definition = search["definition"]
             word_name = search["word"]
 
             embed.title = f"Definition of {word_name}"
-            embed.description = str(definition)
+            embed.description = definition
         else:
             definition = f"Recieved a bad status code of {search.status_code}."
             embed.title = f"Error"
