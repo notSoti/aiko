@@ -3759,7 +3759,7 @@ class Modmail(commands.Cog):
         self.bot.config["log_channel_id"] = 932001516754206820
 
 
-    @closing.command(name="cancel")
+    @closing.command(name="cancel", aliases=["stop"])
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
     @commands.cooldown(1, 15, BucketType.user)
@@ -3768,6 +3768,7 @@ class Modmail(commands.Cog):
         Cancel the automatic closure of a thread.
         """
         await ctx.invoke(self.bot.get_command("close"), option="cancel")
+
 
 
     @commands.command(usage="[message]")
