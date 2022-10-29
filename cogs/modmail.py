@@ -3357,6 +3357,28 @@ class Modmail(commands.Cog):
         else:
             await ctx.reply(("Maybe higher than 1?").format(author=author))
 
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def define(self, ctx, word):
+        """
+        See the definition of a word!
+        """
+
+        embed=discord.Embed(color=ctx.author.color)
+
+        resp = requests.get("https://some-random-api.ml/dictionary?word=random")
+
+        if 300 > resp.status_code >= 200:
+            content = resp.json() 
+        else:
+            content = f"Recieved a bad status code of {resp.status_code}."
+
+        embed.description = content
+
+        await ctx.send(embed=embed)
+
     async def setup(bot):
       await bot.add_cog(Fun(bot))
 
