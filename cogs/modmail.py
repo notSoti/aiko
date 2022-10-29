@@ -3368,7 +3368,7 @@ class Modmail(commands.Cog):
 
         embed=discord.Embed(color=ctx.author.color, timestamp=discord.utils.utcnow())
         embed.set_footer(text=f"Requested by {ctx.author}")
-        word = urllib.parse.quote(word)
+        word = urllib.parse.quote(word, encoding="-")
 
         search = requests.get(f"https://some-random-api.ml/dictionary?word={word}")
 
@@ -3927,7 +3927,7 @@ class Modmail(commands.Cog):
         
       if re.search("[\s]", member_name) and member.guild.id == 641449164328140802:
 
-        member_name = urllib.parse.quote(member_name, encoding="-")
+        member_name = urllib.parse.quote(member_name)
         welc_channel = self.bot.get_channel(641449164328140806)  # change
         avatar = member.avatar.replace(static_format='png', size=1024)
 
