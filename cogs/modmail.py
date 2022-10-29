@@ -3369,14 +3369,19 @@ class Modmail(commands.Cog):
 
         embed=discord.Embed(color=ctx.author.color)
 
-        resp = requests.get("https://some-random-api.ml/dictionary?word=random")
+        search = requests.get("https://some-random-api.ml/dictionary?word=random")
 
-        if 300 > resp.status_code >= 200:
-            content = resp.json() 
+        if 300 > search.status_code >= 200:
+            content = search.json()
+
+            definition = search["definition"]
+            word_name = search["word"]
+
+            embed.title = f"Definition of {word_name}"
+            embed.description = definition
         else:
-            content = f"Recieved a bad status code of {resp.status_code}."
-
-        embed.description = content
+            definition = f"Recieved a bad status code of {search.status_code}."
+            embed.title = f"Error"
 
         await ctx.send(embed=embed)
 
