@@ -3367,9 +3367,11 @@ class Modmail(commands.Cog):
         See the definition of a word!
         """
 
-        embed=discord.Embed(color=ctx.author.color)
+        embed=discord.Embed(color=ctx.author.color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        word = urllib.parse.quote(word)
 
-        search = requests.get("https://some-random-api.ml/dictionary?word=random")
+        search = requests.get(f"https://some-random-api.ml/dictionary?word={word}")
 
         if 300 > search.status_code >= 200:
             search = search.json()
@@ -3383,7 +3385,7 @@ class Modmail(commands.Cog):
             definition = f"Recieved a bad status code of {search.status_code}."
             embed.title = f"Error"
 
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     async def setup(bot):
       await bot.add_cog(Fun(bot))
