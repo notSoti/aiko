@@ -7,6 +7,7 @@ from turtle import goto
 from random_word import Wordnik
 import random
 import string
+import requests
 import os
 import aiohttp
 import io
