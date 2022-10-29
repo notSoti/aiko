@@ -3,7 +3,6 @@ import re
 from datetime import datetime, timezone
 import datetime
 from socket import MSG_DONTROUTE
-from turtle import goto
 from random_word import Wordnik
 import random
 import string
@@ -3379,11 +3378,15 @@ class Modmail(commands.Cog):
             definition = search["definition"]
             word_name = search["word"]
 
+            if len(definition) > 4000:
+                definition = f"The definition of this word is too long! Click [**here**](https://www.dictionary.com/browse/{word}) for the word's definition!"
+
             embed.title = f"Definition of {word_name}"
-            embed.description = definition
         else:
             definition = f"Recieved a bad status code of {search.status_code}."
             embed.title = f"Error"
+
+        embed.description = definition
 
         await ctx.reply(embed=embed)
 
