@@ -3378,7 +3378,7 @@ class Modmail(commands.Cog):
             word_name = search["word"]
 
             embed.title = f"Definition of {word_name}"
-            embed.description = definition
+            embed.description = str(definition)
         else:
             definition = f"Recieved a bad status code of {search.status_code}."
             embed.title = f"Error"
