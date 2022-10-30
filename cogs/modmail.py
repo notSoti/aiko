@@ -6,6 +6,7 @@ from socket import MSG_DONTROUTE
 from random_word import Wordnik
 import random
 import string
+import requests
 import os
 import aiohttp
 import io
@@ -2334,7 +2335,7 @@ class Modmail(commands.Cog):
         └─ `Reason` - a reason."""
       
         config = await self.db.find_one({"_id": "config"})
-        logs_channel = (os.getenv("channel"))
+        logs_channel = (os.getenv("mod_logs"))
         setchannel = discord.utils.get(ctx.guild.channels, id=int(logs_channel))
 
         if members is None:
@@ -2395,7 +2396,7 @@ class Modmail(commands.Cog):
         Mute a member for up to 7 days (use "m" for minutes, "h" for hours and "d" for days).
         """
 
-        channel = self.bot.get_channel(int(os.getenv("channel")))
+        channel = self.bot.get_channel(int(os.getenv("mod_logs")))
 
         if reason != "None":
           reason=reason
@@ -2441,7 +2442,7 @@ class Modmail(commands.Cog):
       Unmute a member, if they are muted.
       """
 
-      channel = self.bot.get_channel(int(os.getenv("channel")))
+      channel = self.bot.get_channel(int(os.getenv("mod_logs")))
 
       if member.is_timed_out() == False:
         await ctx.send("That user is not currently muted.")
@@ -2468,7 +2469,7 @@ class Modmail(commands.Cog):
       """
 
       max = 100
-      channel = self.bot.get_channel(int(os.getenv("channel")))
+      channel = self.bot.get_channel(int(os.getenv("mod_logs")))
 
       if amount > max:
           return await ctx.send(f"{ctx.author.mention} you can only purge up to 100 messages.", delete_after=6)
@@ -2638,7 +2639,7 @@ class Modmail(commands.Cog):
     async def partner(self, ctx):
 
       partner = discord.utils.get(ctx.guild.roles, id=741774737168007219)   # change
-      channel = self.bot.get_channel(int(os.getenv("channel")))
+      channel = self.bot.get_channel(int(os.getenv("misc_logs")))
       member = ctx.guild.get_member(ctx.thread.id)
 
 
@@ -2648,11 +2649,29 @@ class Modmail(commands.Cog):
 
       await member.add_roles(partner, reason="Partnership", atomic=True)
       await channel.send(embed=embed)
-      await ctx.send(content=f"Gave {member.mention} the {partner.mention} role", allowed_mentions=discord.AllowedMentions(roles=False))
+      await ctx.send(content=f"Gave {member.mention} the {partner.mention} role.", allowed_mentions=discord.AllowedMentions(roles=False))
 
     async def setup(bot):
       await bot.add_cog(partner(bot))
 
+
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @checks.thread_only()
+    async def verify(self, ctx):
+
+      selfies = discord.utils.get(ctx.guild.roles, id=760529398720888882)   # change
+      channel = self.bot.get_channel(int(os.getenv("misc_logs")))
+      member = ctx.guild.get_member(ctx.thread.id)
+
+
+      embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
+      embed.add_field(name="Role Added", value=f"{ctx.thread.recipient.mention} ({ctx.thread.recipient}) was given the {selfies.mention} role by {ctx.author.mention} ({ctx.author}).")
+      embed.set_footer(text=f"Mod ID: {ctx.author.id} - User ID: {ctx.thread.recipient.id}")
+
+      await member.add_roles(selfies, reason="Selfies Verified", atomic=True)
+      await channel.send(embed=embed)
+      await ctx.send(content=f"Gave {member.mention} the {selfies.mention} role.", allowed_mentions=discord.AllowedMentions(roles=False))
 
     class customRole(commands.Cog):
         def __innit__(self, bot):
@@ -2918,7 +2937,7 @@ class Modmail(commands.Cog):
       Change the color of your custom role!
       """
 
-      channel = self.bot.get_channel(int(os.getenv("channel")))
+      channel = self.bot.get_channel(int(os.getenv("misc_logs")))
 
       winter = discord.utils.get(ctx.guild.roles, id=808860767050530823)  # change
       cinni = discord.utils.get(ctx.guild.roles, id=905070283851968603)  # change
@@ -3046,30 +3065,30 @@ class Modmail(commands.Cog):
 
       await ctx.reply(embed=embed)
 
-    @partnerships.command(name="lb")
-    @checks.has_permissions(PermissionLevel.SUPPORTER)
-    @trigger_typing
-    @commands.cooldown(1, 5, BucketType.user)
-    async def partner_lb(self, ctx):
-      """
-      See who has posted the most partnerships!
-      """
-
-      pms = discord.utils.get(ctx.guild.roles, id=751470169448120422)  # change
-      embed = discord.Embed(color=0x2f3136, timestamp=discord.utils.utcnow())
-      links = self.bot.get_channel(651753340623126538) # change
-      msg = "**Partnerships leaderboard!**\n\n"
-
-      for member in ctx.guild.members:
-        count = 0
-        if pms in member.roles:
-            async for message in links.history(limit=2000):
-                if message.author == member:
-                    count += 1
-            msg += f"{member.mention} → {count}\n"
-
-      embed.description = msg
-      await ctx.channel.send(embed=embed)
+    #@partnerships.command(name="lb")
+    #@checks.has_permissions(PermissionLevel.SUPPORTER)
+    #@trigger_typing
+    #@commands.cooldown(1, 5, BucketType.user)
+    #async def partner_lb(self, ctx):
+    #  """
+    #  See who has posted the most partnerships!
+    #  """
+#
+    #  pms = discord.utils.get(ctx.guild.roles, id=751470169448120422)  # change
+    #  embed = discord.Embed(color=0x2f3136, timestamp=discord.utils.utcnow())
+    #  links = self.bot.get_channel(651753340623126538) # change
+    #  msg = "**Partnerships leaderboard!**\n\n"
+#
+    #  for member in ctx.guild.members:
+    #    count = 0
+    #    if pms in member.roles:
+    #        async for message in links.history(limit=2000):
+    #            if message.author == member:
+    #                count += 1
+    #        msg += f"{member.mention} → {count}\n"
+#
+    #  embed.description = msg
+    #  await ctx.channel.send(embed=embed)
 
 
     async def setup(bot):
@@ -3402,6 +3421,37 @@ class Modmail(commands.Cog):
         else:
             await ctx.reply(("Maybe higher than 1?").format(author=author))
 
+    @commands.command()
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def define(self, ctx, word):
+        """
+        See the definition of a word!
+        """
+
+        embed=discord.Embed(color=ctx.author.color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        word = urllib.parse.quote(word)
+
+        search = requests.get(f"https://some-random-api.ml/dictionary?word={word}")
+
+        if 300 > search.status_code >= 200:
+            search = search.json()
+
+            definition = search["definition"]
+            word_name = search["word"]
+
+            if len(definition) > 4000:
+                definition = f"The definition of this word is too long! Click [**here**](https://www.dictionary.com/browse/{word}) for the word's definition!"
+
+            embed.title = f"Definition of {word_name}"
+        else:
+            definition = f"Recieved a bad status code of {search.status_code}."
+            embed.title = f"Error"
+
+        embed.description = definition
+        await ctx.reply(embed=embed)
+
     async def setup(bot):
       await bot.add_cog(Fun(bot))
 
@@ -3514,7 +3564,7 @@ class Modmail(commands.Cog):
 
         promo = ctx.guild.get_channel(769582489421217822)
         count = ctx.guild.get_channel(653055287510433824)
-        cursed = ctx.guild.get_channel(660484550316523549)
+        #cursed = ctx.guild.get_channel(660484550316523549)
         spam = ctx.guild.get_channel(641777941818245160)
         bots = ctx.guild.get_channel(949772478937440346)
 
@@ -3595,8 +3645,8 @@ class Modmail(commands.Cog):
         await asyncio.sleep(2)
         await count.edit(name=f"๑{emoji2}・123")
         await asyncio.sleep(2)
-        await cursed.edit(name=f"{emoji8}┆cursed•₊°")
-        await asyncio.sleep(2)
+        #await cursed.edit(name=f"{emoji8}┆cursed•₊°")
+        #await asyncio.sleep(2)
         await spam.edit(name=f"{emoji7}┆spam•₊°")
         await asyncio.sleep(2)
         await bots.edit(name=f"๑{emoji1}・bots")
@@ -3916,7 +3966,7 @@ class Modmail(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
-      channel = self.bot.get_channel(int(os.getenv("channel")))
+      channel = self.bot.get_channel(int(os.getenv("mod_logs")))
 
       if not re.search("([!-~])", member.name):
         await member.edit(nick="change nickname!", reason="Automod - Unpingable Name")
@@ -4020,7 +4070,7 @@ class Modmail(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
 
-      channel = self.bot.get_channel(int(os.getenv("channel")))
+      channel = self.bot.get_channel(int(os.getenv("mod_logs")))
 
       embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
       embed.set_footer(text=f"User ID: {after.id}")
@@ -4067,44 +4117,109 @@ class Modmail(commands.Cog):
         await ctx.send("This message has buttons!",view=Buttons())
 
 
-
     class cmds(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
 
+    @commands.group(invoke_without_command=False)
     @commands.command(aliases=["cmd"])
     @checks.has_permissions(PermissionLevel.REGULAR)
     @trigger_typing
     async def commands(self, ctx):
+        """
+        See all of AIko's commands! (You can only see commands if you're eligible to use them.)
 
-      embed = discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
-      embed.set_footer(text=f"Requested by {ctx.author}")
-      embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
-
-      admin = discord.utils.get(ctx.author.roles, id=704792380624076820)
-      mod = discord.utils.get(ctx.author.roles, id=642122688491421696)
-      member = discord.utils.get(ctx.author.roles, id=648641822431903784)
-      pm = discord.utils.get(ctx.author.roles, id=751470169448120422)
-
-      prefix = "!"
-      
-      if member in ctx.author.roles:
-        embed.add_field(name="Normal Commands", value=f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar (they don't need to be in the server!).\n**{prefix}banner** → Get a user's banner (they don't need to be in the server!).\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}flip** → Flip a coin.\n**{prefix}roast** → Roast someone (or yourself)!\n**{prefix}roll** → Roll a dice!\n**{prefix}choose** [options...] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role.", inline=False)
+        For example: {prefix}commands pm
+        """
 
 
-      if mod in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(mod$)", ctx.message.content))):
-        embed.add_field(name="Mod Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}s** → See every available snippet.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}new** [user] → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.", inline=False)
+    @commands.command(name="normal", aliases=["members"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def cmds_normal(self, ctx):
+        """
+        See the normal/fun commands you can use!
+        """
 
+        prefix = "!"
+        embed = discord.Embed(color=ctx.author.color)
+        embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
+        embed.set_footer(text="Normal Commands")
 
-      if pm in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(pm$)", ctx.message.content))):
-        embed.add_field(name="PM Commands", value=f"**{prefix}say** [your message] → Sends your message.\n**{prefix}edit** → Edit one of the messages you sent.\n**{prefix}delete** → Delete one of the messages you sent.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}pm** → Shows you how many partnerships you or another PM has posted.", inline=False)
+        embed.description = f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar (they don't need to be in the server!).\n**{prefix}banner** → Get a user's banner (they don't need to be in the server!).\n**{prefix}define** → Look up the definiton of a word!\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}flip** → Flip a coin.\n**{prefix}roast** → Roast someone (or yourself)!\n**{prefix}roll** → Roll a dice!\n**{prefix}choose** [options...] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role."
 
+        await ctx.reply(embed=embed)
 
-      if admin in ctx.author.roles and (ctx.channel.category.id == staff_cat or ctx.channel.category.id == pm_cat or ctx.channel.category.id == mods_cat or ctx.channel.category.id == admins_cat) or (admin in ctx.author.roles and (re.search("(all$)", ctx.message.content) or re.search("(admin$)", ctx.message.content))):
-        embed.add_field(name="Admin Commands", value=f"**{prefix}admin-move** → Moves the thread to the Admin category.\n**{prefix}admin-close** → Closes the thread.\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.", inline=False)
+    @commands.command(name="pm", aliases=["pms"])
+    @checks.has_permissions(PermissionLevel.SUPPORTER)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def cmds_pm(self, ctx):
+        """
+        Every command PMs can use.
+        """
 
+        prefix = "!"
+        embed = discord.Embed(color=ctx.author.color)
+        embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
+        embed.set_footer(text="PM Commands")
 
-      await ctx.reply(embed=embed)
+        embed.description = f"**{prefix}say** [your message] → Sends your message.\n**{prefix}{prefix}ad** → Sends the server's ad and gives the <@&741774737168007219> role.\n**{prefix}edit** → Edit one of the messages you've sent.\n**{prefix}delete** → Delete one of the messages you've sent.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite link] → Get info about an active invite.\n**{prefix}pm** → Shows you how many partnerships you or another PM has posted."
+
+        await ctx.reply(embed=embed)
+
+    @commands.command(name="mod", aliases=["mods"])
+    @checks.has_permissions(PermissionLevel.MOD)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def cmds_mod(self, ctx):
+        """
+        Every command mods can use.
+        """
+
+        prefix = "!"
+        embed = discord.Embed(color=ctx.author.color)
+        embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
+        embed.set_footer(text="Mod Commands")
+
+        embed.description = f"**{prefix}say** [your message] → Sends your message.\n**{prefix}edit** [message link/id] → Edit a message a message you've sent.\n**{prefix}delete** [message link/id] → Delete a message a message you've sent.\n**{prefix}s** → Shows every available snippet.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}new** [user] → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.\n**{prefix}wyr** [Option 1] [Option 2] → Send a would-you-rather in <#1000806786447720548>.\n**{prefix}rules** → See every unverified member that has been in the server for more than 10h."
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name="admin", aliases=["admins"])
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 5, BucketType.user)
+    async def cmds_admin(self, ctx):
+        """
+        Every command admins can use.
+        """
+
+        prefix = "!"
+        embed = discord.Embed(color=ctx.author.color)
+        embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
+        embed.set_footer(text="Admin Commands")
+
+        embed.description = f"**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users."
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name="all")
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 10, BucketType.user)
+    async def cmds_all(self, ctx):
+        """
+        Every command.
+        """
+
+        prefix = "!"
+        embed = discord.Embed(color=ctx.author.color)
+        embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
+        embed.set_footer(text="All Commands")
+
+        embed.description = ""
+
+        embed.description += f"**Normal Commands**\n\n**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar (they don't need to be in the server!).\n**{prefix}banner** → Get a user's banner (they don't need to be in the server!).\n**{prefix}define** → Look up the definiton of a word!\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}flip** → Flip a coin.\n**{prefix}roast** → Roast someone (or yourself)!\n**{prefix}roll** → Roll a dice!\n**{prefix}choose** [options...] → Have Aiko choose between things for you!\n**{prefix}wordle** → Play a round of Wordle with Aiko!\n**{prefix}mycolor** → Change the color of your custom role."
+        embed.description += f"\n\n\n**PM Commands**\n\n**{prefix}say** [your message] → Sends your message.\n**{prefix}{prefix}ad** → Sends the server's ad and gives the <@&741774737168007219> role.\n**{prefix}edit** → Edit one of the messages you've sent.\n**{prefix}delete** → Delete one of the messages you've sent.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite link] → Get info about an active invite.\n**{prefix}pm** → Shows you how many partnerships you or another PM has posted."
+        embed.description += f"\n\n\n**Mod Commands**\n\n**{prefix}say** [your message] → Sends your message.\n**{prefix}edit** [message link/id] → Edit a message a message you've sent.\n**{prefix}delete** [message link/id] → Delete a message a message you've sent.\n**{prefix}s** → Shows every available snippet.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}new** [user] → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.\n**{prefix}wyr** [Option 1] [Option 2] → Send a would-you-rather in <#1000806786447720548>.\n**{prefix}rules** → See every unverified member that has been in the server for more than 10h."
+        embed.description += f"\n\n\n**Admin Commands**\n\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users."
 
     async def setup(bot):
       await bot.add_cog(cmds(bot))
