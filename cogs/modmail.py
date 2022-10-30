@@ -4121,7 +4121,7 @@ class Modmail(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=False)
+    @commands.group(invoke_without_command=True)
     @checks.has_permissions(PermissionLevel.REGULAR)
     async def commands(self, ctx):
         """
@@ -4137,7 +4137,7 @@ class Modmail(commands.Cog):
 
         """
         prefix = "!"
-        embed = discord.Embed(color=ctx.author.color, description=f"See all of Aiko's commands! (You can only see commands if you're eligible to use them.)\n\n**Avaialble Subcommands:**\n`{prefix}commands normal` - Every normal/fun command.\n`{prefix}commands pm` - Every command PMs can use.\n`{prefix}commands mod` - Every command mods can use.\n`{prefix}commands admin` - Every command admins can use.\n`{prefix}commands all` - Every command! (Only admins can use this subcommand)")
+        embed = discord.Embed(color=ctx.author.color, description=f"See all of Aiko's commands! (You can only see commands if you're eligible to use them.)\n\n**Available Subcommands:**\n`{prefix}commands normal` - Every normal/fun command.\n`{prefix}commands pm` - Every command PMs can use.\n`{prefix}commands mod` - Every command mods can use.\n`{prefix}commands admin` - Every command admins can use.\n`{prefix}commands all` - Every command! (Only admins can use this subcommand)")
         await ctx.reply(embed=embed)
 
     @commands.command(name="normal", aliases=["members"])
@@ -4222,6 +4222,8 @@ class Modmail(commands.Cog):
         embed.description += f"\n\n\n**PM Commands**\n\n**{prefix}say** [your message] → Sends your message.\n**{prefix}{prefix}ad** → Sends the server's ad and gives the <@&741774737168007219> role.\n**{prefix}edit** → Edit one of the messages you've sent.\n**{prefix}delete** → Delete one of the messages you've sent.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**!!ad** → Sends our server's ad.\n**{prefix}inv** [invite link] → Get info about an active invite.\n**{prefix}pm** → Shows you how many partnerships you or another PM has posted."
         embed.description += f"\n\n\n**Mod Commands**\n\n**{prefix}say** [your message] → Sends your message.\n**{prefix}edit** [message link/id] → Edit a message a message you've sent.\n**{prefix}delete** [message link/id] → Delete a message a message you've sent.\n**{prefix}s** → Shows every available snippet.\n**{prefix}notify** → Pings you when the user sends their next message.\n**{prefix}closing** → Closes the thread.\n**{prefix}new** [user] → Opens a new thread.\n**{prefix}link** → Sends the link of the current thread.\n**{prefix}logs** [user] → Checks a user's previous thread logs.\n**{prefix}block** [user] [reason] → Blocks a user.\n**{prefix}unblock** [user] → Unblocks a user.\n**{prefix}blocked** → Displays every blocked user.\n**{prefix}inv** [invite link] → Gets info about an invite.\n**{prefix}mute** [user] [limit] [reason] → Mutes a user (only use if Dyno is offline).\n**{prefix}unmute** [user] → Unmutes a user.\n**{prefix}purge** [limit] → Purges a number of messages.\n**{prefix}fixnames** → Looks for members with unpingable names and changes their nickname.\n**{prefix}wyr** [Option 1] [Option 2] → Send a would-you-rather in <#1000806786447720548>.\n**{prefix}rules** → See every unverified member that has been in the server for more than 10h."
         embed.description += f"\n\n\n**Admin Commands**\n\n**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users."
+
+        await ctx.reply(embed=embed)
 
     async def setup(bot):
       await bot.add_cog(cmds(bot))
