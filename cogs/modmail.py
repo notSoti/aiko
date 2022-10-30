@@ -4122,10 +4122,9 @@ class Modmail(commands.Cog):
         self.bot = bot
 
     @commands.group(invoke_without_command=False)
-    @commands.command(aliases=["commands"])
     @checks.has_permissions(PermissionLevel.REGULAR)
     @trigger_typing
-    async def cmd(self, ctx):
+    async def commands(self, ctx):
         """
         See all of Aiko's commands! (You can only see commands if you're eligible to use them.)
 
