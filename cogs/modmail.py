@@ -4130,6 +4130,7 @@ class Modmail(commands.Cog):
 
         For example: {prefix}commands pm
         """
+        a = 1
 
     @commands.command(name="normal", aliases=["members"])
     @checks.has_permissions(PermissionLevel.REGULAR)
