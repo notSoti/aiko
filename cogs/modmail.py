@@ -4130,11 +4130,9 @@ class Modmail(commands.Cog):
 
         For example: {prefix}commands pm
         """
-        a = 1
 
     @commands.command(name="normal", aliases=["members"])
     @checks.has_permissions(PermissionLevel.REGULAR)
-    @commands.cooldown(1, 5, BucketType.user)
     async def cmds_normal(self, ctx):
         """
         See the normal/fun commands you can use!
@@ -4151,7 +4149,6 @@ class Modmail(commands.Cog):
 
     @commands.command(name="pm", aliases=["pms"])
     @checks.has_permissions(PermissionLevel.SUPPORTER)
-    @commands.cooldown(1, 5, BucketType.user)
     async def cmds_pm(self, ctx):
         """
         Every command PMs can use.
@@ -4168,7 +4165,6 @@ class Modmail(commands.Cog):
 
     @commands.command(name="mod", aliases=["mods"])
     @checks.has_permissions(PermissionLevel.MOD)
-    @commands.cooldown(1, 5, BucketType.user)
     async def cmds_mod(self, ctx):
         """
         Every command mods can use.
@@ -4185,7 +4181,6 @@ class Modmail(commands.Cog):
 
     @commands.command(name="admin", aliases=["admins"])
     @checks.has_permissions(PermissionLevel.ADMIN)
-    @commands.cooldown(1, 5, BucketType.user)
     async def cmds_admin(self, ctx):
         """
         Every command admins can use.
@@ -4202,7 +4197,6 @@ class Modmail(commands.Cog):
 
     @commands.command(name="all")
     @checks.has_permissions(PermissionLevel.ADMIN)
-    @commands.cooldown(1, 10, BucketType.user)
     async def cmds_all(self, ctx):
         """
         Every command.
