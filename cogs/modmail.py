@@ -4123,13 +4123,22 @@ class Modmail(commands.Cog):
 
     @commands.group(invoke_without_command=False)
     @checks.has_permissions(PermissionLevel.REGULAR)
-    @trigger_typing
     async def commands(self, ctx):
         """
         See all of Aiko's commands! (You can only see commands if you're eligible to use them.)
 
-        For example: {prefix}commands pm
+        **Avaialble Subcommands:**
+
+        `{prefix}commands normal` - Every normal/fun command.
+        `{prefix}commands pm` - Every command PMs can use.
+        `{prefix}commands mod` - Every command mods can use.
+        `{prefix}commands admin` - Every command admins can use.
+        `{prefix}commands all` - Every command! (Only admins can use this subcommand)
+
         """
+        prefix = "!"
+        embed = discord.Embed(color=ctx.author.color, description=f"See all of Aiko's commands! (You can only see commands if you're eligible to use them.)\n\n**Avaialble Subcommands:**\n`{prefix}commands normal` - Every normal/fun command.\n`{prefix}commands pm` - Every command PMs can use.\n`{prefix}commands mod` - Every command mods can use.\n`{prefix}commands admin` - Every command admins can use.\n`{prefix}commands all` - Every command! (Only admins can use this subcommand)")
+        await ctx.reply(embed=embed)
 
     @commands.command(name="normal", aliases=["members"])
     @checks.has_permissions(PermissionLevel.REGULAR)
@@ -4191,7 +4200,7 @@ class Modmail(commands.Cog):
         embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
         embed.set_footer(text="Admin Commands")
 
-        embed.description = f"**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users."
+        embed.description = f"**{prefix}enable** → Opens Aiko's DMs.\n**{prefix}disable** → Closes Aiko's DMs.\n**{prefix}isenable** → Checks the status of Aiko's DMs.\n**{prefix}echo** [channel] [message] → Sends a message in a channel.\n**{prefix}webhook** [message] → Send a webhook through Aiko.\n**{prefix}ban** [user(s)] → Bans a user or multiple users.\n**{prefix}setav** [image link] → Change Aiko's avatar."
 
         await ctx.send(embed=embed)
 
