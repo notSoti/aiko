@@ -3368,7 +3368,7 @@ class Modmail(commands.Cog):
 
         embed=discord.Embed(color=ctx.author.color, timestamp=discord.utils.utcnow())
         embed.set_footer(text=f"Requested by {ctx.author}")
-        word = urllib.parse.quote(word, encoding="-")
+        word = urllib.parse.quote(word)
 
         search = requests.get(f"https://some-random-api.ml/dictionary?word={word}")
 
