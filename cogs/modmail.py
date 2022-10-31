@@ -3992,18 +3992,6 @@ class Modmail(commands.Cog):
             embed.set_footer(text=f"You have posted {count} in total!")
             await message.reply(embed=embed, allowed_mentions=discord.AllowedMentions(replied_user=False))
 
-
-        if message.author.bot == False and message.channel.id == 965915830661570593:
-
-            resp = requests.get("https://some-random-api.ml/chatbot?key=693eX9zNKHuOHeqmF8TamCzlc&?message=hello")
-
-            if 300 > resp.status_code >= 200:
-                content = resp.json() #We have a dict now.
-            else:
-                content = f"Recieved a bad status code of {resp.status_code}."
-
-            await message.channel.send(content)
-
     async def setup(bot):
       await bot.add_cog(on_messages(bot))
 
