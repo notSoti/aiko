@@ -3995,7 +3995,7 @@ class Modmail(commands.Cog):
 
         if message.author.bot == False and message.channel.id == 965915830661570593:
 
-            resp = requests.get("https://some-random-api.ml/chatbot?key=693eX9zNKHuOHeqmF8TamCzlc?message=hello")
+            resp = requests.get("https://some-random-api.ml/chatbot?key=693eX9zNKHuOHeqmF8TamCzlc&?message=hello")
 
             if 300 > resp.status_code >= 200:
                 content = resp.json() #We have a dict now.
