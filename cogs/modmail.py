@@ -3412,7 +3412,7 @@ class Modmail(commands.Cog):
         Ask Aiko's 8ball a question!
         """
         if question == None:
-            ctx.reply("You need to ask a question!")
+            await ctx.reply("You need to ask a question!")
             return
         
         answer = ["As I see it, yes.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.",
