@@ -3476,7 +3476,7 @@ class Modmail(commands.Cog):
       await bot.add_cog(Fun(bot))
 
 
-    @commands.group(aliases=["avset"], usage="[avatar link]]", invoke_without_command=True)
+    @commands.group(aliases=["avset"], usage="[avatar link]", invoke_without_command=True)
     @checks.has_permissions(PermissionLevel.ADMIN)
     @commands.cooldown(1, 300, BucketType.guild)
     async def setav(self, ctx, av):
@@ -4172,7 +4172,7 @@ class Modmail(commands.Cog):
         embed.set_author(name="Aiko Commands!", icon_url=ctx.bot.user.avatar.url)
         embed.set_footer(text="Normal Commands")
 
-        embed.description = f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar (they don't need to be in the server!).\n**{prefix}banner** → Get a user's banner (they don't need to be in the server!).\n**{prefix}define** → Look up the definiton of a word!\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}flip** → Flip a coin.\n**{prefix}roast** → Roast someone (or yourself)!\n**{prefix}8ball** → Ask Aiko's 8ball a question!\n**{prefix}roll** → Roll a dice!\n**{prefix}choose** [options...] → Have Aiko choose between things for you!\n**{prefix}mycolor** → Change the color of your custom role.\n**{prefix}wordle** → Play a round of Wordle with Aiko!""
+        embed.description = f"**{prefix}ping** → Check Aiko's ping.\n**{prefix}about** → See some general info about Aiko.\n**{prefix}avatar** → Get a user's avatar (they don't need to be in the server!).\n**{prefix}banner** → Get a user's banner (they don't need to be in the server!).\n**{prefix}define** → Look up the definiton of a word!\n**{prefix}roleinfo** → Get get info about a role.\n**{prefix}serverinfo** → Get info about the server.\n**{prefix}flip** → Flip a coin.\n**{prefix}roast** → Roast someone (or yourself)!\n**{prefix}8ball** → Ask Aiko's 8ball a question!\n**{prefix}roll** → Roll a dice!\n**{prefix}choose** [options...] → Have Aiko choose between things for you!\n**{prefix}mycolor** → Change the color of your custom role.\n**{prefix}wordle** → Play a round of Wordle with Aiko!"
 
         await ctx.reply(embed=embed)
 
