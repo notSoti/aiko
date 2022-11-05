@@ -3844,7 +3844,7 @@ class Modmail(commands.Cog):
     @commands.command(usage="[message]")
     @checks.has_permissions(PermissionLevel.SUPPORTER)
     @checks.thread_only()
-    @commands.cooldown(1, 3, BucketType.user)
+    @commands.cooldown(1, 2, BucketType.user)
     async def say(self, ctx, *, msg: str = ""):
       "Reply in a thread."
 
