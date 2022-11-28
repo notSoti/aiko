@@ -3147,17 +3147,17 @@ class Modmail(commands.Cog):
     @commands.command(usage="(member)")
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 5, BucketType.user)
-    async def banner(self, ctx, member: discord.User = "None"):
+    async def banner(self, ctx, member: discord.User = None):
         """
         Get your or another user's banner.
         """
 
         embed=discord.Embed(color=self.bot.main_color, timestamp=discord.utils.utcnow())
 
-        if member != "None":
+        if member != None:
             member = await self.bot.fetch_user(member.id)
         else:
-            member = ctx.author
+            member = ctx.author.id
 
 
         if member.banner != None:
@@ -3173,12 +3173,12 @@ class Modmail(commands.Cog):
     @commands.command(usage="(member)", aliases=["userinfo", "w"])
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 5, BucketType.user)
-    async def whois(self, ctx, *, member: discord.User = "None"):
+    async def whois(self, ctx, *, member: discord.User = None):
         """
         Get a user's info.
         """
 
-        if member != "None":
+        if member != None:
             try:
                 member = await self.bot.get_user(member.id)
                 in_server = True
@@ -3189,22 +3189,23 @@ class Modmail(commands.Cog):
             member = ctx.author
             in_server = True
 
-        embed=discord.Embed(color=member.color, title=f"{member.name}'s profile", timestamp=discord.utils.utcnow())
+        embed=discord.Embed(color=member.color, title=f"{member.name}#{member.discriminator}'s profile", timestamp=discord.utils.utcnow())
         embed.set_thumbnail(url=member.avatar.url)
         embed.set_footer(text=f"ID: {member.id}")
         embed.add_field(name="Mention", value=member.mention)
         embed.add_field(name="Username", value=member.name)
 
         if in_server == False:
-            embed.description = "This user is not in the server"
+            embed.description = "This user is not in the server."
         else:
-            embed.description = "This user is in the server"
             embed.add_field(name="Joined Server", value=discord.utils.format_dt(member.joined_at, "F"))
+            rolelist = [r.mention for r in member.roles if r != ctx.guild.default_role]
+            
+            roles = ", ".join(rolelist)
+            embed.add_field(name=f"Roles {len(rolelist)}", value=roles)
 
         if member.bot == True:
-            embed.description += " and is a bot."
-        else:
-            embed.description += " and is not a bot."
+            embed.add_field(name="Bot")
         
         embed.add_field(name="Account Created", value=discord.utils.format_dt(member.created_at, "F"))
 
