@@ -3200,7 +3200,7 @@ class Modmail(commands.Cog):
         else:
             embed.add_field(name="Joined Server", value=discord.utils.format_dt(member.joined_at, "F"))
             rolelist = [r.mention for r in member.roles if r != ctx.guild.default_role]
-            
+
             roles = ", ".join(rolelist)
             embed.add_field(name=f"Roles {len(rolelist)}", value=roles)
 
@@ -3957,13 +3957,81 @@ class Modmail(commands.Cog):
             embed.description = random.choice(responses)
     
       else:
-        embed = discord.Embed(color=0xf26600, title="Trick or Treat...?", description="Isn't it a bit too late for that? Maybe again next year? <a:ghost_wave:1031912745077047399>")
+        embed = discord.Embed(color=0xf26600, title="Trick or Treat...?", description="Isn't it a bit too late for that? Maybe try again next year? <a:ghost_wave:1031912745077047399>")
         embed.set_image(url="https://cdn.discordapp.com/attachments/965915830661570593/1031921939985485944/giphy.gif")
 
       await ctx.send(embed=embed)
 
       channel = await self.bot.fetch_channel(1031926058154467398)
       await channel.send(content=ctx.author.mention, embed=embed)
+
+
+    @commands.command(aliases=["present"])
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 600, BucketType.user)
+    async def trickortreat(self, ctx):
+      "Were you naughty or good this year?"
+
+      xmas = False
+
+      colors = ["#f5624e", "#cc231e", "#34a660", "#0f8a5e", "#225e6e"]
+      clr = random.choice(colors)
+      embed = discord.Embed(color=discord.Color.from_str(clr), title="Merry Christmas!")
+
+      if xmas == True:
+        
+        elf = discord.utils.get(ctx.guild.roles, id=895808709140299807) # change
+
+        rng = random.randint(1, 3)
+
+        if rng == 1:
+            
+            admin = discord.utils.get(ctx.guild.roles, id=704792380624076820)  # change
+            if admin in  ctx.author.roles:
+                embed.description="You're lucky you're an admin... <:chibidisapproval:818499768632213525>"
+                await ctx.send(embed=embed)
+                return
+
+            mute_time = "30m"
+            time_conversion = {"m": 60}
+            mute_time = int(mute_time[:-1]) * time_conversion[mute_time[-1]]
+
+            await ctx.author.timeout(discord.utils.utcnow() + datetime.timedelta(seconds=int(mute_time)), reason="Present command")
+            await ctx.author.edit(nick=f"Naughty {ctx.author.name}", reason="Present command")
+            embed.description = "Santa decided you've been naughty this year so he muted you for 30 minutes!"
+
+        elif rng == 2:
+
+            embed.description = f"Santa decided you've been good this year so he gave you the {elf.mention} role!"
+            await ctx.author.add_roles(elf)
+
+        elif rng == 3:
+
+            nicks = ["Angelic", "Blissful", "Bright", "Delightful", "Festive", "Jolly", "Glistening", "Gracious", "Holy", "Magical", "Wonderful"]
+            nick = random.choice(nicks)
+
+            try:
+                await ctx.author.edit(nick=f"{nick} {ctx.author.name}", reason="Present command")
+                embed.description = f"Santa changed your nickname to {ctx.author.nick}!"
+            except:
+                embed.description = "Merry Christmas!"
+
+        else:
+
+            facts = ["\"The Grinch\" is the highest-grossing Christmas film of all time", "Santa lives in the North Pole because the Arctic is considered a magical place", "Santa Claus is based on St. Nicholas", "the world's tallest cut Christmas tree was 221 feet tall (67m)", "\"Jingle Bells\" was the first song played in space", "Germany started the Christmas tree tradition in the 16th century", "that although gingerbread houses date back to the 1600s, the tradition became widespread in Germany after the story of Hansel and Gretel was published in 1812", "Christmas was originally celebrated on January 6th", "Canada Post has a Santa letter program where kids can write to Saint Nick at the address: Santa Claus, North Pole, HOH OHO, Canada", "Rudolph was just a marketing gimmick"]
+            fact = random.choice(facts)
+
+            embed.description = f"Did you know {fact}?"
+
+      else:
+
+            embed.set_image(url="https://tenor.com/view/anime-cute-gif-19457438")
+            embed.description = "Christmas is over unfortunately... Come again next year!"
+
+
+    
+      await ctx.send(embed=embed)
+
 
 # ———————— CHANNELS ————————
 
