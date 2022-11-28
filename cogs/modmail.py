@@ -3977,6 +3977,7 @@ class Modmail(commands.Cog):
       colors = ["#f5624e", "#cc231e", "#34a660", "#0f8a5e", "#225e6e"]
       clr = random.choice(colors)
       embed = discord.Embed(color=discord.Color.from_str(clr), title="Merry Christmas!")
+      embed.set_footer(text="You can use the command again in 10 minutes!", icon_url="https://cdn.discordapp.com/emojis/791891737425215508.gif?size=96&quality=lossless")
 
       if xmas == True:
         
@@ -4025,9 +4026,8 @@ class Modmail(commands.Cog):
 
       else:
 
-            embed.set_image(url="https://tenor.com/view/anime-cute-gif-19457438")
+            embed.set_image(url="https://cdn.discordapp.com/attachments/965915830661570593/1046871160043880480/tRH4VJqHo6y2brgLt6qrjQ-B_cA0Ikhe3qN9sFlUL5UYKqMkjnw5jUQNmOZKDraaMd2e9yV29-Ta3vANiHpXJxIz5FqexhNBKeOAXez80W7vtIW-P0lrveELlWs_ppTu.gif")
             embed.description = "Christmas is over unfortunately... Come again next year!"
-
 
     
       await ctx.send(embed=embed)
