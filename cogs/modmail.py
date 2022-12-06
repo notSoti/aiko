@@ -3157,7 +3157,7 @@ class Modmail(commands.Cog):
         if member != None:
             member = await self.bot.fetch_user(member.id)
         else:
-            member = ctx.author.id
+            member = ctx.author
 
 
         if member.banner != None:
@@ -3200,9 +3200,11 @@ class Modmail(commands.Cog):
         else:
             embed.add_field(name="Joined Server", value=discord.utils.format_dt(member.joined_at, "F"))
             rolelist = [r.mention for r in member.roles if r != ctx.guild.default_role]
+            rolelist.reverse()
 
             roles = ", ".join(rolelist)
-            embed.add_field(name=f"Roles {len(rolelist)}", value=roles)
+            if len(rolelist) != 0:
+                embed.add_field(name=f"Roles ({len(rolelist)})", value=roles)
 
         if member.bot == True:
             embed.add_field(name="Bot")
@@ -3983,9 +3985,9 @@ class Modmail(commands.Cog):
         
         elf = discord.utils.get(ctx.guild.roles, id=895808709140299807) # change
 
-        rng = random.randint(1, 3)
+        rng = random.randint(1, 17)
 
-        if rng == 1:
+        if rng == 1 or rng == 2 or rng == 3 or rng == 4:
             
             admin = discord.utils.get(ctx.guild.roles, id=704792380624076820)  # change
             if admin in  ctx.author.roles:
@@ -4001,12 +4003,12 @@ class Modmail(commands.Cog):
             await ctx.author.edit(nick=f"Naughty {ctx.author.name}", reason="Present command")
             embed.description = "Santa decided you've been naughty this year so he muted you for 30 minutes!"
 
-        elif rng == 2:
+        elif rng == 5 or rng == 6 or rng == 7:
 
             embed.description = f"Santa decided you've been good this year so he gave you the {elf.mention} role!"
             await ctx.author.add_roles(elf)
 
-        elif rng == 3:
+        elif rng == 8 or rng == 9 or rng == 10 or rng == 11 or rng == 12:
 
             nicks = ["Angelic", "Blissful", "Bright", "Delightful", "Festive", "Jolly", "Glistening", "Gracious", "Holy", "Magical", "Wonderful"]
             nick = random.choice(nicks)
