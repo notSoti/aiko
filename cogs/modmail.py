@@ -2706,7 +2706,6 @@ class Modmail(commands.Cog):
 
                         if resp.status != 200:
                             embed.description="Something went wrong."
-                
                         else:
                             data = io.BytesIO(await resp.read())
                             icon = data.read()
@@ -3537,10 +3536,10 @@ class Modmail(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.command(aliases=["retheme"])
+    @commands.command(aliases=["retheme"], usage="[emoji] (server icon)")
     @checks.has_permissions(PermissionLevel.ADMIN)
     @commands.cooldown(1, 3600, BucketType.guild)
-    async def theme(self, ctx):
+    async def theme(self, ctx, emoji:str, icon=None):
         """
         Change the channel names based on the pre-selected theme (this won't change private cateogries and some other channels).
         """
@@ -3568,7 +3567,7 @@ class Modmail(commands.Cog):
         bot_news = ctx.guild.get_channel(750476824433262674)
         cookies = ctx.guild.get_channel(741428273191583854)
         wyr = ctx.guild.get_channel(1000806786447720548)
-        feedback = ctx.guild.get_channel(709969553026711562)
+        feedback = ctx.guild.get_channel(1049763674086178846)
 
         main = ctx.guild.get_channel(641449164328140806)
         media = ctx.guild.get_channel(642840124505456641)
@@ -3582,11 +3581,9 @@ class Modmail(commands.Cog):
         spam = ctx.guild.get_channel(641777941818245160)
         bots = ctx.guild.get_channel(949772478937440346)
 
-        vc_room = ctx.guild.get_channel(741726855849050143)
-        playlist = ctx.guild.get_channel(657012154699874324)
+        playlist = ctx.guild.get_channel(1049750360278962216)
         chit_chat = ctx.guild.get_channel(642131623638204416)
         music = ctx.guild.get_channel(645740142752956416)
-        music2 = ctx.guild.get_channel(949770280706899998)
         people2 = ctx.guild.get_channel(786590934099820544)
         people3 = ctx.guild.get_channel(788056412550070292)
 
@@ -3596,110 +3593,130 @@ class Modmail(commands.Cog):
         members = ctx.guild.get_channel(976869277355356230)
         goal = ctx.guild.get_channel(749308698047807578)
 
-        emoji1 = "🌆"
-        emoji2 = "🎑"
-        emoji3 = "🥧"
-        emoji4 = "🍂"
-        emoji5 = "🍊"
-        emoji6 = "🏮"
-        emoji7 = "☕"
-        emoji8 = "🌰"
+        emoji1 = "🎄"
+        emoji2 = "🎅"
+        emoji3 = "⛄"
+        emoji4 = "🦌"
+        emoji5 = "🎁"
+        emoji6 = "🌟"
+        emoji7 = "🔔"
+        emoji8 = "🍪"
 
-        msg = await ctx.send("Editing the channels/categories, this will take some time!")
+        msg = await ctx.send("Editing the server...")
 
-        await hello_cat.edit(name=f"꒰ {emoji4} ꒱ helloo! ୨୧")
+        try:
+            await ctx.guild.edit(name=f"{emoji}・kewl ෆ")
+        except:
+            await ctx.send("Something went wrong while trying to update the server's name.")
+            ctx.command.reset_cooldown(ctx)
+            return "Canceled the command."
+
+        if icon != None:
+            if not re.search("(\.png|\.jpg)$", icon):
+                await ctx.reply("Something went wrong updating the server icon. Keep in mind the image link needs to end in either `.png` or `.jpg`.")
+                ctx.command.reset_cooldown(ctx)
+                return "Canceled the command."
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(icon) as resp:
+
+                    if resp.status != 200:
+                        await ctx.send("Something went wrong when updating the server icon.")              
+                    else:
+                        data = io.BytesIO(await resp.read())
+                        icon = data.read()
+                        await ctx.guild.edit(icon=icon)
+                        await asyncio.sleep(10)
+
+        await hello_cat.edit(name=f"꒰ {emoji3} ꒱ helloo! ୨୧")
         await asyncio.sleep(2)
         await com_cat.edit(name=f"꒰ {emoji2} ꒱ community ୨୧")
         await asyncio.sleep(2)
         await general_cat.edit(name=f"꒰ {emoji1} ꒱ general ୨୧")
         await asyncio.sleep(2)
-        await play_cat.edit(name=f"꒰ {emoji3} ꒱ playground ୨୧")
+        await play_cat.edit(name=f"꒰ {emoji4} ꒱ playground ୨୧")
         await asyncio.sleep(2)
         await calls_cat.edit(name=f"꒰ {emoji7} ꒱ calls ୨୧")
         await asyncio.sleep(2)
-        await partner_cat.edit(name=f"꒰ {emoji6} ꒱ partner ୨୧")
+        await partner_cat.edit(name=f"꒰ {emoji5} ꒱ partner ୨୧")
         await asyncio.sleep(2)
-        await stats_cat.edit(name=f"꒰ {emoji8} ꒱ stats ୨୧")
+        await stats_cat.edit(name=f"꒰ {emoji6} ꒱ stats ୨୧")
         await asyncio.sleep(2)
 
         await staff_apps.edit(name=f"{emoji5}੭┆staff-apps！")
         await asyncio.sleep(2)
 
-        await newbies.edit(name=f"୨{emoji4}ɞ﹕newbies")
+        await newbies.edit(name=f"୨{emoji7}ɞ﹕newbies")
         await asyncio.sleep(2)
         await rules_fake.edit(name=f"{emoji1}┆rules-ˊˎ")
         await asyncio.sleep(2)
         await rules.edit(name=f"{emoji1}┆rulesˊˎ")
         await asyncio.sleep(2)
-        await intros.edit(name=f"╭ʚ{emoji7}﹕intros")
+        await intros.edit(name=f"╭ʚ{emoji2}﹕intros")
         await asyncio.sleep(2)
-        await roles.edit(name=f"{emoji3}੭┆roles・٩ˊᗜˋو")
+        await roles.edit(name=f"{emoji4}੭┆roles・٩ˊᗜˋو")
         await asyncio.sleep(2)
-        await crayons.edit(name=f"╰ʚ{emoji8}﹕crayons")
+        await crayons.edit(name=f"╰ʚ{emoji5}﹕crayons")
         await asyncio.sleep(2)
 
         await info.edit(name=f"๑{emoji2}・info")
         await asyncio.sleep(2)
         await mailbox.edit(name=f"╭ʚ{emoji1}﹕mailbox")
         await asyncio.sleep(2)
-        await meow.edit(name=f"{emoji7}੭┆meow！♡")
+        await meow.edit(name=f"{emoji4}੭┆meow！♡")
         await asyncio.sleep(2)
-        await bot_news.edit(name=f"╰ʚ{emoji5}﹕bot-news")
+        await bot_news.edit(name=f"╰ʚ{emoji7}﹕bot-news")
         await asyncio.sleep(2)
         await cookies.edit(name=f"{emoji6}┆cookies•₊°")
         await asyncio.sleep(2)
-        await wyr.edit(name=f"๑{emoji2}・wyr")
+        await wyr.edit(name=f"๑{emoji5}・wyr")
         await asyncio.sleep(2)
         await feedback.edit(name=f"{emoji3}┆feedback•₊°")
         await asyncio.sleep(2)
 
-        await main.edit(name=f"୨{emoji1}ɞ﹕harvested main")
+        await main.edit(name=f"୨{emoji1}ɞ﹕jolly main")
         await asyncio.sleep(2)
-        await media.edit(name=f"{emoji4}┆mediaˊˎ")
+        await media.edit(name=f"{emoji2}┆mediaˊˎ")
         await asyncio.sleep(2)
-        await selfies.edit(name=f"{emoji7}┆selfiesˊˎ")
+        await selfies.edit(name=f"{emoji3}┆selfiesˊˎ")
         await asyncio.sleep(2)
-        await arts.edit(name=f"୨{emoji3}ɞ﹕arts")
+        await arts.edit(name=f"୨{emoji4}ɞ﹕arts")
         await asyncio.sleep(2)
-        await vent.edit(name=f"{emoji2}┆ventˊˎ")
+        await vent.edit(name=f"{emoji5}┆ventˊˎ")
         await asyncio.sleep(2)
 
-        await luna.edit(name=f"{emoji3}┆lunas-clubhouse•₊°")
+        await luna.edit(name=f"{emoji4}┆lunas-clubhouse•₊°")
         await asyncio.sleep(2)
-        await promo.edit(name=f"୨{emoji6}ɞ﹕promo")
+        await promo.edit(name=f"୨{emoji3}ɞ﹕promo")
         await asyncio.sleep(2)
         await count.edit(name=f"๑{emoji2}・123")
         await asyncio.sleep(2)
-        await spam.edit(name=f"{emoji8}┆spam•₊°")
+        await spam.edit(name=f"{emoji5}┆spam•₊°")
         await asyncio.sleep(2)
-        await bots.edit(name=f"๑{emoji4}・bots")
+        await bots.edit(name=f"๑{emoji1}・bots")
         await asyncio.sleep(2)
 
-        await vc_room.edit(name=f"๑{emoji1}・vc-room")
+        await playlist.edit(name=f"{emoji1}┆playlist•₊°")
         await asyncio.sleep(2)
-        await playlist.edit(name=f"{emoji3}┆playlist•₊°")
-        await asyncio.sleep(2)
-        await chit_chat.edit(name=f"꒰꒰ {emoji1} chit chat")
+        await chit_chat.edit(name=f"꒰꒰ {emoji3} chit chat")
         await asyncio.sleep(2)
         await music.edit(name=f"꒰꒰ {emoji2} moosic")
         await asyncio.sleep(2)
-        await music2.edit(name=f"꒰꒰ {emoji7} moosic 2")
+        await people2.edit(name=f"꒰꒰ {emoji4} 2 buddies :D")
         await asyncio.sleep(2)
-        await people2.edit(name=f"꒰꒰ {emoji2} 2 buddies :D")
-        await asyncio.sleep(2)
-        await people3.edit(name=f"꒰꒰ {emoji6} 3 buddies :D")
+        await people3.edit(name=f"꒰꒰ {emoji5} 3 buddies :D")
         await asyncio.sleep(2)
 
-        await req.edit(name=f"╭ʚ{emoji4}﹕req")
+        await req.edit(name=f"╭ʚ{emoji1}﹕req")
         await asyncio.sleep(2)
-        await links.edit(name=f"╰ʚ{emoji8}﹕links・๑•͈ᴗ•͈")
+        await links.edit(name=f"╰ʚ{emoji2}﹕links・๑•͈ᴗ•͈")
         await asyncio.sleep(2)
 
-        await members.edit(name=f"꒰꒰ {emoji1} members: 750")
+        await members.edit(name=f"꒰꒰ {emoji3} members: 750")
         await asyncio.sleep(2)
-        await goal.edit(name=f"꒰꒰ {emoji7} goal: 850")
+        await goal.edit(name=f"꒰꒰ {emoji4} goal: 850")
 
-        await msg.edit(content="Finished editing the channels!")
+        await msg.edit(content="Finished editing the server!")
 
 
     @commands.group(invoke_without_command=True)
