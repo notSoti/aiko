@@ -2624,11 +2624,11 @@ class Modmail(commands.Cog):
         os.execl(sys.executable, sys.executable, * sys.argv)
         exit()
 
-    @restart.commands(name="pull", aliases=["update"])
-    @checks.has_permissions(PermissionLevel.OWNER)
-    @commands.cooldown(1, 60, BucketType.guild)
-    async def restart_pull(self, ctx):
-        """Reboots the bot and pulls the latest pushed updates."""
+    #@restart.commands(name="pull", aliases=["update"])
+    #@checks.has_permissions(PermissionLevel.OWNER)
+    #@commands.cooldown(1, 60, BucketType.guild)
+    #async def restart_pull(self, ctx):
+    #    """Reboots the bot and pulls the latest pushed updates."""
 
 
         #wip
