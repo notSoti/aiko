@@ -20,7 +20,7 @@ from itertools import zip_longest
 import typing
 from typing import Optional, Union, List, Tuple, Literal
 from types import SimpleNamespace
-from git import RemoteProgress, Repo
+import git
 
 import discord
 from discord.ext import commands
@@ -2613,16 +2613,25 @@ class Modmail(commands.Cog):
         def __init__(self, bot):
             self.bot = bot
 
-    @commands.command()
-    @checks.has_permissions(PermissionLevel.OWNER)
-    @commands.cooldown(1, 3600, BucketType.guild)
+    @commands.group(invoke_without_command=True)
+    @checks.has_permissions(PermissionLevel.ADMIN)
+    @commands.cooldown(1, 180, BucketType.guild)
     async def restart(self, ctx):
-        """Clears Cached Logs & Reboots The Bot"""
+        """Reboots the bot"""
         
         await ctx.send("Restarting...")
 
         os.execl(sys.executable, sys.executable, * sys.argv)
         exit()
+
+    @restart.commands(name="pull", aliases=["update"])
+    @checks.has_permissions(PermissionLevel.OWNER)
+    @commands.cooldown(1, 60, BucketType.guild)
+    async def restart_pull(self, ctx):
+        """Reboots the bot and pulls the latest pushed updates."""
+
+
+        #wip
 
 
     def setup(bot):
@@ -3156,7 +3165,7 @@ class Modmail(commands.Cog):
         if member != None:
             member = await self.bot.fetch_user(member.id)
         else:
-            member = ctx.author
+            member = await self.bot.fetch_user(ctx.author.id)
 
 
         if member.banner != None:
