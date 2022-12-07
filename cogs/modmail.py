@@ -3621,7 +3621,7 @@ class Modmail(commands.Cog):
             return "Canceled the command."
 
         if icon != None:
-            if not re.search("(\.png|\.jpg)$", icon):
+            if not re.search("(\.png|\.jpg|\.gif)$", icon):
                 await ctx.reply("Something went wrong updating the server icon. Keep in mind the image link needs to end in either `.png` or `.jpg`.")
                 ctx.command.reset_cooldown(ctx)
                 return "Canceled the command."
