@@ -3478,9 +3478,6 @@ class Modmail(commands.Cog):
             else:
                 embed.description = f"{member.mention} is not using Spotify currently!"
 
-        if member.status == "invisible" or member.status == "offline":
-            embed.description = f"{member.mention} is not using Spotify currently!"
-
         embed.set_footer(text=f"{member.name}#{member.discriminator}", icon_url=member.avatar)
         await ctx.reply(embed=embed)
 
