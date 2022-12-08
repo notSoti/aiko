@@ -3469,16 +3469,16 @@ class Modmail(commands.Cog):
         for activity in member.activities:
             if isinstance(activity, Spotify):
                 embed.color = activity.color
-                embed.add_field(name="Song", value=f"[{activity.title}]({activity.track_url})", inline=True)
-                embed.add_field(name="Artist", value=activity.artist, inline=True)
-                embed.add_field(name="Album", value=activity.album, inline=True)
+                embed.add_field(name="Song", value=f"[{activity.title}]({activity.track_url})", inline=False)
+                embed.add_field(name="Artist", value=activity.artist, inline=False)
+                embed.add_field(name="Album", value=activity.album, inline=False)
 
                 embed.set_thumbnail(url=activity.album_cover_url)
 
             else:
                 embed.description = f"{member.mention} is not using Spotify currently!"
 
-        if activity.name != "Spotify":
+        if member.status == "invisible" or member.status == "offline":
             embed.description = f"{member.mention} is not using Spotify currently!"
 
         embed.set_footer(text=f"{member.name}#{member.discriminator}", icon_url=member.avatar)
