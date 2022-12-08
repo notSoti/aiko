@@ -3461,12 +3461,28 @@ class Modmail(commands.Cog):
         See what song someone is listening to on Spotify.
         """
 
+        embed = discord.Embed(color=ctx.author.color, title="Spotify", timestamp=discord.utils.utcnow())
+
         if member == None:
             member = ctx.author
 
+        if member.status == "invisible" or member.status == "offline":
+            embed.description = f"{member.mention} is not using Spotify currently!"
+
         for activity in member.activities:
             if isinstance(activity, Spotify):
-                await ctx.send(f"{member} is listening to {activity.title} by {activity.artist}!")
+                embed.color = activity.color
+                embed.add_field(name="Song", value=f"[{activity.title}]({activity.track_url})", inline=True)
+                embed.add_field(name="Artist", value=activity.artists, inline=True)
+                embed.add_field(name="Album", value=activity.album, inline=True)
+
+                embed.set_thumbnail = activity.album_cover_url
+
+                embed.set_footer(text=f"{member.name}#{member.discriminator}", icon_url=member.avatar)
+            else:
+                embed.description = f"{member.mention} is not using Spotify currently!"
+
+        await ctx.reply(embed=embed)
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.REGULAR)
