@@ -23,6 +23,7 @@ from types import SimpleNamespace
 import git
 
 import discord
+from discord import SPotify
 from discord.ext import commands
 from discord.ext.commands.view import StringView
 from discord.ext.commands.cooldowns import BucketType
@@ -3452,6 +3453,21 @@ class Modmail(commands.Cog):
         else:
             await ctx.reply(("Maybe higher than 1?").format(author=author))
 
+    @commands.command(usage="(member)")
+    @checks.has_permissions(PermissionLevel.REGULAR)
+    @commands.cooldown(1, 7, BucketType.user)
+    async def spotify(self, ctx, member:discord.Member=None):
+        """
+        See what song someone is listening to on Spotify.
+        """
+
+        if member == None:
+            member = ctx.author
+
+        for activity in member.activities:
+            if isinstance(activity, Spotify):
+                await ctx.send(f"{member} is listening to {activity.title} by {activity.artist}!")
+
     @commands.command()
     @checks.has_permissions(PermissionLevel.REGULAR)
     @commands.cooldown(1, 10, BucketType.user)
@@ -3618,19 +3634,24 @@ class Modmail(commands.Cog):
         except:
             await ctx.send("Something went wrong while trying to update the server's name.")
             ctx.command.reset_cooldown(ctx)
-            return "Canceled the command."
+            await ctx.send("Canceled the command.")
+            return
 
         if icon != None:
             if not re.search("(\.png|\.jpg|\.gif)$", icon):
-                await ctx.reply("Something went wrong updating the server icon. Keep in mind the image link needs to end in either `.png` or `.jpg`.")
+                await ctx.reply("Something went wrong updating the server icon. Keep in mind the image link needs to end in either `.png`, `.jpg` or `.gif`.")
                 ctx.command.reset_cooldown(ctx)
-                return "Canceled the command."
+                await ctx.send("Canceled the command.")
+                return
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(icon) as resp:
 
                     if resp.status != 200:
-                        await ctx.send("Something went wrong when updating the server icon.")              
+                        await ctx.send("Something went wrong when updating the server icon.") 
+                        ctx.command.reset_cooldown(ctx)
+                        await ctx.send("Canceled the command.")
+                        return
                     else:
                         data = io.BytesIO(await resp.read())
                         icon = data.read()
@@ -3867,7 +3888,6 @@ class Modmail(commands.Cog):
         Cancel the automatic closure of a thread.
         """
         await ctx.invoke(self.bot.get_command("close"), option="cancel")
-
 
 
     @commands.command(usage="[message]")
