@@ -3476,7 +3476,7 @@ class Modmail(commands.Cog):
                 embed.add_field(name="Artist", value=activity.artists, inline=True)
                 embed.add_field(name="Album", value=activity.album, inline=True)
 
-                embed.set_thumbnail(activity.album_cover_url)
+                embed.set_thumbnail(url=activity.album_cover_url)
 
             else:
                 embed.description = f"{member.mention} is not using Spotify currently!"
