@@ -23,7 +23,7 @@ from types import SimpleNamespace
 import git
 
 import discord
-from discord import SPotify
+from discord import Spotify
 from discord.ext import commands
 from discord.ext.commands.view import StringView
 from discord.ext.commands.cooldowns import BucketType
