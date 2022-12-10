@@ -3216,7 +3216,7 @@ class Modmail(commands.Cog):
                 embed.add_field(name=f"Roles ({len(rolelist)})", value=roles)
 
         if member.bot == True:
-            embed.add_field(name="Bot")
+            embed.add_field(name="Bot", value="Yes")
         
         embed.add_field(name="Account Created", value=discord.utils.format_dt(member.created_at, "F"))
 
