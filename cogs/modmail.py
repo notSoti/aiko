@@ -3475,9 +3475,6 @@ class Modmail(commands.Cog):
 
                 embed.set_thumbnail(url=activity.album_cover_url)
 
-            else:
-                embed.description = f"{member.mention} is not using Spotify currently!"
-
         embed.set_footer(text=f"{member.name}#{member.discriminator}", icon_url=member.avatar)
         await ctx.reply(embed=embed)
 
@@ -4033,7 +4030,7 @@ class Modmail(commands.Cog):
     async def trickortreat(self, ctx):
       "Were you naughty or good this year?"
 
-      xmas = False
+      xmas = True
 
       colors = ["#f5624e", "#cc231e", "#34a660", "#0f8a5e", "#225e6e"]
       clr = random.choice(colors)
