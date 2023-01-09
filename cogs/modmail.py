@@ -2579,7 +2579,7 @@ class Modmail(commands.Cog):
         ctx.command.reset_cooldown(ctx)
         return
       else:
-          msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions(roles=False, everyone=False)) 
+          msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions(everyone=False)) 
           await msg.add_reaction("<:aiko_1:965916655878291507>")
           await msg.add_reaction("<:aiko_2:965916656536789052>")
 
