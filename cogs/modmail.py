@@ -2542,7 +2542,6 @@ class Modmail(commands.Cog):
 
     @commands.command(usage="[option 1] [option 2] (suggester)")
     @checks.has_permissions(PermissionLevel.MOD)
-    #@commands.has_role(819234810543210496)
     @commands.cooldown(2, 36000, BucketType.guild)
     async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = "None"):
       """
@@ -2567,28 +2566,42 @@ class Modmail(commands.Cog):
       else:
         suggester = ctx.author.mention
       
-      await ctx.send(f"The message will look like this, send it? (yes/no)\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹")
+      first_msg = await ctx.send(f"The message will look like this, send it?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions.none())
+      first_msg.add_reaction("<:aiko_success:965918214498443274>")
+      first_msg.add_reaction("<:aiko_error:965918214171291659>")
+      
+    #   def check(m):
+    #     return m.author == ctx.author and m.channel == ctx.channel
+      
+    #   try:
+    #     response = await self.bot.wait_for('message', check=check, timeout=30)
+    #   except:
+    #     await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+    #     ctx.command.reset_cooldown(ctx)
+    #     return
 
-      def check(m):
-        return m.author == ctx.author and m.channel == ctx.channel
+    #   if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm", "yea"):
+    #     msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
+    #     await msg.add_reaction("<:aiko_1:965916655878291507>")
+    #     await msg.add_reaction("<:aiko_2:965916656536789052>")
+    #   else:
+    #     await ctx.send("Canceled.")
+    #     ctx.command.reset_cooldown(ctx)
+    #     return
+
+      def check(reaction, user):
+          return user == ctx.author and str(reaction.emoji) == "<:aiko_success:965918214498443274>"
       
       try:
-        response = await self.bot.wait_for('message', check=check, timeout=30)
+          await self.bot.wait_for('reaction_add', check=check, timeout=15)
       except:
-        await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
+        await ctx.reply("Canceled.")
         ctx.command.reset_cooldown(ctx)
         return
-
-
-      if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm", "yea"):
-        msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
-        await msg.add_reaction("<:aiko_1:965916655878291507>")
-        await msg.add_reaction("<:aiko_2:965916656536789052>")
       else:
-        await ctx.send("Canceled.")
-        ctx.command.reset_cooldown(ctx)
-        return
-
+          msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions(roles=False, everyone=False)) 
+          await msg.add_reaction("<:aiko_1:965916655878291507>")
+          await msg.add_reaction("<:aiko_2:965916656536789052>")
 
     async def setup(bot):
       await bot.add_cog(wyr(bot))
@@ -2743,191 +2756,191 @@ class Modmail(commands.Cog):
       def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
-    @checks.has_permissions(PermissionLevel.MOD)
-    @trigger_typing
-    @commands.cooldown(1, 10, BucketType.user)
-    async def rules(self, ctx):
-      """
-      Displays every unverified member that has been in the server for more than 10 hours.
-      """
+    # @commands.group(invoke_without_command=True)
+    # @checks.has_permissions(PermissionLevel.MOD)
+    # @trigger_typing
+    # @commands.cooldown(1, 10, BucketType.user)
+    # async def rules(self, ctx):
+    #   """
+    #   Displays every unverified member that has been in the server for more than 10 hours.
+    #   """
 
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
-      count = 0
-      message = ""
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   count = 0
+    #   message = ""
 
 
-      for member in ctx.guild.members:
-        if member.bot == False and role not in member.roles:
+    #   for member in ctx.guild.members:
+    #     if member.bot == False and role not in member.roles:
 
-          today = discord.utils.utcnow()
-          delta = int(((today - member.joined_at).total_seconds())/3600)
+    #       today = discord.utils.utcnow()
+    #       delta = int(((today - member.joined_at).total_seconds())/3600)
           
-          if delta >= 10:
-            message += f"{member.mention} - `{delta} hours ago`\n"
-            count += 1
+    #       if delta >= 10:
+    #         message += f"{member.mention} - `{delta} hours ago`\n"
+    #         count += 1
         
-      if count > 0:
-        top_message = "Every unverified member that has been in the server for more than 10h, use **!rules kick** to kick them."
-        await ctx.send(top_message)
-        await ctx.send(message)
-      else:
-        top_message = "There are no unverified members that have been in the server for more than 10 hours."
-        await ctx.send(top_message)
+    #   if count > 0:
+    #     top_message = "Every unverified member that has been in the server for more than 10h, use **!rules kick** to kick them."
+    #     await ctx.send(top_message)
+    #     await ctx.send(message)
+    #   else:
+    #     top_message = "There are no unverified members that have been in the server for more than 10 hours."
+    #     await ctx.send(top_message)
       
 
-    @rules.command(name="kick")
-    @checks.has_permissions(PermissionLevel.MOD)
-    @trigger_typing
-    @commands.cooldown(1, 120, BucketType.guild)
-    async def rules_kick(self, ctx):
-      """
-      Kicks every unverified member that has been in the server for more than 10 hours.
-      """
+    # @rules.command(name="kick")
+    # @checks.has_permissions(PermissionLevel.MOD)
+    # @trigger_typing
+    # @commands.cooldown(1, 120, BucketType.guild)
+    # async def rules_kick(self, ctx):
+    #   """
+    #   Kicks every unverified member that has been in the server for more than 10 hours.
+    #   """
 
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
-      count = 0
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   count = 0
       
-      for member in ctx.guild.members:
-        if member.bot == False and role not in member.roles:
+    #   for member in ctx.guild.members:
+    #     if member.bot == False and role not in member.roles:
 
-          today = discord.utils.utcnow()
-          delta = int(((today - member.joined_at).total_seconds())/3600)
+    #       today = discord.utils.utcnow()
+    #       delta = int(((today - member.joined_at).total_seconds())/3600)
 
-          if delta >= 10:
+    #       if delta >= 10:
 
-            try:
-                await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
-            except discord.Forbidden:
-                pass
-            await member.kick(reason="Didn't verify")
-            count += 1
+    #         try:
+    #             await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
+    #         except discord.Forbidden:
+    #             pass
+    #         await member.kick(reason="Didn't verify")
+    #         count += 1
 
-      if count == 1:
-        await ctx.channel.send(f"Kicked {count} unverified member.")
-      else:
-        await ctx.channel.send(f"Kicked {count} unverified members.")
+    #   if count == 1:
+    #     await ctx.channel.send(f"Kicked {count} unverified member.")
+    #   else:
+    #     await ctx.channel.send(f"Kicked {count} unverified members.")
 
 
-    @rules.command(name="kick-all")
-    @checks.has_permissions(PermissionLevel.MOD)
-    @trigger_typing
-    @commands.cooldown(1, 600, BucketType.guild)
-    async def rules_kick_all(self, ctx):
-      """
-      Kicks every unverified member.
-      """
+    # @rules.command(name="kick-all")
+    # @checks.has_permissions(PermissionLevel.MOD)
+    # @trigger_typing
+    # @commands.cooldown(1, 600, BucketType.guild)
+    # async def rules_kick_all(self, ctx):
+    #   """
+    #   Kicks every unverified member.
+    #   """
 
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
-      count = 0
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   count = 0
       
-      for member in ctx.guild.members:
-        if member.bot == False and role not in member.roles:
-            try:
-                await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
-            except discord.Forbidden:
-                pass
-            await member.kick(reason="Didn't verify (kick-all)")
-            count += 1
+    #   for member in ctx.guild.members:
+    #     if member.bot == False and role not in member.roles:
+    #         try:
+    #             await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
+    #         except discord.Forbidden:
+    #             pass
+    #         await member.kick(reason="Didn't verify (kick-all)")
+    #         count += 1
 
-      if count == 1:
-        await ctx.channel.send(f"Kicked {count} unverified member.")
-      else:
-        await ctx.channel.send(f"Kicked {count} unverified members.")
+    #   if count == 1:
+    #     await ctx.channel.send(f"Kicked {count} unverified member.")
+    #   else:
+    #     await ctx.channel.send(f"Kicked {count} unverified members.")
 
-    @rules.command(name="user")
-    @checks.has_permissions(PermissionLevel.MOD)
-    @trigger_typing
-    @commands.cooldown(1, 10, BucketType.guild)
-    async def rules_user(self, ctx, member: discord.Member):
-      """
-      Kicks a specific unverified member.
-      """
+    # @rules.command(name="user")
+    # @checks.has_permissions(PermissionLevel.MOD)
+    # @trigger_typing
+    # @commands.cooldown(1, 10, BucketType.guild)
+    # async def rules_user(self, ctx, member: discord.Member):
+    #   """
+    #   Kicks a specific unverified member.
+    #   """
 
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
 
-      if member.bot == False and role not in member.roles:
-        try:
-            await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
-        except discord.Forbidden:
-            pass
-        await member.kick(reason="Didn't verify (user)")
+    #   if member.bot == False and role not in member.roles:
+    #     try:
+    #         await member.send(f"Didn't verify | Join again using this invite discord.gg/HWEc5bwJJC <:bearheart2:779833250649997313>")
+    #     except discord.Forbidden:
+    #         pass
+    #     await member.kick(reason="Didn't verify (user)")
 
-      await ctx.send(f"Kicked {member}")
-
-
-    @rules.command(name="ban-all")
-    @checks.has_permissions(PermissionLevel.ADMIN)
-    @trigger_typing
-    @commands.cooldown(1, 600, BucketType.guild)
-    async def rules_ban(self, ctx):
-      """
-      Bans every unverified member.
-      """
-
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
-      count = 0
-
-      for member in ctx.guild.members:
-        if member.bot == False and role not in member.roles:
-            await member.ban(reason="Mass-banned by the rules command.", delete_message_days=1)
-            count += 1
-
-      if count == 1:
-        await ctx.send(f"Banned {count} unverified member.")
-      else:
-        await ctx.send(f"Banned {count} unverified members.")
+    #   await ctx.send(f"Kicked {member}")
 
 
-    @rules.command(name="raw")
-    @checks.has_permissions(PermissionLevel.MOD)
-    @trigger_typing
-    @commands.cooldown(1, 10, BucketType.user)
-    async def rules_raw(self, ctx):
-      """
-      Displays a raw list of ID's for every unverified member that has been in the server for more than 10 hours.
-      """
+    # @rules.command(name="ban-all")
+    # @checks.has_permissions(PermissionLevel.ADMIN)
+    # @trigger_typing
+    # @commands.cooldown(1, 600, BucketType.guild)
+    # async def rules_ban(self, ctx):
+    #   """
+    #   Bans every unverified member.
+    #   """
 
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
-      message = "```\n"
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   count = 0
+
+    #   for member in ctx.guild.members:
+    #     if member.bot == False and role not in member.roles:
+    #         await member.ban(reason="Mass-banned by the rules command.", delete_message_days=1)
+    #         count += 1
+
+    #   if count == 1:
+    #     await ctx.send(f"Banned {count} unverified member.")
+    #   else:
+    #     await ctx.send(f"Banned {count} unverified members.")
 
 
-      for member in ctx.guild.members:
-        if member.bot == False and role not in member.roles:
+    # @rules.command(name="raw")
+    # @checks.has_permissions(PermissionLevel.MOD)
+    # @trigger_typing
+    # @commands.cooldown(1, 10, BucketType.user)
+    # async def rules_raw(self, ctx):
+    #   """
+    #   Displays a raw list of ID's for every unverified member that has been in the server for more than 10 hours.
+    #   """
 
-          today = discord.utils.utcnow()
-          delta = int(((today - member.joined_at).total_seconds())/3600)
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   message = "```\n"
 
-          if delta >= 10:
-            message += f"{member.id}\n"
 
-      message += "```"
-      await ctx.channel.send(message)
+    #   for member in ctx.guild.members:
+    #     if member.bot == False and role not in member.roles:
 
-    @rules.command(name="all")
-    @checks.has_permissions(PermissionLevel.MOD)
-    @trigger_typing
-    @commands.cooldown(1, 15, BucketType.user)
-    async def rules_all(self, ctx):
-      """
-      Displays every unverified member in the server.
-      """
+    #       today = discord.utils.utcnow()
+    #       delta = int(((today - member.joined_at).total_seconds())/3600)
 
-      role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
-      message = "Every unverified member in the server.\n\n"
+    #       if delta >= 10:
+    #         message += f"{member.id}\n"
 
-      for member in ctx.guild.members:
-        if member.bot == False and role not in member.roles:
+    #   message += "```"
+    #   await ctx.channel.send(message)
 
-          today = discord.utils.utcnow()
-          delta = int(((today - member.joined_at).total_seconds())/3600)
+    # @rules.command(name="all")
+    # @checks.has_permissions(PermissionLevel.MOD)
+    # @trigger_typing
+    # @commands.cooldown(1, 15, BucketType.user)
+    # async def rules_all(self, ctx):
+    #   """
+    #   Displays every unverified member in the server.
+    #   """
+
+    #   role = discord.utils.get(ctx.guild.roles, id=648641822431903784)  # change
+    #   message = "Every unverified member in the server.\n\n"
+
+    #   for member in ctx.guild.members:
+    #     if member.bot == False and role not in member.roles:
+
+    #       today = discord.utils.utcnow()
+    #       delta = int(((today - member.joined_at).total_seconds())/3600)
           
-          message += f"{member.mention} - `{delta} hours ago`\n"
-      await ctx.channel.send(message)
+    #       message += f"{member.mention} - `{delta} hours ago`\n"
+    #   await ctx.channel.send(message)
 
 
-    async def setup(bot):
-      await bot.add_cog(rules(bot))
+    # async def setup(bot):
+    #   await bot.add_cog(rules(bot))
 
 
 
@@ -4030,7 +4043,7 @@ class Modmail(commands.Cog):
     async def trickortreat(self, ctx):
       "Were you naughty or good this year?"
 
-      xmas = True
+      xmas = False
 
       colors = ["#f5624e", "#cc231e", "#34a660", "#0f8a5e", "#225e6e"]
       clr = random.choice(colors)
