@@ -2566,33 +2566,14 @@ class Modmail(commands.Cog):
       else:
         suggester = ctx.author.mention
       
-      first_msg = await ctx.send(f"The message will look like this, send it?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions.none())
+      first_msg = await ctx.send(f"Send the message?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions.none())
       await first_msg.add_reaction("<:aiko_success:965918214498443274>")
-      
-    #   def check(m):
-    #     return m.author == ctx.author and m.channel == ctx.channel
-      
-    #   try:
-    #     response = await self.bot.wait_for('message', check=check, timeout=30)
-    #   except:
-    #     await ctx.message.add_reaction("<:aiko_error:965918214171291659>")
-    #     ctx.command.reset_cooldown(ctx)
-    #     return
-
-    #   if response.content.lower() in ("yes", "y", "<:chibilapproval:818499768149999650>", "<:ddlcsayoricool:846778526740119625>", "ofc", "ye", "yeah", "yehs", "yesh", "mhm", "yea"):
-    #     msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹") 
-    #     await msg.add_reaction("<:aiko_1:965916655878291507>")
-    #     await msg.add_reaction("<:aiko_2:965916656536789052>")
-    #   else:
-    #     await ctx.send("Canceled.")
-    #     ctx.command.reset_cooldown(ctx)
-    #     return
 
       def check(reaction, user):
           return user == ctx.author and str(reaction.emoji) == "<:aiko_success:965918214498443274>"
       
       try:
-          await self.bot.wait_for('reaction_add', check=check, timeout=15)
+          await self.bot.wait_for('reaction_add', check=check, timeout=11)
       except:
         await ctx.reply("Canceled.")
         ctx.command.reset_cooldown(ctx)
