@@ -2567,8 +2567,7 @@ class Modmail(commands.Cog):
         suggester = ctx.author.mention
       
       first_msg = await ctx.send(f"The message will look like this, send it?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions.none())
-      first_msg.add_reaction("<:aiko_success:965918214498443274>")
-      first_msg.add_reaction("<:aiko_error:965918214171291659>")
+      await first_msg.add_reaction("<:aiko_success:965918214498443274>")
       
     #   def check(m):
     #     return m.author == ctx.author and m.channel == ctx.channel
