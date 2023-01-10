@@ -3621,13 +3621,13 @@ class Modmail(commands.Cog):
         members = ctx.guild.get_channel(976869277355356230)
         goal = ctx.guild.get_channel(749308698047807578)
 
-        emoji1 = "🎄"
-        emoji2 = "🎅"
+        emoji1 = "🐧"
+        emoji2 = "🌁"
         emoji3 = "⛄"
-        emoji4 = "🦌"
-        emoji5 = "🎁"
-        emoji6 = "🌟"
-        emoji7 = "🔔"
+        emoji4 = "🧣"
+        emoji5 = "🧤"
+        emoji6 = "🧊"
+        emoji7 = "🐻‍❄️"
         emoji8 = "🍪"
 
         msg = await ctx.send("Editing the server...")
@@ -3671,12 +3671,12 @@ class Modmail(commands.Cog):
         await asyncio.sleep(2)
         await calls_cat.edit(name=f"꒰ {emoji7} ꒱ calls ୨୧")
         await asyncio.sleep(2)
-        await partner_cat.edit(name=f"꒰ {emoji5} ꒱ partner ୨୧")
+        await partner_cat.edit(name=f"꒰ {emoji6} ꒱ partner ୨୧")
         await asyncio.sleep(2)
-        await stats_cat.edit(name=f"꒰ {emoji6} ꒱ stats ୨୧")
+        await stats_cat.edit(name=f"꒰ {emoji5} ꒱ stats ୨୧")
         await asyncio.sleep(2)
 
-        await staff_apps.edit(name=f"{emoji5}੭┆staff-apps！")
+        await staff_apps.edit(name=f"{emoji7}੭┆staff-apps！")
         await asyncio.sleep(2)
 
         await newbies.edit(name=f"୨{emoji7}ɞ﹕newbies")
@@ -3685,7 +3685,7 @@ class Modmail(commands.Cog):
         await asyncio.sleep(2)
         await rules.edit(name=f"{emoji1}┆rulesˊˎ")
         await asyncio.sleep(2)
-        await intros.edit(name=f"╭ʚ{emoji2}﹕intros")
+        await intros.edit(name=f"╭ʚ{emoji6}﹕intros")
         await asyncio.sleep(2)
         await roles.edit(name=f"{emoji4}੭┆roles・٩ˊᗜˋو")
         await asyncio.sleep(2)
@@ -3696,9 +3696,9 @@ class Modmail(commands.Cog):
         await asyncio.sleep(2)
         await mailbox.edit(name=f"╭ʚ{emoji1}﹕mailbox")
         await asyncio.sleep(2)
-        await meow.edit(name=f"{emoji4}੭┆meow！♡")
+        await meow.edit(name=f"{emoji7}੭┆meow！♡")
         await asyncio.sleep(2)
-        await bot_news.edit(name=f"╰ʚ{emoji7}﹕bot-news")
+        await bot_news.edit(name=f"╰ʚ{emoji4}﹕bot-news")
         await asyncio.sleep(2)
         await cookies.edit(name=f"{emoji6}┆cookies•₊°")
         await asyncio.sleep(2)
@@ -3707,26 +3707,26 @@ class Modmail(commands.Cog):
         await feedback.edit(name=f"{emoji3}┆feedback•₊°")
         await asyncio.sleep(2)
 
-        await main.edit(name=f"୨{emoji1}ɞ﹕jolly main")
+        await main.edit(name=f"୨{emoji2}ɞ﹕snowy main")
         await asyncio.sleep(2)
-        await media.edit(name=f"{emoji2}┆mediaˊˎ")
+        await media.edit(name=f"{emoji1}┆mediaˊˎ")
         await asyncio.sleep(2)
         await selfies.edit(name=f"{emoji3}┆selfiesˊˎ")
         await asyncio.sleep(2)
         await arts.edit(name=f"୨{emoji4}ɞ﹕arts")
         await asyncio.sleep(2)
-        await vent.edit(name=f"{emoji5}┆ventˊˎ")
+        await vent.edit(name=f"{emoji7}┆ventˊˎ")
         await asyncio.sleep(2)
 
-        await luna.edit(name=f"{emoji4}┆lunas-clubhouse•₊°")
+        await luna.edit(name=f"{emoji1}┆lunas-clubhouse•₊°")
         await asyncio.sleep(2)
         await promo.edit(name=f"୨{emoji3}ɞ﹕promo")
         await asyncio.sleep(2)
-        await count.edit(name=f"๑{emoji2}・123")
+        await count.edit(name=f"๑{emoji5}・123")
         await asyncio.sleep(2)
-        await spam.edit(name=f"{emoji5}┆spam•₊°")
+        await spam.edit(name=f"{emoji6}┆spam•₊°")
         await asyncio.sleep(2)
-        await bots.edit(name=f"๑{emoji1}・bots")
+        await bots.edit(name=f"๑{emoji2}・bots")
         await asyncio.sleep(2)
 
         await playlist.edit(name=f"{emoji1}┆playlist•₊°")
@@ -3735,9 +3735,9 @@ class Modmail(commands.Cog):
         await asyncio.sleep(2)
         await music.edit(name=f"꒰꒰ {emoji2} moosic")
         await asyncio.sleep(2)
-        await people2.edit(name=f"꒰꒰ {emoji4} 2 buddies :D")
+        await people2.edit(name=f"꒰꒰ {emoji7} 2 buddies :D")
         await asyncio.sleep(2)
-        await people3.edit(name=f"꒰꒰ {emoji5} 3 buddies :D")
+        await people3.edit(name=f"꒰꒰ {emoji6} 3 buddies :D")
         await asyncio.sleep(2)
 
         await req.edit(name=f"╭ʚ{emoji1}﹕req")
@@ -3747,7 +3747,7 @@ class Modmail(commands.Cog):
 
         await members.edit(name=f"꒰꒰ {emoji3} members: 750")
         await asyncio.sleep(2)
-        await goal.edit(name=f"꒰꒰ {emoji4} goal: 850")
+        await goal.edit(name=f"꒰꒰ {emoji6} goal: 850")
 
         await msg.edit(content="Finished editing the server!")
 
@@ -4370,4 +4370,3 @@ class Modmail(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Modmail(bot))
-
