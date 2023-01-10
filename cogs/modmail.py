@@ -2576,6 +2576,10 @@ class Modmail(commands.Cog):
           msg = await wyr_channel.send(wyr_msg, allowed_mentions=discord.AllowedMentions(everyone=False, users=False)) 
           await msg.add_reaction("<:aiko_1:965916655878291507>")
           await msg.add_reaction("<:aiko_2:965916656536789052>")
+          
+          rng = random.randint(1, 5)
+          if rng == 1:
+              await wyr_channel.send("*Don't forget you can suggest future wyr's in <#1049763674086178846>!*")
 
     async def setup(bot):
       await bot.add_cog(wyr(bot))
