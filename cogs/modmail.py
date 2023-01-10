@@ -2573,7 +2573,7 @@ class Modmail(commands.Cog):
         ctx.command.reset_cooldown(ctx)
         return
       else:
-          msg = await wyr_channel.send(wyr_msg, allowed_mentions=discord.AllowedMentions(everyone=False)) 
+          msg = await wyr_channel.send(wyr_msg, allowed_mentions=discord.AllowedMentions(everyone=False, users=False)) 
           await msg.add_reaction("<:aiko_1:965916655878291507>")
           await msg.add_reaction("<:aiko_2:965916656536789052>")
 
