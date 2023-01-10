@@ -2543,43 +2543,37 @@ class Modmail(commands.Cog):
     @commands.command(usage="[option 1] [option 2] (suggester)")
     @checks.has_permissions(PermissionLevel.MOD)
     @commands.cooldown(2, 36000, BucketType.guild)
-    async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = "None"):
+    async def wyr(self, ctx, choice1, choice2, suggester: discord.Member = None):
       """
       A would you rather command, separate the choices with "".
-
-      Template:
-      <a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by [user])*
-
-      <a:1arrow:801122446874509352> ⋆ **Option 1**
-      <a:1arrow:801122446874509352> ⋆ **Option 2**
-
-      ⊹ ─── ⊹ ─── ⊹ ─── <@&760529762450931718> ─── ⊹ ─── ⊹ ─── ⊹
       """
 
       wyr_channel = self.bot.get_channel(1000806786447720548) # change
       choice1 = choice1.capitalize()
       choice2 = choice2.capitalize()
 
-      if suggester != "None":
+      if suggester != None:
         suggester = self.bot.guild.get_member(suggester.id)
         suggester = suggester.mention
       else:
         suggester = ctx.author.mention
+        
+      wyr_msg = f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹"
       
-      first_msg = await ctx.send(f"Send the message?\n\n<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **[events]** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions.none())
+      first_msg = await ctx.send(f"Send the message?\n\n{wyr_msg}", allowed_mentions=discord.AllowedMentions.none())
       await first_msg.add_reaction("<:aiko_success:965918214498443274>")
 
       def check(reaction, user):
           return user == ctx.author and str(reaction.emoji) == "<:aiko_success:965918214498443274>"
       
       try:
-          await self.bot.wait_for('reaction_add', check=check, timeout=11)
+          await self.bot.wait_for('reaction_add', check=check, timeout=10)
       except:
         await ctx.reply("Canceled.")
         ctx.command.reset_cooldown(ctx)
         return
       else:
-          msg = await wyr_channel.send(f"<a:1whiteheart:801122446966128670> ⋆ Would you rather... *(by {suggester})*\n\n<a:1arrow:801122446874509352> ⋆ **{choice1}**\n<a:1arrow:801122446874509352> ⋆ **{choice2}**\n\n⊹ ─── ⊹ ─── ⊹ ─── **<@&760529762450931718>** ─── ⊹ ─── ⊹ ─── ⊹", allowed_mentions=discord.AllowedMentions(everyone=False)) 
+          msg = await wyr_channel.send(wyr_msg, allowed_mentions=discord.AllowedMentions(everyone=False)) 
           await msg.add_reaction("<:aiko_1:965916655878291507>")
           await msg.add_reaction("<:aiko_2:965916656536789052>")
 
