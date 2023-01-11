@@ -751,7 +751,7 @@ class Modmail(commands.Cog):
             username += entry["recipient"]["discriminator"]
 
             embed = discord.Embed(color=self.bot.main_color, timestamp=created_at)
-            embed.set_author(name=f"{title} - {username}", icon_url=avatar_url.url, url=log_url)
+            embed.set_author(name=f"{title} - {username}", icon_url=avatar_url, url=log_url)
             embed.url = log_url
             embed.add_field(name="Created", value=human_timedelta(created_at))
             closer = entry.get("closer")
