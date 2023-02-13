@@ -14,6 +14,7 @@ from subprocess import PIPE
 from textwrap import indent
 from types import SimpleNamespace
 from typing import Union
+import time
 
 import discord
 from aiohttp import ClientResponseError
@@ -601,7 +602,10 @@ class Utility(commands.Cog):
     async def ping(self, ctx):
         """Pong! Returns latency."""
 
-        return await ctx.send(f"Pong! {self.bot.ws.latency * 1000:.2f} ms")
+        before = time.monotonic()
+        message = await ctx.send("Ping?:tm:")
+        ping = (time.monotonic() - before) * 1000
+        await message.edit(content=f"Pong!:tm: `{int(ping)}ms`")
 
     @commands.command()
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
