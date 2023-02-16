@@ -4127,22 +4127,22 @@ class Modmail(commands.Cog):
         await member.send("Your nickname was changed for containing a banned word/being inappropriate, please give yourself a nickname that follows our <#760498694323044362>.")
 
 
-      member_name = member.name
+    #   member_name = member.name
 
         
-      if re.search("[\s]", member_name) and member.guild.id == 641449164328140802:
+    #   if re.search("[\s]", member_name) and member.guild.id == 641449164328140802:
 
-        member_name = urllib.parse.quote(member_name)
-        welc_channel = self.bot.get_channel(641449164328140806)  # change
-        avatar = member.avatar.replace(static_format='png', size=1024)
+    #     member_name = urllib.parse.quote(member_name)
+    #     welc_channel = self.bot.get_channel(641449164328140806)  # change
+    #     avatar = member.avatar.replace(static_format='png', size=1024)
 
 
-        embed = discord.Embed(color=discord.Color(0xfbfbfb), description="Make sure you read our <#760498694323044362> and get some <#760500989614227496>! <:ddlcsayoricool:846778526740119625>")
+    #     embed = discord.Embed(color=discord.Color(0xfbfbfb), description="Make sure you read our <#760498694323044362> and get some <#760500989614227496>! <:ddlcsayoricool:846778526740119625>")
 
-        embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
+    #     embed.set_image(url=f"https://some-random-api.ml/welcome/img/1/stars?key=693eX9zNKHuOHeqmF8TamCzlc&username={member_name}&discriminator={member.discriminator}&avatar={avatar}&type=join&guildName=%F0%9F%8C%BC%E3%83%BBkewl%20%E0%B7%86&textcolor=white&memberCount=111")
 
-        await asyncio.sleep(60)
-        await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
+    #     await asyncio.sleep(60)
+    #     await welc_channel.send(content=f"<@&788088273943658576> get over here and welcome {member.mention}! <a:imhere:807773634097709057>", embed=embed)
 
     async def setup(bot):
       await bot.add_cog(Welcomer(bot))
@@ -4156,35 +4156,35 @@ class Modmail(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
 
-        meow = 808786532173480036  # change
-        if message.channel.id == meow and re.search("(\.png|\.jpg|\.jpeg|\.gif|\.mov|\.mp4)", message.content) and not re.search("(809487761005346866|^\?|^\!)", message.content):
-            await message.publish()
+        # meow = 808786532173480036  # change
+        # if message.channel.id == meow and re.search("(\.png|\.jpg|\.jpeg|\.gif|\.mov|\.mp4)", message.content) and not re.search("(809487761005346866|^\?|^\!)", message.content):
+        #     await message.publish()
 
 
-        mailbox = self.bot.get_channel(646476610853273601) # change
+        # mailbox = self.bot.get_channel(646476610853273601) # change
 
-        if message.author.bot:
-            return
-        if re.search("(^!help$)|(865567515900248075> help$)", message.content):
-            await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
-        if re.search("(cute)", message.content):
-            await message.add_reaction("<:ddlcnatsukinou:641777411578396694>")
-        if re.search("(name)", message.content) and message.channel.id == 757681621171306676:
-            reactions = ["<a:bearquack:807233432160829472>", "<a:bunnypet:807756848286793778>", "<:c_wowiee:834557805171834880>", "<:catblushies7:834516662140665886>", "<:catblushies:728992066125692979>", "<:catblushies10:834528743715635220>", "<:cattolove:679847609619578924>", "<a:cc_cutebongo:792523864742559794>", "<a:cc_kittenhophop:807756847821094932>", "<:cc_kittenhearts:736648341311455314>", "<a:cc_kittenchuu:801489400298995732>", "<a:cc_kittenpatpat:807411928870944808>", "<:cc_kittyblushies:774734365154344972>", "<:cc_kittyheart:732250535943733327>", "<:chibiheart:800526569969942528>", "<:chibihihi:818515382720921672>", "<:chibilove:732250382507442219>", "<:chickhearts:779846329445908480>", "<:ddlcsayoriheart:743601377942700114>", "<a:kawaiihearts:770332490065248312>", "<:pikalovechu:780159990525722624>", "<:penguinflower:847103924750254080>", "<a:sugoi:807373099242094603>", "<a:uwu_wigglewiggle:807773634097053726>", "<a:wavE:779882812887138304>", "<a:yysmiley:800460720176496690>", "<a:yy_omgomg:807756847896985612>", "<a:yycheer:834543109983174676>"]
-            react = random.choice(reactions)
-            await message.add_reaction(react)
-        if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:    # change
-            await message.channel.send(f"{message.author.mention} to verify send **?verify**", delete_after=15)
-        if re.search("(how)(.*)(report)", message.content):
-            await message.channel.send(f"Hey {message.author.mention}! Please DM me if you're looking to report another member! <:chibilapproval:818499768149999650>")
+        # if message.author.bot:
+        #     return
+        # if re.search("(^!help$)|(865567515900248075> help$)", message.content):
+        #     await message.channel.send(f"{message.author.mention} You can't use that command, use `!commands` instead!")
+        # if re.search("(cute)", message.content):
+        #     await message.add_reaction("<:ddlcnatsukinou:641777411578396694>")
+        # if re.search("(name)", message.content) and message.channel.id == 757681621171306676:
+        #     reactions = ["<a:bearquack:807233432160829472>", "<a:bunnypet:807756848286793778>", "<:c_wowiee:834557805171834880>", "<:catblushies7:834516662140665886>", "<:catblushies:728992066125692979>", "<:catblushies10:834528743715635220>", "<:cattolove:679847609619578924>", "<a:cc_cutebongo:792523864742559794>", "<a:cc_kittenhophop:807756847821094932>", "<:cc_kittenhearts:736648341311455314>", "<a:cc_kittenchuu:801489400298995732>", "<a:cc_kittenpatpat:807411928870944808>", "<:cc_kittyblushies:774734365154344972>", "<:cc_kittyheart:732250535943733327>", "<:chibiheart:800526569969942528>", "<:chibihihi:818515382720921672>", "<:chibilove:732250382507442219>", "<:chickhearts:779846329445908480>", "<:ddlcsayoriheart:743601377942700114>", "<a:kawaiihearts:770332490065248312>", "<:pikalovechu:780159990525722624>", "<:penguinflower:847103924750254080>", "<a:sugoi:807373099242094603>", "<a:uwu_wigglewiggle:807773634097053726>", "<a:wavE:779882812887138304>", "<a:yysmiley:800460720176496690>", "<a:yy_omgomg:807756847896985612>", "<a:yycheer:834543109983174676>"]
+        #     react = random.choice(reactions)
+        #     await message.add_reaction(react)
+        # if re.search("^(?!.*(\?verify))", message.content) and message.channel.id == 950180899310428280:    # change
+        #     await message.channel.send(f"{message.author.mention} to verify send **?verify**", delete_after=15)
+        # if re.search("(how)(.*)(report)", message.content):
+        #     await message.channel.send(f"Hey {message.author.mention}! Please DM me if you're looking to report another member! <:chibilapproval:818499768149999650>")
 
 
-        if message.type == discord.MessageType.premium_guild_subscription and message.channel.id == 641449164328140806: # change
-            embed=discord.Embed(description=f"**・ʚ ₊˚୨ Boosting Perks!**\n\n**1 boost:**\n・A **hoisted** role all boosters get!\n・**Image/Embed** perms!\n・Perms to **post** in <#769582489421217822>!\n・**Every** color from <#760159326693752879>!\n・One **free background** for the /rank command!\n・**7k cookies** for <@493716749342998541> every week!\n\n**2 boosts:**\n・The **previous** perks!\n・**2 free levels**!\n・**Another free background** for the </rank:981143682495434775> command!\n・A **custom role** and you'll be able to **change its color**!\n\n**2 boosts for at least a month:**\n・**All The previous** perks!\n・A **role icon** for your custom role!\n・You can **promote** something in <#646476610853273601> *or* have your **Twitch/Youtube streams/videos** get automatically announced in <#769582489421217822>!", color=self.bot.main_color)
-            embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
-            embed.set_footer(text="DM me to claim your perks!")
-            msg = await mailbox.send(f"**{message.author.mention} Thank you for boosting {message.guild}! We now have **{message.guild.premium_subscription_count}** boosts! <a:catvibing:807759270980485139>**", embed=embed)
-            await msg.add_reaction("<a:kawaiihearts:770332490065248312>")
+        # if message.type == discord.MessageType.premium_guild_subscription and message.channel.id == 641449164328140806: # change
+        #     embed=discord.Embed(description=f"**・ʚ ₊˚୨ Boosting Perks!**\n\n**1 boost:**\n・A **hoisted** role all boosters get!\n・**Image/Embed** perms!\n・Perms to **post** in <#769582489421217822>!\n・**Every** color from <#760159326693752879>!\n・One **free background** for the /rank command!\n・**7k cookies** for <@493716749342998541> every week!\n\n**2 boosts:**\n・The **previous** perks!\n・**2 free levels**!\n・**Another free background** for the </rank:981143682495434775> command!\n・A **custom role** and you'll be able to **change its color**!\n\n**2 boosts for at least a month:**\n・**All The previous** perks!\n・A **role icon** for your custom role!\n・You can **promote** something in <#646476610853273601> *or* have your **Twitch/Youtube streams/videos** get automatically announced in <#769582489421217822>!", color=self.bot.main_color)
+        #     embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/818590415179218994.webp?size=96&quality=lossless")
+        #     embed.set_footer(text="DM me to claim your perks!")
+        #     msg = await mailbox.send(f"**{message.author.mention} Thank you for boosting {message.guild}! We now have **{message.guild.premium_subscription_count}** boosts! <a:catvibing:807759270980485139>**", embed=embed)
+        #     await msg.add_reaction("<a:kawaiihearts:770332490065248312>")
 
         if re.search("(discord.gg/)", message.content) and message.channel.id == 651753340623126538: # change
 
