@@ -3566,7 +3566,7 @@ class Modmail(commands.Cog):
     @commands.command(aliases=["retheme"], usage="(server icon)")
     @checks.has_permissions(PermissionLevel.ADMIN)
     @commands.cooldown(1, 3600, BucketType.guild)
-    async def theme(self, ctx, icon: str|None):
+    async def theme(self, ctx, icon: str = None):
         """
         Change the channel names based on the pre-selected theme (this won't change private cateogries and some other channels).
         """
