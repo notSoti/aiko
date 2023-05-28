@@ -3566,7 +3566,7 @@ class Modmail(commands.Cog):
     @commands.command(aliases=["retheme"], usage="(server icon)")
     @checks.has_permissions(PermissionLevel.ADMIN)
     @commands.cooldown(1, 3600, BucketType.guild)
-    async def theme(self, ctx, icon=str|None):
+    async def theme(self, ctx, icon: str|None):
         """
         Change the channel names based on the pre-selected theme (this won't change private cateogries and some other channels).
         """
@@ -3601,7 +3601,7 @@ class Modmail(commands.Cog):
         arts = ctx.guild.get_channel(703757494949773403)
         vent = ctx.guild.get_channel(683780684007079981)
 
-        luna = ctx.guild.get_channel(1037427013847351388)
+        nyanko = ctx.guild.get_channel(1112459313257136138)
         promo = ctx.guild.get_channel(769582489421217822)
         count = ctx.guild.get_channel(653055287510433824)
         bots = ctx.guild.get_channel(949772478937440346)
@@ -3714,7 +3714,7 @@ class Modmail(commands.Cog):
         await vent.edit(name=f"{emoji7}┆ventˊˎ")
 
 
-        await luna.edit(name=f"{emoji4}┆lunas-clubhouse•₊°")
+        await nyanko.edit(name=f"{emoji4}┆lunas-clubhouse•₊°")
         
         await bots.edit(name=f"๑{emoji3}・bots")
 
