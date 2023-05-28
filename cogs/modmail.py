@@ -3714,7 +3714,7 @@ class Modmail(commands.Cog):
         await vent.edit(name=f"{emoji7}┆ventˊˎ")
 
 
-        await nyanko.edit(name=f"{emoji4}┆lunas-clubhouse•₊°")
+        await nyanko.edit(name=f"{emoji4}┆nyankos-house•₊°")
         
         await bots.edit(name=f"๑{emoji3}・bots")
 
