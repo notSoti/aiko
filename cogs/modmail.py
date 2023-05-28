@@ -2289,7 +2289,7 @@ class Modmail(commands.Cog):
         """
 
         try:
-            await self.bot.get_guild(guild_id).leave()
+            guild = await self.bot.get_guild(guild_id).leave()
             await ctx.send(f"Left `{guild}` ({guild.id})")
             await ctx.message.add_reaction("<:aiko_success:965918214498443274>")
             return
@@ -3563,10 +3563,10 @@ class Modmail(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.command(aliases=["retheme"], usage="[emoji] (server icon)")
+    @commands.command(aliases=["retheme"], usage="(server icon)")
     @checks.has_permissions(PermissionLevel.ADMIN)
     @commands.cooldown(1, 3600, BucketType.guild)
-    async def theme(self, ctx, emoji:str, icon=None):
+    async def theme(self, ctx, icon=str|None):
         """
         Change the channel names based on the pre-selected theme (this won't change private cateogries and some other channels).
         """
@@ -3591,7 +3591,6 @@ class Modmail(commands.Cog):
         info = ctx.guild.get_channel(741835235737731083)
         mailbox = ctx.guild.get_channel(646476610853273601)
         meow = ctx.guild.get_channel(808786532173480036)
-        bot_news = ctx.guild.get_channel(750476824433262674)
         cookies = ctx.guild.get_channel(741428273191583854)
         wyr = ctx.guild.get_channel(1000806786447720548)
         feedback = ctx.guild.get_channel(1049763674086178846)
@@ -3605,7 +3604,6 @@ class Modmail(commands.Cog):
         luna = ctx.guild.get_channel(1037427013847351388)
         promo = ctx.guild.get_channel(769582489421217822)
         count = ctx.guild.get_channel(653055287510433824)
-        spam = ctx.guild.get_channel(641777941818245160)
         bots = ctx.guild.get_channel(949772478937440346)
 
         playlist = ctx.guild.get_channel(1049750360278962216)
@@ -3620,21 +3618,21 @@ class Modmail(commands.Cog):
         members = ctx.guild.get_channel(976869277355356230)
         goal = ctx.guild.get_channel(749308698047807578)
 
-        emoji1 = "🦢"
-        emoji2 = "🌼"
-        emoji3 = "🌷"
-        emoji4 = "🌸"
-        emoji5 = "🌿"
-        emoji6 = "🌳"
-        emoji7 = "🍀"
-        emoji8 = "🌞"
+        emoji1 = "🌴"
+        emoji2 = "🌊"
+        emoji3 = "🍹"
+        emoji4 = "🍉"
+        emoji5 = "🐚"
+        emoji6 = "🥥"
+        emoji7 = "⛵"
+        emoji8 = "🍍"
 
         msg = await ctx.send("Editing the server...")
         
         before = time.monotonic()
 
         try:
-            await ctx.guild.edit(name=f"{emoji}・kewl ෆ")
+            await ctx.guild.edit(name=f"{emoji1}・kewl ෆ")
         except:
             await ctx.send("Something went wrong while trying to update the server's name.")
             ctx.command.reset_cooldown(ctx)
@@ -3660,85 +3658,80 @@ class Modmail(commands.Cog):
                         data = io.BytesIO(await resp.read())
                         icon = data.read()
                         await ctx.guild.edit(icon=icon)
-                        await asyncio.sleep(3)
 
         await hello_cat.edit(name=f"꒰ {emoji3} ꒱ helloo! ୨୧")
 
-        await com_cat.edit(name=f"꒰ {emoji2} ꒱ community ୨୧")
+        await com_cat.edit(name=f"꒰ {emoji4} ꒱ community ୨୧")
 
         await general_cat.edit(name=f"꒰ {emoji1} ꒱ general ୨୧")
 
-        await play_cat.edit(name=f"꒰ {emoji4} ꒱ playground ୨୧")
+        await play_cat.edit(name=f"꒰ {emoji2} ꒱ playground ୨୧")
 
-        await calls_cat.edit(name=f"꒰ {emoji7} ꒱ calls ୨୧")
+        await calls_cat.edit(name=f"꒰ {emoji5} ꒱ calls ୨୧")
 
-        await partner_cat.edit(name=f"꒰ {emoji6} ꒱ partner ୨୧")
+        await partner_cat.edit(name=f"꒰ {emoji7} ꒱ partner ୨୧")
 
         await stats_cat.edit(name=f"꒰ {emoji8} ꒱ stats ୨୧")
 
 
-        await staff_apps.edit(name=f"{emoji5}੭┆staff-apps！")
+        await staff_apps.edit(name=f"{emoji4}੭┆staff-apps！")
 
 
-        await newbies.edit(name=f"୨{emoji3}ɞ﹕newbies")
+        await newbies.edit(name=f"୨{emoji4}ɞ﹕newbies")
 
         await rules_fake.edit(name=f"{emoji1}┆rules-ˊˎ")
 
         await rules.edit(name=f"{emoji1}┆rulesˊˎ")
 
-        await intros.edit(name=f"╭ʚ{emoji2}﹕intros")
+        await intros.edit(name=f"╭ʚ{emoji7}﹕intros")
 
-        await roles.edit(name=f"{emoji4}੭┆roles・٩ˊᗜˋو")
+        await roles.edit(name=f"{emoji2}੭┆roles・٩ˊᗜˋو")
 
-        await crayons.edit(name=f"╰ʚ{emoji6}﹕crayons")
+        await crayons.edit(name=f"╰ʚ{emoji5}﹕crayons")
 
 
-        await info.edit(name=f"๑{emoji2}・info")
+        await info.edit(name=f"๑{emoji3}・info")
 
         await mailbox.edit(name=f"╭ʚ{emoji1}﹕mailbox")
 
-        await meow.edit(name=f"{emoji6}੭┆meow！♡")
+        await meow.edit(name=f"{emoji4}੭┆meow！♡")
 
-        #await bot_news.edit(name=f"╰ʚ{emoji4}﹕bot-news")
+        await cookies.edit(name=f"{emoji5}┆cookies•₊°")
 
-        await cookies.edit(name=f"{emoji4}┆cookies•₊°")
+        await wyr.edit(name=f"๑{emoji6}・wyr")
 
-        await wyr.edit(name=f"๑{emoji3}・wyr")
-
-        await feedback.edit(name=f"{emoji5}┆feedback•₊°")
+        await feedback.edit(name=f"{emoji7}┆feedback•₊°")
 
 
-        await main.edit(name=f"୨{emoji2}ɞ﹕blossoming main")
+        await main.edit(name=f"୨{emoji3}ɞ﹕sunburnt-main")
 
-        await media.edit(name=f"{emoji1}┆mediaˊˎ")
+        await media.edit(name=f"{emoji4}┆mediaˊˎ")
 
-        await selfies.edit(name=f"{emoji6}┆selfiesˊˎ")
+        await selfies.edit(name=f"{emoji1}┆selfiesˊˎ")
 
         await arts.edit(name=f"୨{emoji5}ɞ﹕arts")
 
-        await vent.edit(name=f"{emoji3}┆ventˊˎ")
+        await vent.edit(name=f"{emoji7}┆ventˊˎ")
 
 
-        await luna.edit(name=f"{emoji1}┆lunas-clubhouse•₊°")
+        await luna.edit(name=f"{emoji4}┆lunas-clubhouse•₊°")
         
-        await bots.edit(name=f"๑{emoji2}・bots")
+        await bots.edit(name=f"๑{emoji3}・bots")
 
-        await count.edit(name=f"๑{emoji6}・123")
+        await count.edit(name=f"๑{emoji1}・123")
 
         await promo.edit(name=f"୨{emoji5}ɞ﹕promo")
-
-        #await spam.edit(name=f"{emoji6}┆spam•₊°")
 
 
         await playlist.edit(name=f"{emoji1}┆playlist•₊°")
 
-        await chit_chat.edit(name=f"꒰꒰ {emoji5} chit chat")
+        await chit_chat.edit(name=f"꒰꒰ {emoji3} chit chat")
 
-        await music.edit(name=f"꒰꒰ {emoji2} moosic")
+        await music.edit(name=f"꒰꒰ {emoji4} moosic")
 
-        await people2.edit(name=f"꒰꒰ {emoji3} 2 buddies :D")
+        await people2.edit(name=f"꒰꒰ {emoji5} 2 buddies :D")
 
-        await people3.edit(name=f"꒰꒰ {emoji6} 3 buddies :D")
+        await people3.edit(name=f"꒰꒰ {emoji2} 3 buddies :D")
 
 
         await req.edit(name=f"╭ʚ{emoji1}﹕req")
@@ -3748,10 +3741,10 @@ class Modmail(commands.Cog):
 
         #await members.edit(name=f"꒰꒰ {emoji3} members: 750")
 
-        await goal.edit(name=f"꒰꒰ {emoji3} goal: 850")
+        await goal.edit(name=f"꒰꒰ {emoji4} goal: 850")
 
-        ping = (time.monotonic() - before)
-        await msg.edit(content=f"Finished editing the server in {int(ping)} seconds!")
+        total_time = (time.monotonic() - before)
+        await msg.edit(content=f"Finished editing the server in {int(total_time)} seconds!")
 
 
     @commands.group(invoke_without_command=True)
