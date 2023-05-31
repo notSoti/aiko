@@ -647,7 +647,7 @@ class ModmailBot(commands.Bot):
         self._started = True
         
     async def on_plugins_ready(self):
-        cogs_folder = f'{os.path.abspath(os.path.dirname(__file__))}/plugins/sotitheking/modules-master/cogs'
+        cogs_folder = f'{os.path.abspath(os.path.dirname(__file__))}/plugins/sotitheking/modmail-plugins/modules-master/cogs'
         for filename in os.listdir(cogs_folder):
             if filename.endswith('.py'):
                 try:
