@@ -645,18 +645,6 @@ class ModmailBot(commands.Bot):
         self.post_metadata.start()
         self.autoupdate.start()
         self._started = True
-        
-    async def on_plugins_ready(self):
-        cogs_folder = f'{os.path.abspath(os.path.dirname(__file__))}/plugins/sotitheking/modmail-plugins/modules-master/cogs'
-        for filename in os.listdir(cogs_folder):
-            if filename.endswith('.py'):
-                try:
-                    print(f'Path: {cogs_folder}')
-                    await self.bot.load_extension(f'cogs.{filename[:-3]}')
-                except Exception as e:
-                    print(f'Failed to load extension {filename[:-3]}\n{type(e).__name__}: {e}')
-                finally:
-                    continue
 
     async def convert_emoji(self, name: str) -> str:
         ctx = SimpleNamespace(bot=self, guild=self.modmail_guild)
